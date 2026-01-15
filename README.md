@@ -55,9 +55,56 @@ DentalFlow SaaS es una plataforma completa de gestión para clínicas dentales q
 - **Códigos de diagnóstico** con colores visuales
 - **Registro clínico** detallado por superficie
 
+### 🛡️ Seguridad y Control de Acceso (RBAC)
+- **Roles y Permisos Granulares**: Sistema basado en *Spatie Permission* adaptado para Multi-Tenancy.
+- **Roles por Clínica**: Los roles (Doctor, Asistente, Admin) existen de forma aislada dentro de cada clínica.
+- **Validación de Contexto**: Middleware personalizado que garantiza que los permisos se evalúen siempre bajo el contexto de la clínica actual.
+
 ---
 
 ## 🏗️ Arquitectura del Sistema
+
+### Seguridad y Middleware
+
+El sistema implementa una pila de middleware crítica para asegurar el aislamiento de datos entre tenants:
+
+1. **InitializeTenancyByDomain**: Identifica la clínica basada en el subdominio.
+2. **PreventAccessFromCentralDomains**: Bloquea acceso a funciones de tenant desde el dominio principal.
+3. **SyncSpatiePermissionsTeamId**: **(Custom)** Sincroniza el sistema de permisos de Spatie con el `clinic_id` actual.
+4. **SubstituteBindings**: Realiza el "Binding" de modelos (políticas) *después* de establecer el contexto de seguridad.
+
+Esta arquitectura previene fugas de información y asegura que un usuario con rol "Admin" en la Clínica A no tenga privilegios en la Clínica B.
+
+### Ciclo de Vida de una Petición (Request Lifecycle)
+
+```mermaid
+sequenceDiagram
+    participant User as Usuario
+    participant Nginx as Servidor Web
+    participant T_Mid as Middleware Tenancy
+    participant Auth as Laravel Auth
+    participant P_Mid as Middleware Permisos
+    participant Binder as Binding Modelos
+    participant App as Aplicación (App Panel)
+
+    User->>Nginx: GET alpha.dentalflow.com/app/patients
+    Nginx->>T_Mid: Identifica Subdominio (alpha)
+    T_Mid->>T_Mid: Inicializa Tenant Context
+    T_Mid->>Auth: Verifica Sesión
+    Auth->>P_Mid: Usuario Autenticado
+    
+    rect rgb(20, 20, 20)
+        note right of P_Mid: 🛡️ Critical Security Step
+        P_Mid->>P_Mid: Detecta Tenant ID
+        P_Mid->>P_Mid: Sincroniza Scope Spatie
+        P_Mid->>P_Mid: Limpia Caché Permisos User
+    end
+    
+    P_Mid->>Binder: Ejecuta Policies (canViewAny)
+    Binder->>Binder: Verifica Permisos con Scope Correcto
+    Binder->>App: Acceso Concedido
+    App->>User: Retorna Vista Pacientes
+```
 
 ### Diagrama de Componentes
 
@@ -498,6 +545,8 @@ flowchart TD
 ---
 
 ## 🗄️ Estructura de Base de Datos
+
+> **Nota Técnica**: Todas las tablas principales utilizan `clinic_id` (o `tenant_id` dependiendo del contexto) como llave foránea para garantizar el aislamiento ("Tenant Scope"). Las consultas son filtradas automáticamente por `Stancl\Tenancy` o scopes globales de Filament.
 
 ### Tablas Principales
 

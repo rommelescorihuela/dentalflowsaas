@@ -11,11 +11,28 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Notifications\Notifiable;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements HasTenants
+
+use Filament\Models\Contracts\FilamentUser;
+
+class User extends Authenticatable implements HasTenants, FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, BelongsToTenant;
+    use HasFactory, Notifiable, BelongsToTenant, HasRoles;
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        if ($panel->getId() === 'admin') {
+            return $this->tenant_id === null || $this->hasRole('super-admin');
+        }
+
+        if ($panel->getId() === 'app') {
+            return $this->tenant_id !== null;
+        }
+
+        return true;
+    }
 
     public function getTenants(Panel $panel): Collection
     {
@@ -41,6 +58,7 @@ class User extends Authenticatable implements HasTenants
         'name',
         'email',
         'password',
+        'tenant_id',
     ];
 
     /**

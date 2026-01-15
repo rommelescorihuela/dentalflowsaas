@@ -50,11 +50,15 @@ class AppPanelProvider extends PanelProvider
                 AuthenticateSession::class,
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
+                \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
+                \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
+                \App\Http\Middleware\SyncSpatiePermissionsTeamId::class,
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-                \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
-                \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
+            ])
+            ->plugins([
+                // Shield removed - using custom role management
             ])
             ->authMiddleware([
                 Authenticate::class,
