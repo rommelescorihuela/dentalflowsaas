@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Filament\Resources\Roles;
+namespace App\Filament\App\Resources\Roles;
 
-use App\Filament\Resources\Roles\Pages\CreateRole;
-use App\Filament\Resources\Roles\Pages\EditRole;
-use App\Filament\Resources\Roles\Pages\ListRoles;
-use App\Filament\Resources\Roles\Schemas\RoleForm;
-use App\Filament\Resources\Roles\Tables\RolesTable;
+use App\Filament\App\Resources\Roles\Pages\CreateRole;
+use App\Filament\App\Resources\Roles\Pages\EditRole;
+use App\Filament\App\Resources\Roles\Pages\ListRoles;
+use App\Filament\App\Resources\Roles\Schemas\RoleForm;
+use App\Filament\App\Resources\Roles\Tables\RolesTable;
 use App\Models\Role;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -65,8 +65,10 @@ class RoleResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
-        // Admin panel only shows global roles (clinic_id is null)
-        $query->whereNull('clinic_id');
+        // Filter roles to only show those belonging to the current tenant
+        if ($tenant = \Filament\Facades\Filament::getTenant()) {
+            $query->where('clinic_id', $tenant->id);
+        }
 
         return $query;
     }

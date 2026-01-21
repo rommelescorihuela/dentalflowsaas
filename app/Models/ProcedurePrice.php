@@ -2,28 +2,28 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
-class Patient extends Model
+class ProcedurePrice extends Model
 {
     use HasFactory, BelongsToTenant;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'procedure_name',
+        'price',
+        'duration',
+        'image_path',
+        'description',
+    ];
 
     protected $casts = [
-        'medical_history' => 'array',
-        'allergies' => 'array',
+        'price' => 'decimal:2',
     ];
 
     public function clinic()
     {
         return $this->tenant();
-    }
-
-    public function odontograms()
-    {
-        return $this->hasMany(Odontogram::class);
     }
 }

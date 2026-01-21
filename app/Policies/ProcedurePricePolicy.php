@@ -2,10 +2,10 @@
 
 namespace App\Policies;
 
-use App\Models\Budget;
+use App\Models\ProcedurePrice;
 use App\Models\User;
 
-class BudgetPolicy
+class ProcedurePricePolicy
 {
     use \App\Traits\HasSpatiePermissions;
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Roles\Schemas;
+namespace App\Filament\App\Resources\Roles\Schemas;
 
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -21,15 +21,14 @@ class RoleForm
                             ->label('Role Name')
                             ->required()
                             ->unique(ignoreRecord: true)
-                            ->helperText('e.g., super_admin, global_manager'),
+                            ->helperText('e.g., doctor, receptionist, assistant'),
 
-                        Select::make('clinic_id')
-                            ->label('Clinic (Leave empty for global role)')
-                            ->relationship('clinic', 'name')
-                            ->searchable()
-                            ->preload()
-                            ->nullable()
-                            ->helperText('Leave empty to create a global role'),
+                        TextInput::make('clinic_id')
+                            ->label('Clinic')
+                            ->default(fn() => \Filament\Facades\Filament::getTenant()?->id)
+                            ->disabled()
+                            ->dehydrated()
+                            ->helperText('Automatically set to current clinic'),
 
                         TextInput::make('guard_name')
                             ->label('Guard')

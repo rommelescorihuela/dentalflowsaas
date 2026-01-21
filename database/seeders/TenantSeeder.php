@@ -12,35 +12,43 @@ class TenantSeeder extends Seeder
     public function run(): void
     {
         // Create Tenant 1
-        $clinic1 = Clinic::create([
-            'id' => 'clinic1',
+        $clinic1 = Clinic::firstOrCreate(['id' => 'clinic1'], [
             'name' => 'Clínica Dental Sonrisas',
             'data' => ['plan' => 'enterprise'], // Example data
         ]);
 
-        $clinic1->domains()->create(['domain' => 'clinic1.localhost']);
+        $clinic1->domains()->firstOrCreate(['domain' => 'clinic1.localhost']);
 
         // Create User for Tenant 1
-        User::create([
+        setPermissionsTeamId($clinic1->id);
+        User::firstOrCreate(['email' => 'house@clinic1.com'], [
             'name' => 'Dr. House',
-            'email' => 'house@clinic1.com',
-            'password' => Hash::make('password'),
+            'password' => 'password',
             'tenant_id' => $clinic1->id,
-        ]);
+        ])->assignRole('admin');
+
+        // Seed data for Tenant 1
+        \App\Models\Patient::factory()->count(15)->create(['tenant_id' => $clinic1->id]);
+        \App\Models\Inventory::factory()->count(20)->create(['tenant_id' => $clinic1->id]);
+        \App\Models\ProcedurePrice::factory()->count(10)->create(['tenant_id' => $clinic1->id]);
 
         // Create Tenant 2
-        $clinic2 = Clinic::create([
-            'id' => 'clinic2',
+        $clinic2 = Clinic::firstOrCreate(['id' => 'clinic2'], [
             'name' => 'Ortodoncia Pérez',
         ]);
 
-        $clinic2->domains()->create(['domain' => 'clinic2.localhost']);
+        $clinic2->domains()->firstOrCreate(['domain' => 'clinic2.localhost']);
 
-        User::create([
+        setPermissionsTeamId($clinic2->id);
+        User::firstOrCreate(['email' => 'strange@clinic2.com'], [
             'name' => 'Dr. Strange',
-            'email' => 'strange@clinic2.com',
             'password' => Hash::make('password'),
             'tenant_id' => $clinic2->id,
-        ]);
+        ])->assignRole('admin');
+
+        // Seed data for Tenant 2
+        \App\Models\Patient::factory()->count(10)->create(['tenant_id' => $clinic2->id]);
+        \App\Models\Inventory::factory()->count(15)->create(['tenant_id' => $clinic2->id]);
+        \App\Models\ProcedurePrice::factory()->count(8)->create(['tenant_id' => $clinic2->id]);
     }
 }

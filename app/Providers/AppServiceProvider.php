@@ -33,5 +33,9 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Gate::policy(\App\Models\Appointment::class, \App\Policies\AppointmentPolicy::class);
         \Illuminate\Support\Facades\Gate::policy(\App\Models\Budget::class, \App\Policies\BudgetPolicy::class);
         \Illuminate\Support\Facades\Gate::policy(\App\Models\User::class, \App\Policies\UserPolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\Inventory::class, \App\Policies\InventoryPolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\ProcedurePrice::class, \App\Policies\ProcedurePricePolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\Odontogram::class, \App\Policies\OdontogramPolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\ClinicalRecord::class, \App\Policies\ClinicalRecordPolicy::class);
     }
 }

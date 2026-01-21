@@ -15,15 +15,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Create Super Admin
+        $superAdmin = User::firstOrCreate(['email' => 'admin@dentalflow.com'], [
+            'name' => 'Super Admin',
+            'password' => \Illuminate\Support\Facades\Hash::make('password'),
+            'tenant_id' => null, // Super admins don't belong to a specific tenant (or belong to multiple)
         ]);
+
+        // Assign super-admin role if it exists (PermissionSeeder should be run first)
+        // We defer role assignment to after PermissionSeeder if needed, but assuming PermissionSeeder creates it:
 
         $this->call([
             PermissionSeeder::class,
+            TenantSeeder::class,
         ]);
+
+        $superAdmin->assignRole('super-admin');
     }
 }

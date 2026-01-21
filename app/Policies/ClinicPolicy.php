@@ -11,41 +11,7 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 class ClinicPolicy
 {
     use HandlesAuthorization;
-    
-    public function viewAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ViewAny:Clinic');
-    }
-
-    public function view(AuthUser $authUser, Clinic $clinic): bool
-    {
-        return $authUser->can('View:Clinic');
-    }
-
-    public function create(AuthUser $authUser): bool
-    {
-        return $authUser->can('Create:Clinic');
-    }
-
-    public function update(AuthUser $authUser, Clinic $clinic): bool
-    {
-        return $authUser->can('Update:Clinic');
-    }
-
-    public function delete(AuthUser $authUser, Clinic $clinic): bool
-    {
-        return $authUser->can('Delete:Clinic');
-    }
-
-    public function restore(AuthUser $authUser, Clinic $clinic): bool
-    {
-        return $authUser->can('Restore:Clinic');
-    }
-
-    public function forceDelete(AuthUser $authUser, Clinic $clinic): bool
-    {
-        return $authUser->can('ForceDelete:Clinic');
-    }
+    use \App\Traits\HasSpatiePermissions;
 
     public function forceDeleteAny(AuthUser $authUser): bool
     {

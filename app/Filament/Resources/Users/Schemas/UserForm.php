@@ -43,23 +43,48 @@ class UserForm
                     ->label('Roles (Tenant Scoped)')
                     ->options(function ($get) {
                         $tenantId = $get('tenant_id');
-                        if (!$tenantId) {
-                            return [];
+                        $query = \App\Models\Role::withoutGlobalScopes();
+                        if ($tenantId) {
+                            $query->where(function ($q) use ($tenantId) {
+                                $q->where('clinic_id', $tenantId)
+                                    ->orWhereNull('clinic_id');
+                            });
                         }
-                        return \App\Models\Role::withoutGlobalScopes()
-                            ->where('roles.clinic_id', $tenantId)
-                            ->pluck('name', 'id');
+                        // No tenant selected: show all roles (global + tenant scoped)
+                        return $query->pluck('name', 'id');
                     })
                     ->multiple()
                     ->saveRelationshipsUsing(function (\Illuminate\Database\Eloquent\Model $record, $state) {
                         $tenantId = $record->tenant_id;
 
-                        // Delete existing role assignments for this tenant
-                        \Illuminate\Support\Facades\DB::table('model_has_roles')
-                            ->where('model_id', $record->id)
-                            ->where('model_type', get_class($record))
-                            ->where('clinic_id', $tenantId)
-                            ->delete();
+                        // If a tenant is selected, set Spatie team context so role insertion uses the correct clinic_id
+                        if (!is_null($tenantId)) {
+                            setPermissionsTeamId($tenantId);
+                        }
+
+                        // Delete existing role assignments
+                        if (is_null($tenantId)) {
+                            // Global user: remove only global role assignments (clinic_id = null)
+                            \Illuminate\Support\Facades\DB::table('model_has_roles')
+                                ->where('model_id', $record->id)
+                                ->where('model_type', get_class($record))
+                                ->whereNull('clinic_id')
+                                ->delete();
+                        } else {
+                            // Tenant‑scoped user: remove roles for this tenant **and** any global roles
+                            // First, delete tenant‑specific assignments
+                            \Illuminate\Support\Facades\DB::table('model_has_roles')
+                                ->where('model_id', $record->id)
+                                ->where('model_type', get_class($record))
+                                ->where('clinic_id', $tenantId)
+                                ->delete();
+                            // Then, delete any global role assignments (clinic_id = null) to avoid lingering admin rights
+                            \Illuminate\Support\Facades\DB::table('model_has_roles')
+                                ->where('model_id', $record->id)
+                                ->where('model_type', get_class($record))
+                                ->whereNull('clinic_id')
+                                ->delete();
+                        }
 
                         // Insert new role assignments with correct clinic_id
                         if (!empty($state)) {
