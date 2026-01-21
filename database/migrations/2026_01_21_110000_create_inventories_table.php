@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('inventories', function (Blueprint $table) {
             $table->id();
-            $table->string('tenant_id');
+            $table->string('clinic_id');
             $table->string('name');
             $table->decimal('price', 8, 2);
             $table->date('expiration_date')->nullable();
@@ -25,7 +25,7 @@ return new class extends Migration {
             $table->string('category');
             $table->timestamps();
 
-            $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('clinic_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

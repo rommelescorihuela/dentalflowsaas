@@ -30,7 +30,7 @@ class UsersTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('tenant_id')
+                TextColumn::make('clinic_id')
                     ->searchable(),
             ])
             ->filters([

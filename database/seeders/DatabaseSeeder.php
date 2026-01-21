@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
         $superAdmin = User::firstOrCreate(['email' => 'admin@dentalflow.com'], [
             'name' => 'Super Admin',
             'password' => \Illuminate\Support\Facades\Hash::make('password'),
-            'tenant_id' => null, // Super admins don't belong to a specific tenant (or belong to multiple)
+            'clinic_id' => null, // Super admins don't belong to a specific tenant (or belong to multiple)
         ]);
 
         // Assign super-admin role if it exists (PermissionSeeder should be run first)

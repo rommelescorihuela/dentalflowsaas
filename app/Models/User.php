@@ -10,7 +10,7 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Notifications\Notifiable;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use App\Traits\BelongsToClinic;
 use Spatie\Permission\Traits\HasRoles;
 
 
@@ -19,16 +19,18 @@ use Filament\Models\Contracts\FilamentUser;
 class User extends Authenticatable implements HasTenants, FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, BelongsToTenant, HasRoles;
+    use HasFactory, Notifiable, BelongsToClinic, HasRoles;
+
+
 
     public function canAccessPanel(Panel $panel): bool
     {
         if ($panel->getId() === 'admin') {
-            return $this->tenant_id === null || $this->hasRole('super-admin');
+            return $this->clinic_id === null || $this->hasRole('super-admin');
         }
 
         if ($panel->getId() === 'app') {
-            return $this->tenant_id !== null;
+            return $this->clinic_id !== null;
         }
 
         return true;
@@ -41,7 +43,7 @@ class User extends Authenticatable implements HasTenants, FilamentUser
 
     public function canAccessTenant(Model $tenant): bool
     {
-        return $this->tenant_id === $tenant->id;
+        return $this->clinic_id === $tenant->id;
     }
 
     public function clinic()
@@ -58,7 +60,7 @@ class User extends Authenticatable implements HasTenants, FilamentUser
         'name',
         'email',
         'password',
-        'tenant_id',
+        'clinic_id',
     ];
 
     /**

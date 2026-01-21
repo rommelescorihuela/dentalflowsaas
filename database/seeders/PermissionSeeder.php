@@ -78,10 +78,10 @@ class PermissionSeeder extends Seeder
         /*
         // Find the user and assign permissions directly with their team
         $user = \App\Models\User::where('email', 'alpha@admin')->first();
-        if ($user && $user->tenant_id) {
+        if ($user && $user->clinic_id) {
             // Assign permissions with the user's tenant as team
             foreach ($permissions as $permission) {
-                $user->givePermissionTo($permission, $user->tenant_id);
+                $user->givePermissionTo($permission, $user->clinic_id);
             }
         }
         */

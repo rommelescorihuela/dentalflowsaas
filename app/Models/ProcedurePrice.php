@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use App\Traits\BelongsToClinic;
 
 class ProcedurePrice extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use HasFactory, BelongsToClinic;
 
     protected $fillable = [
         'procedure_name',
@@ -22,8 +22,4 @@ class ProcedurePrice extends Model
         'price' => 'decimal:2',
     ];
 
-    public function clinic()
-    {
-        return $this->tenant();
-    }
 }

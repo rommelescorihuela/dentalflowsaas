@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use App\Traits\BelongsToClinic;
 
 class Inventory extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use HasFactory, BelongsToClinic;
 
     protected $fillable = [
         'name',
@@ -31,8 +31,4 @@ class Inventory extends Model
         'items_per_unit' => 'integer',
     ];
 
-    public function clinic()
-    {
-        return $this->tenant();
-    }
 }

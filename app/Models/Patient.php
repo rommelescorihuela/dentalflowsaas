@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use App\Traits\BelongsToClinic;
 
 class Patient extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use HasFactory, BelongsToClinic;
+
 
     protected $guarded = [];
 
@@ -16,11 +17,6 @@ class Patient extends Model
         'medical_history' => 'array',
         'allergies' => 'array',
     ];
-
-    public function clinic()
-    {
-        return $this->tenant();
-    }
 
     public function odontograms()
     {

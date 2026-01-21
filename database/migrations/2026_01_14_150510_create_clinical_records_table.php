@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('clinical_records', function (Blueprint $table) {
             $table->id();
-            $table->string('tenant_id');
+            $table->string('clinic_id');
             $table->foreignId('patient_id')->constrained()->cascadeOnDelete();
             $table->integer('tooth_number');
             $table->string('surface')->nullable(); // Distal, Mesial, Occlusal, etc.
@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->text('notes')->nullable();
             $table->timestamps();
 
-            $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('clinic_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

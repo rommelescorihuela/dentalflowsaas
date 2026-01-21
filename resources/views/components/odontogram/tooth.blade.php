@@ -6,12 +6,13 @@
     </span>
 
     <!-- SVG Container -->
-    <div class="relative group cursor-pointer" style="position: relative; cursor: pointer;">
-        <svg width="40" height="{{ $isUpper ? '60' : '60' }}" viewBox="0 0 40 60"
-            style="transform: {{ $isUpper ? 'scaleY(1)' : 'scaleY(-1)' }}; display: block;">
+    <div class="relative group cursor-pointer w-full" style="position: relative; cursor: pointer; width: 100%;">
+        <svg viewBox="0 0 40 60" class="w-full h-auto block"
+            style="transform: {{ $isUpper ? 'scaleY(1)' : 'scaleY(-1)' }}; display: block; width: 100%; height: auto;">
 
             <!-- Root (Background) -->
-            <path d="M12 20 L15 55 L20 45 L25 55 L28 20 Z" fill="{{ $rootStatus ? $colors[$rootStatus] : '#e5e7eb' }}"
+            <path d="M12 20 L15 55 L20 45 L25 55 L28 20 Z"
+                fill="{{ ($rootStatus && isset($colors[$rootStatus])) ? $colors[$rootStatus] : '#e5e7eb' }}"
                 stroke="{{ in_array('root', $activeSurfaces ?? []) ? '#06b6d4' : '#9ca3af' }}"
                 stroke-width="{{ in_array('root', $activeSurfaces ?? []) ? '2.5' : '1' }}"
                 wire:click="selectSurface({{ $number }}, 'root')" class="hover:opacity-80 transition-opacity" />

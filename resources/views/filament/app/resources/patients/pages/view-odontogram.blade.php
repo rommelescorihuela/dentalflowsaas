@@ -1,3 +1,3 @@
 <x-filament-panels::page>
-    {{-- Page content will be rendered by the footer widget --}}
+    {{ $this->form }}
 </x-filament-panels::page>

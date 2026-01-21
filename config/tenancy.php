@@ -10,7 +10,7 @@ return [
     'tenant_model' => Clinic::class,
     'id_generator' => Stancl\Tenancy\UUIDGenerator::class,
 
-    'domain_model' => Domain::class,
+    'domain_model' => \App\Models\Domain::class,
 
     /**
      * The list of domains hosting your central app.
@@ -52,7 +52,7 @@ return [
 
         /**
          * Tenant database names are created like this:
-         * prefix + tenant_id + suffix.
+         * prefix + clinic_id + suffix.
          */
         'prefix' => 'tenant',
         'suffix' => '',
@@ -91,7 +91,7 @@ return [
      * You can clear cache selectively by specifying the tag.
      */
     'cache' => [
-        'tag_base' => 'tenant', // This tag_base, followed by the tenant_id, will form a tag that will be applied on each cache call.
+        'tag_base' => 'tenant', // This tag_base, followed by the clinic_id, will form a tag that will be applied on each cache call.
     ],
 
     /**
@@ -100,7 +100,7 @@ return [
      */
     'filesystem' => [
         /**
-         * Each disk listed in the 'disks' array will be suffixed by the suffix_base, followed by the tenant_id.
+         * Each disk listed in the 'disks' array will be suffixed by the suffix_base, followed by the clinic_id.
          */
         'suffix_base' => 'tenant',
         'disks' => [
@@ -138,7 +138,7 @@ return [
          * disable asset() helper tenancy and explicitly use tenant_asset() calls in places
          * where you want to use tenant-specific assets (product images, avatars, etc).
          */
-        'asset_helper_tenancy' => true,
+        'asset_helper_tenancy' => false,
     ],
 
     /**

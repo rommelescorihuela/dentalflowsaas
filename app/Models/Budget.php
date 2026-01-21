@@ -3,24 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use App\Traits\BelongsToClinic;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Budget extends Model
 {
-    use BelongsToTenant;
+    use BelongsToClinic;
 
     protected $guarded = [];
 
     protected $casts = [
         'expires_at' => 'date',
     ];
-
-    public function clinic()
-    {
-        return $this->tenant();
-    }
 
     public function patient(): BelongsTo
     {

@@ -65,9 +65,6 @@ class RoleResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
-        // Admin panel only shows global roles (clinic_id is null)
-        $query->whereNull('clinic_id');
-
         return $query;
     }
 }

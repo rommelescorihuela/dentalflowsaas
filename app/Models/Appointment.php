@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use App\Traits\BelongsToClinic;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Appointment extends Model
 {
-    use BelongsToTenant;
+    use BelongsToClinic;
+
 
     protected $guarded = [];
 
@@ -16,11 +17,6 @@ class Appointment extends Model
         'start_time' => 'datetime',
         'end_time' => 'datetime',
     ];
-
-    public function clinic()
-    {
-        return $this->tenant();
-    }
 
     public function patient(): BelongsTo
     {

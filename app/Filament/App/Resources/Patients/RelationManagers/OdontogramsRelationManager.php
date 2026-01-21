@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\Patients\RelationManagers;
 
 use App\Filament\App\Resources\Patients\PatientResource;
+use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -16,13 +17,10 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\TextInput;
-use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class OdontogramsRelationManager extends RelationManager
 {
@@ -83,8 +81,30 @@ class OdontogramsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                CreateAction::make()
-                    ->before(function (CreateAction $action) {
+                \Filament\Actions\Action::make('create_odontogram')
+                    ->label('New Odontogram')
+                    ->icon('heroicon-o-plus')
+                    ->color('primary')
+                    ->form([
+                        TextInput::make('name')
+                            ->required()
+                            ->maxLength(255)
+                            ->placeholder('e.g., Initial Checkup, 6-Month Follow-up'),
+                        \Filament\Forms\Components\DatePicker::make('date')
+                            ->required()
+                            ->default(now()),
+                        \Filament\Forms\Components\Select::make('status')
+                            ->options([
+                                'in_progress' => 'In Progress',
+                                'completed' => 'Completed',
+                            ])
+                            ->default('in_progress')
+                            ->required(),
+                        \Filament\Forms\Components\Textarea::make('notes')
+                            ->rows(3)
+                            ->placeholder('Session notes...'),
+                    ])
+                    ->action(function (array $data) {
                         // Check if there's an in-progress odontogram
                         $hasInProgress = $this->getOwnerRecord()
                             ->odontograms()
@@ -98,27 +118,52 @@ class OdontogramsRelationManager extends RelationManager
                                 ->warning()
                                 ->send();
 
-                            $action->halt();
+                            return;
                         }
-                    })
-                    ->mutateFormDataUsing(function (array $data): array {
-                        $data['tenant_id'] = auth()->user()->tenant_id;
-                        return $data;
+
+                        $data['clinic_id'] = auth()->user()->clinic_id;
+                        $odontogram = $this->getOwnerRecord()->odontograms()->create($data);
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Odontogram created')
+                            ->success()
+                            ->send();
+
+                        return redirect()->to(PatientResource::getUrl('odontograms.view', [
+                            'patient' => $this->getOwnerRecord()->id,
+                            'odontogram' => $odontogram->id,
+                        ]));
                     }),
             ])
-            ->recordActions([
-                \Filament\Actions\ViewAction::make()
+            ->actions([
+                \Filament\Actions\Action::make('open')
+                    ->label('View')
+                    ->icon('heroicon-o-eye')
+                    ->color('gray')
                     ->url(fn($record) => PatientResource::getUrl('odontograms.view', [
                         'patient' => $record->patient_id,
                         'odontogram' => $record->id,
                     ])),
-                EditAction::make(),
-                DeleteAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                \Filament\Actions\Action::make('edit')
+                    ->label('Edit')
+                    ->icon('heroicon-o-pencil')
+                    ->color('primary')
+                    ->url(fn($record) => PatientResource::getUrl('odontograms.view', [
+                        'patient' => $record->patient_id,
+                        'odontogram' => $record->id,
+                    ])),
+                \Filament\Actions\Action::make('delete')
+                    ->label('Delete')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->action(function (\App\Models\Odontogram $record) {
+                        $record->delete();
+                        \Filament\Notifications\Notification::make()
+                            ->title('Odontogram deleted')
+                            ->success()
+                            ->send();
+                    }),
             ]);
     }
 }

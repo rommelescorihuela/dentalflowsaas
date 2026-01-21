@@ -12,13 +12,13 @@ return new class extends Migration {
     {
         Schema::create('treatments', function (Blueprint $table) {
             $table->id();
-            $table->string('tenant_id');
+            $table->string('clinic_id');
             $table->string('name');
             $table->string('code')->nullable();
             $table->decimal('price', 10, 2)->default(0);
             $table->timestamps();
 
-            $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('clinic_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

@@ -209,7 +209,7 @@ erDiagram
     
     PATIENTS {
         bigint id PK
-        string tenant_id FK
+        string clinic_id FK
         string name
         string email
         string phone
@@ -221,7 +221,7 @@ erDiagram
     
     ODONTOGRAMS {
         bigint id PK
-        string tenant_id FK
+        string clinic_id FK
         bigint patient_id FK
         string name
         date date
@@ -232,7 +232,7 @@ erDiagram
     
     CLINICAL_RECORDS {
         bigint id PK
-        string tenant_id FK
+        string clinic_id FK
         bigint patient_id FK
         bigint odontogram_id FK
         integer tooth_number "11-48"
@@ -546,7 +546,7 @@ flowchart TD
 
 ## 🗄️ Estructura de Base de Datos
 
-> **Nota Técnica**: Todas las tablas principales utilizan `clinic_id` (o `tenant_id` dependiendo del contexto) como llave foránea para garantizar el aislamiento ("Tenant Scope"). Las consultas son filtradas automáticamente por `Stancl\Tenancy` o scopes globales de Filament.
+> **Nota Técnica**: Todas las tablas principales utilizan `clinic_id` (o `clinic_id` dependiendo del contexto) como llave foránea para garantizar el aislamiento ("Tenant Scope"). Las consultas son filtradas automáticamente por `Stancl\Tenancy` o scopes globales de Filament.
 
 ### Tablas Principales
 
@@ -573,7 +573,7 @@ erDiagram
     
     USERS {
         bigint id PK
-        string tenant_id FK
+        string clinic_id FK
         string name
         string email
         string password
@@ -582,7 +582,7 @@ erDiagram
     
     PATIENTS {
         bigint id PK
-        string tenant_id FK
+        string clinic_id FK
         string name
         string email
         string phone
@@ -594,7 +594,7 @@ erDiagram
     
     ODONTOGRAMS {
         bigint id PK
-        string tenant_id FK
+        string clinic_id FK
         bigint patient_id FK
         string name
         date date
@@ -605,7 +605,7 @@ erDiagram
     
     CLINICAL_RECORDS {
         bigint id PK
-        string tenant_id FK
+        string clinic_id FK
         bigint patient_id FK
         bigint odontogram_id FK
         integer tooth_number
@@ -618,7 +618,7 @@ erDiagram
     
     APPOINTMENTS {
         bigint id PK
-        string tenant_id FK
+        string clinic_id FK
         bigint patient_id FK
         datetime scheduled_at
         string status
@@ -628,7 +628,7 @@ erDiagram
     
     BUDGETS {
         bigint id PK
-        string tenant_id FK
+        string clinic_id FK
         bigint patient_id FK
         decimal total
         string status

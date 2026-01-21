@@ -17,7 +17,9 @@ class Odontogram extends Widget implements HasForms
 {
     use InteractsWithForms;
 
-    protected string $view = 'livewire.odontogram';
+    protected string $view = 'livewire.odontogram-v2';
+
+    protected int|string|array $columnSpan = 'full';
 
     public ?Model $record = null;
     public ?int $odontogramId = null; // NEW: specific odontogram session
@@ -109,20 +111,23 @@ class Odontogram extends Widget implements HasForms
 
             if ($existing) {
                 $this->form->fill([
+                    'surfaces' => $this->selectedSurfaces,
                     'diagnosis_code' => $existing->diagnosis_code,
                     'treatment_status' => $existing->treatment_status,
                     'notes' => $existing->notes,
                 ]);
             } else {
                 $this->form->fill([
+                    'surfaces' => $this->selectedSurfaces,
                     'diagnosis_code' => null,
                     'treatment_status' => 'planned',
                     'notes' => null,
                 ]);
             }
-        } elseif (count($this->selectedSurfaces) > 1) {
-            // Multiple selection: clear form for batch entry
+        } else {
+            // Multiple selection or empty: fill with current selection
             $this->form->fill([
+                'surfaces' => $this->selectedSurfaces,
                 'diagnosis_code' => null,
                 'treatment_status' => 'planned',
                 'notes' => null,
@@ -136,6 +141,21 @@ class Odontogram extends Widget implements HasForms
     {
         return $schema
             ->components([
+                Forms\Components\CheckboxList::make('surfaces')
+                    ->label('Selected Surfaces')
+                    ->options([
+                        'top' => 'Top (Vestibular)',
+                        'bottom' => 'Bottom (Lingual)',
+                        'left' => 'Left (Mesial)',
+                        'right' => 'Right (Distal)',
+                        'center' => 'Center (Occlusal)',
+                    ])
+                    ->columns(3)
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(function ($state) {
+                        $this->selectedSurfaces = $state;
+                    }),
                 Forms\Components\Select::make('diagnosis_code')
                     ->label('Diagnosis / Status')
                     ->options([
@@ -165,15 +185,16 @@ class Odontogram extends Widget implements HasForms
     public function saveRecord()
     {
         $data = $this->form->getState();
+        $surfaces = $data['surfaces'] ?? [];
 
-        if (!$this->selectedTooth || empty($this->selectedSurfaces)) {
+        if (!$this->selectedTooth || empty($surfaces)) {
             return;
         }
 
-        foreach ($this->selectedSurfaces as $surface) {
+        foreach ($surfaces as $surface) {
             ClinicalRecord::updateOrCreate(
                 [
-                    'tenant_id' => Auth::user()->tenant_id,
+                    'clinic_id' => Auth::user()->clinic_id,
                     'patient_id' => $this->record->id,
                     'tooth_number' => $this->selectedTooth,
                     'surface' => $surface,

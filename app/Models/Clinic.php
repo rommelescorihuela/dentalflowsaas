@@ -9,6 +9,11 @@ class Clinic extends BaseTenant
 {
     use HasDomains;
 
+    public function domains()
+    {
+        return $this->hasMany(config('tenancy.domain_model'), 'clinic_id');
+    }
+
     /**
      * Definimos las columnas personalizadas que tiene nuestra tabla 'clinics'.
      * Esto es necesario para que el paquete sepa qué campos guardar en la tabla.

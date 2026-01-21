@@ -32,7 +32,7 @@ class UserForm
                     ->password()
                     ->required(fn(string $operation): bool => $operation === 'create')
                     ->visible(fn(string $operation, $get): bool => $operation === 'create' || filled($get('password'))),
-                \Filament\Forms\Components\Select::make('tenant_id')
+                \Filament\Forms\Components\Select::make('clinic_id')
                     ->label('Clinic (Tenant)')
                     ->relationship('clinic', 'name')
                     ->searchable()
@@ -42,7 +42,7 @@ class UserForm
                 \Filament\Forms\Components\Select::make('roles')
                     ->label('Roles (Tenant Scoped)')
                     ->options(function ($get) {
-                        $tenantId = $get('tenant_id');
+                        $tenantId = $get('clinic_id');
                         $query = \App\Models\Role::withoutGlobalScopes();
                         if ($tenantId) {
                             $query->where(function ($q) use ($tenantId) {
@@ -55,7 +55,7 @@ class UserForm
                     })
                     ->multiple()
                     ->saveRelationshipsUsing(function (\Illuminate\Database\Eloquent\Model $record, $state) {
-                        $tenantId = $record->tenant_id;
+                        $tenantId = $record->clinic_id;
 
                         // If a tenant is selected, set Spatie team context so role insertion uses the correct clinic_id
                         if (!is_null($tenantId)) {
@@ -104,7 +104,7 @@ class UserForm
                         app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
                     })
                     ->loadStateFromRelationshipsUsing(function ($component, $record) {
-                        if (!$record || !$record->tenant_id) {
+                        if (!$record || !$record->clinic_id) {
                             return $component->state([]);
                         }
 
@@ -112,7 +112,7 @@ class UserForm
                         $roleIds = \Illuminate\Support\Facades\DB::table('model_has_roles')
                             ->where('model_id', $record->id)
                             ->where('model_type', get_class($record))
-                            ->where('clinic_id', $record->tenant_id)
+                            ->where('clinic_id', $record->clinic_id)
                             ->pluck('role_id')
                             ->toArray();
 

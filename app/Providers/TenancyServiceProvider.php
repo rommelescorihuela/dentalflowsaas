@@ -99,6 +99,8 @@ class TenancyServiceProvider extends ServiceProvider
 
     public function boot()
     {
+        \Stancl\Tenancy\Database\Concerns\BelongsToTenant::$tenantIdColumn = 'clinic_id';
+
         $this->bootEvents();
         $this->mapRoutes();
 

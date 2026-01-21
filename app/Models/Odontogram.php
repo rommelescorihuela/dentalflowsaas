@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use App\Traits\BelongsToClinic;
 
 class Odontogram extends Model
 {
-    use BelongsToTenant;
+    use BelongsToClinic;
 
     protected $fillable = [
-        'tenant_id',
+        'clinic_id',
         'patient_id',
         'name',
         'date',

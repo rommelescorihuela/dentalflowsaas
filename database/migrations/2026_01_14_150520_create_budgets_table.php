@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('budgets', function (Blueprint $table) {
             $table->id();
-            $table->string('tenant_id');
+            $table->string('clinic_id');
             $table->foreignId('patient_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete(); // Created by
             $table->decimal('total', 10, 2);
@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->date('expires_at')->nullable();
             $table->timestamps();
 
-            $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('clinic_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
         });
 
         Schema::create('budget_items', function (Blueprint $table) {
