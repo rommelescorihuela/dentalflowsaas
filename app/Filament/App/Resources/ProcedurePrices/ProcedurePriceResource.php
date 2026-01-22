@@ -49,6 +49,24 @@ class ProcedurePriceResource extends Resource
                     ->image()
                     ->directory('procedure-images')
                     ->columnSpanFull(),
+                \Filament\Forms\Components\Repeater::make('procedureInventories')
+                    ->relationship()
+                    ->schema([
+                        \Filament\Forms\Components\Select::make('inventory_id')
+                            ->relationship('inventory', 'name')
+                            ->required()
+                            ->searchable()
+                            ->distinct()
+                            ->disableOptionsWhenSelectedInSiblingRepeaterItems(),
+                        TextInput::make('quantity_used')
+                            ->numeric()
+                            ->required()
+                            ->label('Quantity to Deduct')
+                            ->default(1),
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull()
+                    ->label('Linked Inventory Items'),
             ]);
     }
 

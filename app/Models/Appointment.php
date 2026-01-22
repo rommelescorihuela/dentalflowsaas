@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\BelongsToClinic;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use App\Traits\ActivityLogger;
+
 class Appointment extends Model
 {
-    use BelongsToClinic;
+    use BelongsToClinic, ActivityLogger;
 
 
     protected $guarded = [];
@@ -17,6 +19,17 @@ class Appointment extends Model
         'start_time' => 'datetime',
         'end_time' => 'datetime',
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+        self::observe(\App\Observers\AppointmentObserver::class);
+    }
+
+    public function procedurePrice(): BelongsTo
+    {
+        return $this->belongsTo(ProcedurePrice::class);
+    }
 
     public function patient(): BelongsTo
     {

@@ -5,9 +5,11 @@ namespace App\Models;
 use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 use Stancl\Tenancy\Database\Concerns\HasDomains;
 
+use App\Traits\ActivityLogger;
+
 class Clinic extends BaseTenant
 {
-    use HasDomains;
+    use HasDomains, ActivityLogger;
 
     public function domains()
     {

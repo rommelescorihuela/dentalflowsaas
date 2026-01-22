@@ -63,6 +63,11 @@ class PatientResource extends Resource
             ])
             ->actions([
                 \Filament\Actions\EditAction::make(),
+                \Filament\Tables\Actions\Action::make('health_progress')
+                    ->label('Health Progress')
+                    ->icon('heroicon-o-chart-bar')
+                    ->url(fn(Patient $record): string => Pages\HealthProgress::getUrl(['record' => $record]))
+                    ->color('info'),
             ])
             ->bulkActions([
                 \Filament\Actions\BulkActionGroup::make([
@@ -85,6 +90,7 @@ class PatientResource extends Resource
             'create' => Pages\CreatePatient::route('/create'),
             'edit' => Pages\EditPatient::route('/{record}/edit'),
             'odontograms.view' => Pages\ViewOdontogram::route('/{patient}/odontograms/{odontogram}'),
+            'health-progress' => Pages\HealthProgress::route('/{record}/health-progress'),
         ];
     }
 }

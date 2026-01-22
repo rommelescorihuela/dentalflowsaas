@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\BelongsToClinic;
 
+use App\Traits\ActivityLogger;
+
 class Patient extends Model
 {
-    use HasFactory, BelongsToClinic;
+    use HasFactory, BelongsToClinic, ActivityLogger;
 
 
     protected $guarded = [];

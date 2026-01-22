@@ -7,9 +7,11 @@ use App\Traits\BelongsToClinic;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use App\Traits\ActivityLogger;
+
 class Budget extends Model
 {
-    use BelongsToClinic;
+    use BelongsToClinic, ActivityLogger;
 
     protected $guarded = [];
 

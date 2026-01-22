@@ -16,10 +16,12 @@ use Spatie\Permission\Traits\HasRoles;
 
 use Filament\Models\Contracts\FilamentUser;
 
+use App\Traits\ActivityLogger;
+
 class User extends Authenticatable implements HasTenants, FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, BelongsToClinic, HasRoles;
+    use HasFactory, Notifiable, BelongsToClinic, HasRoles, ActivityLogger;
 
 
 

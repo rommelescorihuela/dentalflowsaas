@@ -25,6 +25,12 @@ class AppointmentResource extends Resource
                     ->relationship('patient', 'name')
                     ->required()
                     ->searchable(),
+                Select::make('procedure_price_id')
+                    ->relationship('procedurePrice', 'procedure_name')
+                    ->searchable()
+                    ->preload()
+                    ->label('Procedure')
+                    ->required(),
                 Forms\Components\DateTimePicker::make('start_time')
                     ->required(),
                 Forms\Components\DateTimePicker::make('end_time')
