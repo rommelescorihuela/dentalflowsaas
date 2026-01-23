@@ -56,6 +56,7 @@ class AppPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                \App\Http\Middleware\ForceOnboardingMiddleware::class,
             ])
             ->plugins([
                 // Shield removed - using custom role management

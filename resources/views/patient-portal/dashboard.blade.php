@@ -23,6 +23,19 @@
         </header>
 
         <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="mb-6 flex justify-end">
+                <a href="{{ route('portal.book', $patient) }}"
+                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <!-- Heroicon name: solid/calendar -->
+                    <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                        fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd"
+                            d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    Reservar Cita
+                </a>
+            </div>
             <!-- Flash Messages -->
             @if (session('success'))
                 <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
@@ -61,7 +74,7 @@
                                                     <div class="ml-2 flex-shrink-0 flex">
                                                         <p
                                                             class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                                {{ $appointment->status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                                                                                    {{ $appointment->status === 'confirmed' ? 'bg-green-100 text-green-800' :
                             ($appointment->status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800') }}">
                                                             {{ ucfirst($appointment->status) }}
                                                         </p>
@@ -96,7 +109,7 @@
                                                     <div class="flex items-center space-x-2">
                                                         <span
                                                             class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                                                {{ $budget->status === 'accepted' ? 'bg-green-100 text-green-800' :
+                                                                                    {{ $budget->status === 'accepted' ? 'bg-green-100 text-green-800' :
                             ($budget->status === 'sent' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800') }}">
                                                             {{ ucfirst($budget->status) }}
                                                         </span>

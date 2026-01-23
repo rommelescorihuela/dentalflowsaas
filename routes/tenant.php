@@ -29,6 +29,7 @@ Route::middleware([
 
     Route::middleware('signed')->group(function () {
         Route::get('/portal/{patient}', [\App\Http\Controllers\PatientPortalController::class, 'dashboard'])->name('portal.dashboard');
+        Route::get('/portal/{patient}/book', \App\Livewire\PatientPortal\BookAppointment::class)->name('portal.book');
         Route::post('/portal/budgets/{budget}/accept', [\App\Http\Controllers\PatientPortalController::class, 'acceptBudget'])->name('portal.budgets.accept');
     });
 });

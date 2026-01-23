@@ -11,6 +11,8 @@ class CalendarWidget extends Widget
 {
     protected string $view = 'filament.app.widgets.calendar-widget';
 
+    protected static ?int $sort = 3;
+
     protected int|string|array $columnSpan = 'full';
 
     public function getEvents(): array

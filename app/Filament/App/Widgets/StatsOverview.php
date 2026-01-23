@@ -10,6 +10,8 @@ use App\Models\Budget;
 
 class StatsOverview extends StatsOverviewWidget
 {
+    protected static ?int $sort = 0;
+
     protected function getStats(): array
     {
         return [
