@@ -9,4 +9,9 @@ use App\Traits\BelongsToClinic;
 class Treatment extends Model
 {
     use BelongsToClinic;
+
+    public function appointment()
+    {
+        return $this->belongsTo(Appointment::class);
+    }
 }

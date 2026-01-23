@@ -36,8 +36,17 @@ class Appointment extends Model
         return $this->belongsTo(Patient::class);
     }
 
+    use BelongsToClinic, ActivityLogger;
+
+    // ... (rest of imports at top of file, ideally)
+
     public function doctor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function treatments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Treatment::class);
     }
 }
