@@ -31,12 +31,18 @@ class UserForm
                     ->required(fn(string $operation): bool => $operation === 'create')
                     ->visible(fn(string $operation): bool => $operation === 'create' || filled($operation)),
                 \Filament\Forms\Components\Select::make('roles')
-                    ->relationship('roles', 'name')
-                    ->options(function () {
-                        $tenantId = \Filament\Facades\Filament::getTenant()->id;
-                        return \App\Models\Role::where('clinic_id', $tenantId)->pluck('name', 'id');
-                    })
+                    ->label('Roles')
                     ->multiple()
+                    ->relationship('roles', 'name', function ($query) {
+                        return $query->where('clinic_id', \Filament\Facades\Filament::getTenant()->id);
+                    })
+                    ->saveRelationshipsUsing(function ($record, $state) {
+                        $tenantId = \Filament\Facades\Filament::getTenant()->id;
+                        $record->roles()->wherePivot('clinic_id', $tenantId)->detach();
+                        foreach ($state as $roleId) {
+                            $record->roles()->attach($roleId, ['clinic_id' => $tenantId]);
+                        }
+                    })
                     ->preload()
                     ->searchable(),
             ]);

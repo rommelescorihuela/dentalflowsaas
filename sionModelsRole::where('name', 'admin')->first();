@@ -1,0 +1,12 @@
+[90m= [39m[34;4mApp\Models\User[39;24m {#7722
+    [34mid[39m: [35m2[39m,
+    [34mname[39m: "[32mDr. House[39m",
+    [34memail[39m: "[32mhouse@clinic1.com[39m",
+    [34memail_verified_at[39m: [36mnull[39m,
+    #[33mpassword[39m: "[32m$2y$12$HJ4nq4x2Sr86lI3RP738G.tZJNvwO2MbwCsnSSZn52g5tKF4xttge[39m",
+    #[33mremember_token[39m: [36mnull[39m,
+    [34mcreated_at[39m: "[32m2026-01-23 18:20:30[39m",
+    [34mupdated_at[39m: "[32m2026-02-19 15:15:35[39m",
+    [34mclinic_id[39m: "[32mclinic1[39m",
+  }
+

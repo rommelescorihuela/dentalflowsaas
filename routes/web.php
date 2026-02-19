@@ -29,3 +29,10 @@ Route::get('/register/success', function (\Illuminate\Http\Request $request) {
 Route::get('/login', function () {
     return redirect('/admin/login');
 })->name('login');
+
+// Portal Routes (Duplicated here to ensure registration for Filament URL generation)
+Route::middleware(['web', 'signed'])->group(function () {
+    Route::get('/portal/{patient}', [\App\Http\Controllers\PatientPortalController::class , 'dashboard'])->name('portal.dashboard');
+    Route::get('/portal/{patient}/book', \App\Livewire\PatientPortal\BookAppointment::class)->name('portal.book');
+    Route::post('/portal/budgets/{budget}/accept', [\App\Http\Controllers\PatientPortalController::class , 'acceptBudget'])->name('portal.budgets.accept');
+});

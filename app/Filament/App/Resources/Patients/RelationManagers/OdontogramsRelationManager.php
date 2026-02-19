@@ -26,6 +26,11 @@ class OdontogramsRelationManager extends RelationManager
 {
     protected static string $relationship = 'odontograms';
 
+    public static function shouldSkipAuthorization(): bool
+    {
+        return true;
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema

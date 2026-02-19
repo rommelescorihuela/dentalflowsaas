@@ -20,7 +20,7 @@ class PatientAppointmentsChart extends ChartWidget
             return [];
         }
 
-        $data = Trend::query($this->record->appointments())
+        $data = Trend::query($this->record->appointments()->getQuery())
             ->between(
                 start: now()->subYear(),
                 end: now(),

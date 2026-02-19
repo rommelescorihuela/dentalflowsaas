@@ -20,9 +20,9 @@ class SyncSpatiePermissionsTeamId
 
         if (Filament::getTenant()) {
             $tenantId = Filament::getTenant()->id;
-        } elseif (function_exists('tenancy') && tenancy()->tenant) {
+        }
+        elseif (function_exists('tenancy') && tenancy()->tenant) {
             $tenantId = tenancy()->tenant->id;
-            // Also ensure Filament knows about it if possible, though Filament usually handles this itself.
         }
 
         if ($tenantId) {
@@ -31,6 +31,7 @@ class SyncSpatiePermissionsTeamId
             if ($user = \Illuminate\Support\Facades\Auth::user()) {
                 $user->unsetRelation('roles');
                 $user->unsetRelation('permissions');
+                $user->forgetCachedPermissions();
             }
         }
 

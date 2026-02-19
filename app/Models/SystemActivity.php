@@ -25,4 +25,9 @@ class SystemActivity extends Model
     {
         return $this->morphTo();
     }
+
+    public function clinic()
+    {
+        return $this->belongsTo(Clinic::class);
+    }
 }

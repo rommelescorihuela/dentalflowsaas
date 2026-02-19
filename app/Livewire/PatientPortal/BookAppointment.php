@@ -47,8 +47,8 @@ class BookAppointment extends Component
         $date = Carbon::parse($this->selectedDate);
 
         $tenantData = tenant()->data ?? [];
-        $startHour = isset($tenantData['schedule_start']) ? Carbon::parse($tenantData['schedule_start'])->hour : 9;
-        $endHour = isset($tenantData['schedule_end']) ? Carbon::parse($tenantData['schedule_end'])->hour : 18;
+        $startHour = isset($tenantData['schedule_start']) ?Carbon::parse($tenantData['schedule_start'])->hour : 9;
+        $endHour = isset($tenantData['schedule_end']) ?Carbon::parse($tenantData['schedule_end'])->hour : 18;
 
         $start = $date->copy()->setTime($startHour, 0);
         $end = $date->copy()->setTime($endHour, 0);
@@ -112,16 +112,16 @@ class BookAppointment extends Component
         // Create appointment
         Appointment::create([
             'patient_id' => $this->patient->id,
-            'clinic_id' => tenant('id'), // Explicitly set tenant if needed, though trait handles it
-            'title' => 'Cita Web: ' . ProcedurePrice::find($this->selectedProcedureId)->name,
+            'clinic_id' => tenant('id'),
+            'notes' => 'Cita Web: ' . ProcedurePrice::find($this->selectedProcedureId)->procedure_name,
             'start_time' => $startTime,
             'end_time' => $endTime,
-            'status' => 'pending', // Pending confirmation
+            'status' => 'scheduled',
+            'type' => 'control',
             'procedure_price_id' => $this->selectedProcedureId,
-            // 'user_id' => null, // Assigned later by admin
         ]);
 
-        return redirect()->route('portal.dashboard', $this->patient)
+        return redirect()->to(\Illuminate\Support\Facades\URL::signedRoute('portal.dashboard', ['patient' => $this->patient]))
             ->with('success', '¡Cita reservada con éxito! Espera nuestra confirmación.');
     }
 

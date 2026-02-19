@@ -10,12 +10,21 @@ use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Actions\EditAction;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 
 class PatientResource extends Resource
 {
     protected static ?string $model = Patient::class;
 
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-users';
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return true;
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -62,16 +71,27 @@ class PatientResource extends Resource
                 //
             ])
             ->actions([
-                \Filament\Actions\EditAction::make(),
-                \Filament\Tables\Actions\Action::make('health_progress')
+                EditAction::make(),
+                Action::make('health_progress')
                     ->label('Health Progress')
                     ->icon('heroicon-o-chart-bar')
                     ->url(fn(Patient $record): string => Pages\HealthProgress::getUrl(['record' => $record]))
                     ->color('info'),
+                Action::make('portal_link')
+                    ->label('Portal')
+                    ->icon('heroicon-o-link')
+                    ->url(function (Patient $record) {
+                        try {
+                            return \Illuminate\Support\Facades\URL::signedRoute('portal.dashboard', ['patient' => $record]);
+                        } catch (\Exception $e) {
+                            return '#';
+                        }
+                    })
+                    ->openUrlInNewTab(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

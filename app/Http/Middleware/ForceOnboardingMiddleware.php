@@ -29,13 +29,13 @@ class ForceOnboardingMiddleware
 
         // Prevent infinite loop: Allow access to the onboarding page and Logout
         if (
-            $request->routeIs('filament.app.pages.onboarding-wizard') ||
-            $request->routeIs('filament.app.auth.logout') ||
-            $request->routeIs('livewire.update')
+        $request->routeIs('filament.app.pages.onboarding-wizard') ||
+        $request->routeIs('filament.app.auth.logout') ||
+        $request->routeIs('livewire.update')
         ) {
             return $next($request);
         }
 
-        return redirect()->route('filament.app.pages.onboarding-wizard');
+        return redirect()->route('filament.app.pages.onboarding-wizard', ['tenant' => $tenant]);
     }
 }

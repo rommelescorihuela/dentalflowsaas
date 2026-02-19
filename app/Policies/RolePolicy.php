@@ -33,4 +33,8 @@ class RolePolicy
         return $authUser->can('Reorder:Role');
     }
 
+    public function update(AuthUser $user, Role $role): bool
+    {
+        return $user->can('Update:Role');
+    }
 }

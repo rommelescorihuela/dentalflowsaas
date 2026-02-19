@@ -2,17 +2,20 @@
 
 namespace App\Filament\App\Pages;
 
-use Filament\Forms\Components\Wizard;
+use Filament\Schemas\Components\Wizard;
+use Filament\Schemas\Components\Wizard\Step as WizardStep;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Section;
+use Filament\Schemas\Components\Section;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Illuminate\Support\Facades\Blade;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Schema;
+use Filament\Facades\Filament;
 
 class OnboardingWizard extends Page implements HasForms
 {
@@ -31,7 +34,7 @@ class OnboardingWizard extends Page implements HasForms
         $tenant = tenant();
         if ($tenant && $tenant->onboarding_step >= 4) {
             // Already completed, redirect to dashboard
-            $this->redirect(route('filament.app.pages.dashboard'));
+            $this->redirect(route('filament.app.pages.dashboard', ['tenant' => $tenant->getRouteKey()]));
             return;
         }
 
@@ -43,12 +46,12 @@ class OnboardingWizard extends Page implements HasForms
         }
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $form): Schema
     {
         return $form
             ->schema([
                 Wizard::make([
-                    Wizard\Step::make('Identidad')
+                    WizardStep::make('Identidad')
                         ->description('Personaliza la apariencia de tu clínica')
                         ->schema([
                             TextInput::make('name')
@@ -66,7 +69,7 @@ class OnboardingWizard extends Page implements HasForms
                         ->afterValidation(function () {
                             $this->saveProgress(1);
                         }),
-                    Wizard\Step::make('Configuración')
+                    WizardStep::make('Configuración')
                         ->description('Moneda y zona horaria')
                         ->schema([
                             Select::make('currency')
@@ -101,7 +104,7 @@ class OnboardingWizard extends Page implements HasForms
                         ->afterValidation(function () {
                             $this->saveProgress(2);
                         }),
-                    Wizard\Step::make('Listo!')
+                    WizardStep::make('Listo!')
                         ->description('Todo listo para empezar')
                         ->schema([
                             Section::make()
@@ -127,7 +130,7 @@ class OnboardingWizard extends Page implements HasForms
     public function create(): void
     {
         $data = $this->form->getState();
-        $tenant = tenant();
+        $tenant = Filament::getTenant();
 
         if ($tenant) {
             // Update Tenant
@@ -144,19 +147,25 @@ class OnboardingWizard extends Page implements HasForms
                 ]),
                 'onboarding_step' => 4 // Completed
             ]);
+
+            Notification::make()
+                ->title('¡Bienvenido a DentalFlow!')
+                ->success()
+                ->send();
+
+            $this->redirect(route('filament.app.pages.dashboard', ['tenant' => $tenant]));
+        } else {
+             Notification::make()
+                ->title('Error: No se pudo identificar la clínica.')
+                ->danger()
+                ->send();
+            $this->redirect('/app/login'); // Redirect to login if tenant is not found
         }
-
-        Notification::make()
-            ->title('¡Bienvenido a DentalFlow!')
-            ->success()
-            ->send();
-
-        $this->redirect(route('filament.app.pages.dashboard'));
     }
 
     protected function saveProgress(int $step): void
     {
-        $tenant = tenant();
+        $tenant = Filament::getTenant();
         if ($tenant && $tenant->onboarding_step < $step) {
             $tenant->update(['onboarding_step' => $step]);
         }

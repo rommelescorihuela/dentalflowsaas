@@ -20,7 +20,9 @@ class RoleForm
                         TextInput::make('name')
                             ->label('Role Name')
                             ->required()
-                            ->unique(ignoreRecord: true)
+                            ->unique(ignoreRecord: true, modifyRuleUsing: function ($rule) {
+                                return $rule->where('clinic_id', \Filament\Facades\Filament::getTenant()?->id);
+                            })
                             ->helperText('e.g., doctor, receptionist, assistant'),
 
                         TextInput::make('clinic_id')

@@ -14,11 +14,6 @@ trait HasSpatiePermissions
      */
     protected function getModelName(): string
     {
-        // Try to guess the model from the policy name if possible, or assume the mapping is consistent
-        // Or simply allow overriding.
-        // For methods receiving a Model instance, we can use that.
-        // For viewAny/create, we rely on convention.
-
         $policyClass = class_basename($this);
         return Str::replaceLast('Policy', '', $policyClass);
     }
