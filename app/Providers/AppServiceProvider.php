@@ -37,5 +37,36 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Gate::policy(\App\Models\ProcedurePrice::class, \App\Policies\ProcedurePricePolicy::class);
         \Illuminate\Support\Facades\Gate::policy(\App\Models\Odontogram::class, \App\Policies\OdontogramPolicy::class);
         \Illuminate\Support\Facades\Gate::policy(\App\Models\ClinicalRecord::class, \App\Policies\ClinicalRecordPolicy::class);
+
+        // Set global URL default for tenant parameter if present in the path
+        if (!app()->runningInConsole()) {
+            $tenantId = request()->segment(1);
+
+            // Special case for Livewire updates which are central but need tenant context
+            if ($tenantId === 'livewire' && $referer = request()->header('referer')) {
+                $path = parse_url($referer, PHP_URL_PATH);
+                $pathSegments = explode('/', ltrim($path, '/'));
+                $firstSegment = $pathSegments[0] ?? null;
+
+                if ($firstSegment && !in_array($firstSegment, ['admin', 'up', 'login', 'register'])) {
+                    $tenantId = $firstSegment;
+                    
+                    if (!tenancy()->initialized) {
+                        try {
+                            tenancy()->initialize($tenantId);
+                        } catch (\Exception $e) {
+                            // If initialization fails, fall back to central
+                        }
+                    }
+                }
+            }
+
+            // Set default if we found a valid tenant segment
+            if ($tenantId && !in_array($tenantId, ['admin', 'up', 'login', 'register', 'livewire'])) {
+                if (!isset(\Illuminate\Support\Facades\URL::getDefaultParameters()['tenant'])) {
+                    \Illuminate\Support\Facades\URL::defaults(['tenant' => $tenantId]);
+                }
+            }
+        }
     }
 }

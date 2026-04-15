@@ -18,21 +18,20 @@ Route::get('/register/success', function (\Illuminate\Http\Request $request) {
         return redirect('/');
     }
 
-    // Protocol agnostic URL generation for the tenant
-    $domain = $clinic->domains->first()->domain;
-    $protocol = request()->secure() ? 'https://' : 'http://';
-    $url = $protocol . $domain . (in_array(request()->getPort(), [80, 443]) ? '' : ':' . request()->getPort());
+    // URL generation for the tenant using path-based identification
+    $url = url('/' . $clinic->id . '/app');
 
     return view('auth.register-success', ['clinic' => $clinic, 'url' => $url]);
 })->name('register.success');
 
 Route::get('/login', function () {
-    return redirect('/admin/login');
+    return redirect('/');
 })->name('login');
 
-// Portal Routes (Duplicated here to ensure registration for Filament URL generation)
+// Portal Routes (Modified to include optional tenant prefix if needed for identification, 
+// but primarily used for named route generation in Filament)
 Route::middleware(['web', 'signed'])->group(function () {
-    Route::get('/portal/{patient}', [\App\Http\Controllers\PatientPortalController::class , 'dashboard'])->name('portal.dashboard');
-    Route::get('/portal/{patient}/book', \App\Livewire\PatientPortal\BookAppointment::class)->name('portal.book');
-    Route::post('/portal/budgets/{budget}/accept', [\App\Http\Controllers\PatientPortalController::class , 'acceptBudget'])->name('portal.budgets.accept');
+    Route::get('/{tenant?}/portal/{patient}', [\App\Http\Controllers\PatientPortalController::class , 'dashboard'])->name('portal.dashboard');
+    Route::get('/{tenant?}/portal/{patient}/book', \App\Livewire\PatientPortal\BookAppointment::class)->name('portal.book');
+    Route::post('/{tenant?}/portal/budgets/{budget}/accept', [\App\Http\Controllers\PatientPortalController::class , 'acceptBudget'])->name('portal.budgets.accept');
 });

@@ -27,9 +27,9 @@ class AppPanelProvider extends PanelProvider
     {
         return $panel
             ->id('app')
-            ->path('app')
+            ->path('{tenant}/app')
+            ->homeUrl(fn () => "/" . (request()->segment(1) ?: '{tenant}') . "/app")
             ->login()
-            ->tenant(Clinic::class)
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -50,8 +50,6 @@ class AppPanelProvider extends PanelProvider
                 AuthenticateSession::class,
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
-                \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
-                \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
                 SubstituteBindings::class,
                 \App\Http\Middleware\SyncSpatiePermissionsTeamId::class,
                 DisableBladeIconComponents::class,

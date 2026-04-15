@@ -33,12 +33,12 @@ class TenantService
                 'plan' => 'free_trial', // Default plan
             ]);
 
-            // 2. Create the Domain
-            // Assuming we are on 'localhost' or a main domain. 
-            // In production, this logic might need adjustment based on config('tenancy.central_domains')
+            // 2. Create the Domain (Skipped for path-based multi-tenancy)
+            /*
             $clinic->domains()->create([
                 'domain' => $data['subdomain'] . '.' . config('tenancy.central_domains')[0],
             ]);
+            */
 
             // 3. Create the Admin User for this Tenant
             // We switch context to the new tenant to create the user inside it?

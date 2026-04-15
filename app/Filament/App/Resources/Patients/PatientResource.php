@@ -82,7 +82,7 @@ class PatientResource extends Resource
                     ->icon('heroicon-o-link')
                     ->url(function (Patient $record) {
                         try {
-                            return \Illuminate\Support\Facades\URL::signedRoute('portal.dashboard', ['patient' => $record]);
+                            return \Illuminate\Support\Facades\URL::signedRoute('portal.dashboard', ['tenant' => tenant('id') ?: request()->segment(1), 'patient' => $record]);
                         } catch (\Exception $e) {
                             return '#';
                         }

@@ -10,8 +10,11 @@ use App\Models\Budget;
 
 class PatientPortalController extends Controller
 {
-    public function dashboard(Patient $patient)
+    public function dashboard($patient)
     {
+        if (!($patient instanceof Patient)) {
+            $patient = Patient::findOrFail($patient);
+        }
         $patient->load(['appointments', 'budgets', 'clinicalRecords']);
 
         return view('patient-portal.dashboard', [
