@@ -20,6 +20,7 @@ return new class extends Migration {
             $table->timestamps();
 
             $table->foreign('clinic_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
+            $table->index(['clinic_id', 'patient_id']);
         });
     }
 

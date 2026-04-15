@@ -63,7 +63,8 @@
         <h2 class="text-xl font-bold mb-2 text-gray-800 dark:text-gray-100 px-2">Odontogram</h2>
         
         <!-- Container: Centered, no scroll, compact gaps -->
-        <div class="flex flex-col gap-1 items-center w-full" style="display: flex; flex-direction: column; gap: 0.25rem; align-items: center; width: 100%;">
+        <div class="w-full overflow-x-auto overflow-y-hidden pb-4">
+            <div class="flex flex-col gap-1 items-center min-w-[760px] w-full" style="display: flex; flex-direction: column; gap: 0.25rem; align-items: center; width: 100%;">
             
             <!-- Upper Jaw: Grid layout for perfect distribution -->
             <div class="flex flex-nowrap w-full pb-1 gap-0.5" style="display: flex; flex-wrap: nowrap; width: 100%; padding-bottom: 0.25rem; gap: 0.125rem;">
@@ -129,6 +130,7 @@
                 </div>
             </div>
 
+        </div>
         </div>
     </div>
 

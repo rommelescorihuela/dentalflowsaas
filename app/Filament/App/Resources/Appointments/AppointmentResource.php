@@ -105,4 +105,15 @@ class AppointmentResource extends Resource
             'edit' => Pages\EditAppointment::route('/{record}/edit'),
         ];
     }
+
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (auth()->check() && !auth()->user()->hasRole('admin')) {
+            $query->where('user_id', auth()->id());
+        }
+
+        return $query;
+    }
 }
