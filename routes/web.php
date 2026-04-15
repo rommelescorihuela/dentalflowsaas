@@ -25,7 +25,7 @@ Route::get('/register/success', function (\Illuminate\Http\Request $request) {
 })->name('register.success');
 
 Route::get('/login', function () {
-    return redirect('/');
+    return redirect('/admin/login');
 })->name('login');
 
 // Portal Routes (Modified to include optional tenant prefix if needed for identification, 
