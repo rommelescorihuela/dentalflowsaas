@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             TenantSeeder::class,
         ]);
 
+        setPermissionsTeamId(null);
         $superAdmin->assignRole('super-admin');
     }
 }

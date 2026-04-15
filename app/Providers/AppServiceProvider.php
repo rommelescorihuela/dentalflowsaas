@@ -37,6 +37,8 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Gate::policy(\App\Models\ProcedurePrice::class, \App\Policies\ProcedurePricePolicy::class);
         \Illuminate\Support\Facades\Gate::policy(\App\Models\Odontogram::class, \App\Policies\OdontogramPolicy::class);
         \Illuminate\Support\Facades\Gate::policy(\App\Models\ClinicalRecord::class, \App\Policies\ClinicalRecordPolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\SubscriptionPayment::class, \App\Policies\SubscriptionPaymentPolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\SystemActivity::class, \App\Policies\SystemActivityPolicy::class);
 
         // Set global URL default for tenant parameter if present in the path
         if (!app()->runningInConsole()) {

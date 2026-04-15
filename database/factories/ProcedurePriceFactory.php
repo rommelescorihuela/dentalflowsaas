@@ -17,10 +17,10 @@ class ProcedurePriceFactory extends Factory
     public function definition(): array
     {
         return [
-            'procedure_name' => $this->faker->sentence(3),
-            'price' => $this->faker->randomFloat(2, 20, 1000),
-            'duration' => $this->faker->numberBetween(15, 120) . ' minutes',
-            'description' => $this->faker->paragraph(),
+            'procedure_name' => fake()->sentence(3),
+            'price' => fake()->randomFloat(2, 20, 1000),
+            'duration' => fake()->numberBetween(15, 120) . ' minutes',
+            'description' => fake()->paragraph(),
             'created_at' => now(),
             'updated_at' => now(),
         ];
