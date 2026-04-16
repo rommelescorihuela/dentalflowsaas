@@ -25,7 +25,10 @@ class AppPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        $isCentral = in_array(request()->getHost(), config('tenancy.central_domains', []));
+        $host = request()->getHost();
+        $isCentral = in_array($host, config('tenancy.central_domains', []));
+        
+        \Illuminate\Support\Facades\Log::info("Tenancy Debug: Host: {$host}, IsCentral: " . ($isCentral ? 'Yes' : 'No') . ", Config: " . json_encode(config('tenancy.central_domains')));
 
         return $panel
             ->id('app')
