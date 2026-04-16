@@ -130,14 +130,13 @@ class OnboardingWizard extends Page implements HasForms
     public function create(): void
     {
         $data = $this->form->getState();
-        $tenant = Filament::getTenant();
+        $tenant = tenant();
 
         if ($tenant) {
             // Update Tenant
             $tenant->update([
-                'name' => $data['name'],
-                'logo' => $data['logo'] ?? null,
-                // 'primary_color' => $data['primary_color'] ?? null, // Assuming column exists or is handled
+                'name' => $data['name'] ?? $tenant->name,
+                'logo' => $data['logo'] ?? $tenant->logo,
                 'data' => array_merge($tenant->data ?? [], [
                     'currency' => $data['currency'] ?? 'USD',
                     'timezone' => $data['timezone'] ?? 'UTC',
@@ -153,19 +152,20 @@ class OnboardingWizard extends Page implements HasForms
                 ->success()
                 ->send();
 
-            $this->redirect(route('filament.app.pages.dashboard', ['tenant' => $tenant]));
+            $this->redirect(route('filament.app.pages.dashboard', ['tenant' => $tenant->getRouteKey()]));
         } else {
              Notification::make()
                 ->title('Error: No se pudo identificar la clínica.')
                 ->danger()
                 ->send();
-            $this->redirect('/app/login'); // Redirect to login if tenant is not found
+            
+            $this->redirect('/' . (request()->segment(1) ?? 'login') . '/app/login');
         }
     }
 
     protected function saveProgress(int $step): void
     {
-        $tenant = Filament::getTenant();
+        $tenant = tenant();
         if ($tenant && $tenant->onboarding_step < $step) {
             $tenant->update(['onboarding_step' => $step]);
         }

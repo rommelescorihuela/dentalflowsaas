@@ -28,6 +28,7 @@ class Clinic extends BaseTenant
             'plan',
             'data',
             'onboarding_step',
+            'logo',
         ];
     }
 
