@@ -12,9 +12,20 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
+    /**
+     * Register any application services.
+     */
     public function register(): void
     {
-        //
+        // Early injection of central domains from environment variable or defaults
+        // This ensures the Tenancy package sees them even if config is cached incorrectly.
+        $envDomains = env('TENANCY_CENTRAL_DOMAINS', '');
+        $centralDomains = array_unique(array_merge(
+            ['localhost', '127.0.0.1'],
+            array_filter(array_map('trim', explode(',', $envDomains)))
+        ));
+        
+        config(['tenancy.central_domains' => $centralDomains]);
     }
 
     /**

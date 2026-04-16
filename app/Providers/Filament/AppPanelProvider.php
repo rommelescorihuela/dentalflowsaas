@@ -25,7 +25,14 @@ class AppPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        $isCentral = in_array(request()->getHost(), config('tenancy.central_domains', []));
+        $host = request()->getHost();
+        $centralDomains = config('tenancy.central_domains', ['localhost', '127.0.0.1']);
+        $isCentral = in_array($host, $centralDomains);
+        
+        // Force isCentral to true if on local dev IPs just in case
+        if (!$isCentral && in_array($host, ['localhost', '127.0.0.1'])) {
+            $isCentral = true;
+        }
 
         return $panel
             ->id('app')
