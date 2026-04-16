@@ -40,14 +40,24 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Gate::policy(\App\Models\SubscriptionPayment::class, \App\Policies\SubscriptionPaymentPolicy::class);
         \Illuminate\Support\Facades\Gate::policy(\App\Models\SystemActivity::class, \App\Policies\SystemActivityPolicy::class);
 
+        // Force production domain into central_domains at runtime to bypass caching issues
+        $centralDomains = config('tenancy.central_domains', []);
+        $prodDomain = 'dentalflow.digitalwebsolution.info';
+        if (!in_array($prodDomain, $centralDomains)) {
+            $centralDomains[] = $prodDomain;
+            config(['tenancy.central_domains' => $centralDomains]);
+        }
+
         // Set global URL default for tenant parameter if present in the path
         if (!app()->runningInConsole()) {
+            $host = request()->getHost();
+            $isCentral = in_array($host, config('tenancy.central_domains'));
             $tenantId = request()->segment(1);
 
             // Special case for Livewire updates which are central but need tenant context
             if ($tenantId === 'livewire' && $referer = request()->header('referer')) {
                 $path = parse_url($referer, PHP_URL_PATH);
-                $pathSegments = explode('/', ltrim($path, '/'));
+                $pathSegments = explode('/', ltrim((string) $path, '/'));
                 $firstSegment = $pathSegments[0] ?? null;
 
                 if ($firstSegment && !in_array($firstSegment, ['admin', 'up', 'login', 'register'])) {
@@ -65,9 +75,7 @@ class AppServiceProvider extends ServiceProvider
 
             // Set default if we found a valid tenant segment
             if ($tenantId && !in_array($tenantId, ['admin', 'up', 'login', 'register', 'livewire'])) {
-                if (!isset(\Illuminate\Support\Facades\URL::getDefaultParameters()['tenant'])) {
-                    \Illuminate\Support\Facades\URL::defaults(['tenant' => $tenantId]);
-                }
+                \Illuminate\Support\Facades\URL::defaults(['tenant' => $tenantId]);
             }
         }
     }
