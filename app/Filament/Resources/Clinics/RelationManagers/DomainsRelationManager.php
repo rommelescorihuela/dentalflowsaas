@@ -25,8 +25,11 @@ class DomainsRelationManager extends RelationManager
         return $schema
             ->components([
                 TextInput::make('domain')
+                    ->label('Dominio Personalizado')
+                    ->placeholder('ej: clinica-perez.com')
+                    ->helperText('Asegúrate de que el dominio apunte a la IP de este servidor (Registro A) antes de activarlo.')
                     ->required()
-                    ->unique(),
+                    ->unique(ignoreRecord: true),
             ]);
     }
 

@@ -25,10 +25,14 @@ class AppPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        $isCentral = in_array(request()->getHost(), config('tenancy.central_domains', []));
+
         return $panel
             ->id('app')
-            ->path('{tenant}/app')
-            ->homeUrl(fn () => "/" . (tenant('id') ?? request()->route('tenant') ?? request()->segment(1) ?? 'clinic1') . "/app")
+            ->path($isCentral ? '{tenant}/app' : 'app')
+            ->homeUrl(fn () => $isCentral
+                ? "/" . (tenant('id') ?? request()->route('tenant') ?? request()->segment(1) ?? 'clinic1') . "/app"
+                : "/app")
             ->login()
             ->colors([
                 'primary' => Color::Amber,
@@ -51,6 +55,7 @@ class AppPanelProvider extends PanelProvider
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
+                \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
                 \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class,
                 \App\Http\Middleware\SetTenancyUrlDefaults::class,
                 \App\Http\Middleware\SyncSpatiePermissionsTeamId::class,
