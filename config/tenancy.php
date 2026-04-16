@@ -22,6 +22,7 @@ return [
         'localhost',
         'admin.dentalflow.com', // Tu panel de control
         'dentalflow.com',
+        'dentalflow.digitalwebsolution.info',
     ],
 
     /**
