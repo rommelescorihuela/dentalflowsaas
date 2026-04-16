@@ -82,6 +82,29 @@ class SystemTools extends Page
                     }
                 }),
 
+            Action::make('runMigrations')
+                ->label('Run Database Migrations')
+                ->icon('heroicon-m-arrow-path')
+                ->color('primary')
+                ->requiresConfirmation()
+                ->modalHeading('Run Pending Migrations?')
+                ->modalDescription('This will execute "php artisan migrate" in production. Use this to create missing tables or columns after an update.')
+                ->action(function () {
+                    try {
+                        Artisan::call('migrate', ['--force' => true]);
+                        Notification::make()
+                            ->title('Migrations executed successfully!')
+                            ->success()
+                            ->send();
+                    } catch (\Exception $e) {
+                        Notification::make()
+                            ->title('Error running migrations')
+                            ->body($e->getMessage())
+                            ->danger()
+                            ->send();
+                    }
+                }),
+
             Action::make('runSeeders')
                 ->label('Run Database Seeders (Soft Reset)')
                 ->icon('heroicon-m-play')
