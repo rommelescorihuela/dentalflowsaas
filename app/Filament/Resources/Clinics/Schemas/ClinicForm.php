@@ -14,42 +14,8 @@ class ClinicForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
-                Grid::make(2)
-                    ->schema([
-                        Section::make('Información de la Clínica')
-                            ->description('Datos básicos de identidad de la sede.')
-                            ->columnSpan(1)
-                            ->schema([
-                                TextInput::make('id')
-                                    ->label('Identificador Único (Tenant ID)')
-                                    ->helperText('No se puede cambiar una vez creado.')
-                                    ->required()
-                                    ->unique(ignoreRecord: true),
-                                TextInput::make('name')
-                                    ->label('Nombre de la Clínica')
-                                    ->placeholder('Ej: Clínica Dental Las Mercedes')
-                                    ->required(),
-                                TextInput::make('plan')
-                                    ->label('Plan de Suscripción')
-                                    ->placeholder('ej: premium, basic')
-                                    ->required()
-                                    ->default('free'),
-                            ]),
-
-                        Section::make('Ajustes y Configuración')
-                            ->description('Valores personalizados guardados en formato Clave/Valor.')
-                            ->columnSpan(1)
-                            ->schema([
-                                KeyValue::make('data')
-                                    ->label('Propiedades de Configuración')
-                                    ->keyLabel('Atributo')
-                                    ->valueLabel('Valor')
-                                    ->addActionLabel('Añadir ajuste')
-                                    ->helperText('Configura horarios, colores, moneda, etc.'),
-                            ]),
-                    ]),
-
                 Section::make('Guía: Conexión de Dominio Personalizado')
                     ->description('Sigue estos pasos para que tu clínica use su propio dominio (ej. www.clinica.com)')
                     ->icon('heroicon-o-globe-alt')
@@ -68,6 +34,36 @@ class ClinicForm
                                     ->label('Paso 2: Activar')
                                     ->content('Añade el dominio exacto en la sección de "Dominios" al final de esta página.'),
                             ]),
+                    ]),
+
+                Section::make('Información de la Clínica')
+                    ->description('Datos básicos de identidad de la sede.')
+                    ->schema([
+                        TextInput::make('id')
+                            ->label('Identificador Único (Tenant ID)')
+                            ->helperText('No se puede cambiar una vez creado.')
+                            ->required()
+                            ->unique(ignoreRecord: true),
+                        TextInput::make('name')
+                            ->label('Nombre de la Clínica')
+                            ->placeholder('Ej: Clínica Dental Las Mercedes')
+                            ->required(),
+                        TextInput::make('plan')
+                            ->label('Plan de Suscripción')
+                            ->placeholder('ej: premium, basic')
+                            ->required()
+                            ->default('free'),
+                    ]),
+
+                Section::make('Ajustes y Configuración')
+                    ->description('Valores personalizados guardados en formato Clave/Valor.')
+                    ->schema([
+                        KeyValue::make('data')
+                            ->label('Propiedades de Configuración')
+                            ->keyLabel('Atributo')
+                            ->valueLabel('Valor')
+                            ->addActionLabel('Añadir ajuste')
+                            ->helperText('Configura horarios, colores, moneda, etc.'),
                     ]),
             ]);
     }
