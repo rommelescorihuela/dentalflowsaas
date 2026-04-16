@@ -63,15 +63,40 @@ class SystemTools extends Page
                 ->modalDescription('This will check for common schema mismatches (like tenant_id vs clinic_id) and attempt to fix them.')
                 ->action(function () {
                     try {
-                        // Check if domains table has tenant_id but missing clinic_id
+                        $messages = [];
+
+                        // 1. Check domains.tenant_id vs clinic_id
                         $hasTenantId = \Illuminate\Support\Facades\Schema::hasColumn('domains', 'tenant_id');
                         $hasClinicId = \Illuminate\Support\Facades\Schema::hasColumn('domains', 'clinic_id');
 
                         if ($hasTenantId && !$hasClinicId) {
                             \Illuminate\Support\Facades\DB::statement('ALTER TABLE domains RENAME COLUMN tenant_id TO clinic_id');
-                            Notification::make()->title('Column renamed successfully!')->success()->send();
+                            $messages[] = 'Column domains.tenant_id renamed to clinic_id.';
+                        }
+
+                        // 2. Check if permissions table exists but migration is not registered
+                        $hasPermissionsTable = \Illuminate\Support\Facades\Schema::hasTable('permissions');
+                        $isPermissionMigrated = \Illuminate\Support\Facades\DB::table('migrations')
+                            ->where('migration', '2026_01_15_130000_create_permission_tables')
+                            ->exists();
+
+                        if ($hasPermissionsTable && !$isPermissionMigrated) {
+                            $maxBatch = \Illuminate\Support\Facades\DB::table('migrations')->max('batch') ?? 0;
+                            \Illuminate\Support\Facades\DB::table('migrations')->insert([
+                                'migration' => '2026_01_15_130000_create_permission_tables',
+                                'batch' => $maxBatch + 1,
+                            ]);
+                            $messages[] = 'Permissions migration marked as completed (table already existed).';
+                        }
+
+                        if (empty($messages)) {
+                            Notification::make()->title('Schema seems correct or no fixes needed.')->info()->send();
                         } else {
-                            Notification::make()->title('Schema seems correct or no fix found.')->info()->send();
+                            Notification::make()
+                                ->title('Schema fixes applied!')
+                                ->body(implode(' ', $messages))
+                                ->success()
+                                ->send();
                         }
                     } catch (\Exception $e) {
                         Notification::make()
