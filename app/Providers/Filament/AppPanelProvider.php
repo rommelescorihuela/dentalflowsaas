@@ -47,7 +47,7 @@ class AppPanelProvider extends PanelProvider
                 AccountWidget::class,
                 FilamentInfoWidget::class,
             ])
-            ->middleware(array_merge([
+            ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
@@ -55,17 +55,15 @@ class AppPanelProvider extends PanelProvider
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
-            ], [
                 $isCentral 
                     ? \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class
                     : \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
-            ], [
                 \App\Http\Middleware\SetTenancyUrlDefaults::class,
                 \App\Http\Middleware\SyncSpatiePermissionsTeamId::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
                 \App\Http\Middleware\ForceOnboardingMiddleware::class,
-            ]))
+            ])
             ->plugins([
                 // Shield removed - using custom role management
             ])
