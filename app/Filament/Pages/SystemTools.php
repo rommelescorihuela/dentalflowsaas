@@ -54,6 +54,34 @@ class SystemTools extends Page
                     }
                 }),
 
+            Action::make('fixSchema')
+                ->label('Fix Database Schema')
+                ->icon('heroicon-m-table-cells')
+                ->color('info')
+                ->requiresConfirmation()
+                ->modalHeading('Repair Database Schema')
+                ->modalDescription('This will check for common schema mismatches (like tenant_id vs clinic_id) and attempt to fix them.')
+                ->action(function () {
+                    try {
+                        // Check if domains table has tenant_id but missing clinic_id
+                        $hasTenantId = \Illuminate\Support\Facades\Schema::hasColumn('domains', 'tenant_id');
+                        $hasClinicId = \Illuminate\Support\Facades\Schema::hasColumn('domains', 'clinic_id');
+
+                        if ($hasTenantId && !$hasClinicId) {
+                            \Illuminate\Support\Facades\DB::statement('ALTER TABLE domains RENAME COLUMN tenant_id TO clinic_id');
+                            Notification::make()->title('Column renamed successfully!')->success()->send();
+                        } else {
+                            Notification::make()->title('Schema seems correct or no fix found.')->info()->send();
+                        }
+                    } catch (\Exception $e) {
+                        Notification::make()
+                            ->title('Error fixing schema')
+                            ->body($e->getMessage())
+                            ->danger()
+                            ->send();
+                    }
+                }),
+
             Action::make('runSeeders')
                 ->label('Run Database Seeders (Soft Reset)')
                 ->icon('heroicon-m-play')
