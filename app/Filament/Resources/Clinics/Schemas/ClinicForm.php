@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Clinics\Schemas;
 
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Section;
+use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Placeholder;
 use Filament\Schemas\Schema;
 
