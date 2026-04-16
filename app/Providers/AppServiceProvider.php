@@ -40,18 +40,8 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Gate::policy(\App\Models\SubscriptionPayment::class, \App\Policies\SubscriptionPaymentPolicy::class);
         \Illuminate\Support\Facades\Gate::policy(\App\Models\SystemActivity::class, \App\Policies\SystemActivityPolicy::class);
 
-        // Force production domain into central_domains at runtime to bypass caching issues
-        $centralDomains = config('tenancy.central_domains', []);
-        $prodDomain = 'dentalflow.digitalwebsolution.info';
-        if (!in_array($prodDomain, $centralDomains)) {
-            $centralDomains[] = $prodDomain;
-            config(['tenancy.central_domains' => $centralDomains]);
-        }
-
         // Set global URL default for tenant parameter if present in the path
         if (!app()->runningInConsole()) {
-            $host = request()->getHost();
-            $isCentral = in_array($host, config('tenancy.central_domains'));
             $tenantId = request()->segment(1);
 
             // Special case for Livewire updates which are central but need tenant context

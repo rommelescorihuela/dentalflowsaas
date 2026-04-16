@@ -17,13 +17,10 @@ return [
      *
      * Only relevant if you're using the domain or subdomain identification middleware.
      */
-    'central_domains' => [
-        '127.0.0.1',
-        'localhost',
-        'admin.dentalflow.com', // Tu panel de control
-        'dentalflow.com',
-        'dentalflow.digitalwebsolution.info',
-    ],
+    'central_domains' => array_unique(array_merge(
+        ['localhost', '127.0.0.1'],
+        array_filter(array_map('trim', explode(',', env('TENANCY_CENTRAL_DOMAINS', ''))))
+    )),
 
     /**
      * Tenancy bootstrappers are executed when tenancy is initialized.

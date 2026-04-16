@@ -55,8 +55,9 @@ class AppPanelProvider extends PanelProvider
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
-                \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
-                \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class,
+                $isCentral 
+                    ? \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class
+                    : \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
                 \App\Http\Middleware\SetTenancyUrlDefaults::class,
                 \App\Http\Middleware\SyncSpatiePermissionsTeamId::class,
                 DisableBladeIconComponents::class,
