@@ -29,6 +29,31 @@ class SystemTools extends Page
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('fixPermissions')
+                ->label('Fix Database Permissions')
+                ->icon('heroicon-m-key')
+                ->color('success')
+                ->requiresConfirmation()
+                ->modalHeading('Repair Sequence Permissions')
+                ->modalDescription('This will grant the necessary permissions for auto-incrementing IDs in PostgreSQL. Run this if you see errors like "permission denied for sequence".')
+                ->action(function () {
+                    try {
+                        $user = config('database.connections.pgsql.username');
+                        \Illuminate\Support\Facades\DB::statement("GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO \"$user\"");
+                        
+                        Notification::make()
+                            ->title('Permissions fixed successfully!')
+                            ->success()
+                            ->send();
+                    } catch (\Exception $e) {
+                        Notification::make()
+                            ->title('Error fixing permissions')
+                            ->body($e->getMessage())
+                            ->danger()
+                            ->send();
+                    }
+                }),
+
             Action::make('runSeeders')
                 ->label('Run Database Seeders (Soft Reset)')
                 ->icon('heroicon-m-play')
