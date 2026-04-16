@@ -161,6 +161,37 @@ class SystemTools extends Page
                             ->send();
                     }
                 }),
+
+            Action::make('hardReset')
+                ->label('HARD RESET (Danger)')
+                ->icon('heroicon-m-trash')
+                ->color('danger')
+                ->requiresConfirmation()
+                ->modalHeading('WARNING: PERMANENT DATA LOSS')
+                ->modalDescription('THIS WILL DELETE ALL DATA IN THE DATABASE (migrate:fresh) AND START FROM ZERO. Only use this if you want to completely reset the production environment. Proceed?')
+                ->modalSubmitActionLabel('I UNDERSTAND, WIPE ALL DATA')
+                ->modalIcon('heroicon-o-exclamation-triangle')
+                ->action(function () {
+                    try {
+                        // 1. Fresh migrate (destructive)
+                        Artisan::call('migrate:fresh', ['--force' => true]);
+                        
+                        // 2. Run seeders
+                        Artisan::call('db:seed', ['--force' => true]);
+
+                        Notification::make()
+                            ->title('Hard Reset Successful!')
+                            ->body('The database was wiped and recreated with fresh seed data.')
+                            ->success()
+                            ->send();
+                    } catch (\Exception $e) {
+                        Notification::make()
+                            ->title('Error during Hard Reset')
+                            ->body($e->getMessage())
+                            ->danger()
+                            ->send();
+                    }
+                }),
         ];
     }
 }
