@@ -25,10 +25,7 @@ class AppPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        $host = request()->getHost();
-        $isCentral = in_array($host, config('tenancy.central_domains', []));
-        
-        \Illuminate\Support\Facades\Log::info("Tenancy Debug: Host: {$host}, IsCentral: " . ($isCentral ? 'Yes' : 'No') . ", Config: " . json_encode(config('tenancy.central_domains')));
+        $isCentral = in_array(request()->getHost(), config('tenancy.central_domains', []));
 
         return $panel
             ->id('app')
@@ -50,7 +47,7 @@ class AppPanelProvider extends PanelProvider
                 AccountWidget::class,
                 FilamentInfoWidget::class,
             ])
-            ->middleware([
+            ->middleware(array_merge([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
@@ -58,14 +55,17 @@ class AppPanelProvider extends PanelProvider
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
-                \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
-                \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class,
+            ], [
+                $isCentral 
+                    ? \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class
+                    : \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
+            ], [
                 \App\Http\Middleware\SetTenancyUrlDefaults::class,
                 \App\Http\Middleware\SyncSpatiePermissionsTeamId::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
                 \App\Http\Middleware\ForceOnboardingMiddleware::class,
-            ])
+            ]))
             ->plugins([
                 // Shield removed - using custom role management
             ])
