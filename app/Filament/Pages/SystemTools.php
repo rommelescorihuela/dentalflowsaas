@@ -74,19 +74,26 @@ class SystemTools extends Page
                             $messages[] = 'Column domains.tenant_id renamed to clinic_id.';
                         }
 
-                        // 2. Check if permissions table exists but migration is not registered
-                        $hasPermissionsTable = \Illuminate\Support\Facades\Schema::hasTable('permissions');
-                        $isPermissionMigrated = \Illuminate\Support\Facades\DB::table('migrations')
-                            ->where('migration', '2026_01_15_130000_create_permission_tables')
-                            ->exists();
+                        // 2. Sync Permissions Migrations (Mark as done if columns exist)
+                        $permissionMigrations = [
+                            '2026_01_15_130000_create_permission_tables' => 'permissions',
+                            '2026_01_15_140000_add_clinic_id_to_permissions_tables' => 'roles',
+                            '2026_01_21_173957_add_clinic_id_to_role_has_permissions_table' => 'role_has_permissions',
+                        ];
 
-                        if ($hasPermissionsTable && !$isPermissionMigrated) {
-                            $maxBatch = \Illuminate\Support\Facades\DB::table('migrations')->max('batch') ?? 0;
-                            \Illuminate\Support\Facades\DB::table('migrations')->insert([
-                                'migration' => '2026_01_15_130000_create_permission_tables',
-                                'batch' => $maxBatch + 1,
-                            ]);
-                            $messages[] = 'Permissions migration marked as completed (table already existed).';
+                        foreach ($permissionMigrations as $migrationName => $tableName) {
+                            $isMigrated = \Illuminate\Support\Facades\DB::table('migrations')->where('migration', $migrationName)->exists();
+                            $tableExists = \Illuminate\Support\Facades\Schema::hasTable($tableName);
+                            $columnExists = ($tableName === 'permissions') ? true : \Illuminate\Support\Facades\Schema::hasColumn($tableName, 'clinic_id');
+
+                            if ($tableExists && $columnExists && !$isMigrated) {
+                                $maxBatch = \Illuminate\Support\Facades\DB::table('migrations')->max('batch') ?? 0;
+                                \Illuminate\Support\Facades\DB::table('migrations')->insert([
+                                    'migration' => $migrationName,
+                                    'batch' => $maxBatch + 1,
+                                ]);
+                                $messages[] = "Migration '$migrationName' marked as synced.";
+                            }
                         }
 
                         if (empty($messages)) {
