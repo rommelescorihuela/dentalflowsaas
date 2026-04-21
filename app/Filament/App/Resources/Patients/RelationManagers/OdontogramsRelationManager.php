@@ -22,13 +22,35 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
+use App\Models\Odontogram;
+
 class OdontogramsRelationManager extends RelationManager
 {
     protected static string $relationship = 'odontograms';
 
     public static function shouldSkipAuthorization(): bool
     {
-        return true;
+        return false;
+    }
+
+    public function canCreate(): bool
+    {
+        return auth()->user()->can('create', Odontogram::class);
+    }
+
+    public function canEdit($record): bool
+    {
+        return auth()->user()->can('update', $record);
+    }
+
+    public function canDelete($record): bool
+    {
+        return auth()->user()->can('delete', $record);
+    }
+
+    public function canView($record): bool
+    {
+        return auth()->user()->can('view', $record);
     }
 
     public function form(Schema $schema): Schema
@@ -163,6 +185,14 @@ class OdontogramsRelationManager extends RelationManager
                     ->color('danger')
                     ->requiresConfirmation()
                     ->action(function (\App\Models\Odontogram $record) {
+                        if ($record->clinic_id !== tenant('id')) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Access denied')
+                                ->body('No tienes permiso para eliminar este odontograma.')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
                         $record->delete();
                         \Filament\Notifications\Notification::make()
                             ->title('Odontogram deleted')

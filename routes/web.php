@@ -28,9 +28,13 @@ Route::get('/login', function () {
     return redirect('/admin/login');
 })->name('login');
 
-// Portal Routes (Modified to include optional tenant prefix if needed for identification, 
+// Portal Routes (Modified to include optional tenant prefix if needed for identification,
 // but primarily used for named route generation in Filament)
-Route::middleware(['web', 'signed'])->group(function () {
+Route::middleware([
+    'web',
+    'signed',
+    \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class,
+])->group(function () {
     Route::get('/{tenant?}/portal/{patient}', [\App\Http\Controllers\PatientPortalController::class , 'dashboard'])->name('portal.dashboard');
     Route::get('/{tenant?}/portal/{patient}/book', \App\Livewire\PatientPortal\BookAppointment::class)->name('portal.book');
     Route::post('/{tenant?}/portal/budgets/{budget}/accept', [\App\Http\Controllers\PatientPortalController::class , 'acceptBudget'])->name('portal.budgets.accept');

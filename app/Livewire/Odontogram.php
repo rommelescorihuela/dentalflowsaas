@@ -104,7 +104,8 @@ class Odontogram extends Widget implements HasForms
         // Form Logic
         // If single selection, try to load existing data
         if (count($this->selectedSurfaces) === 1) {
-            $existing = ClinicalRecord::where('patient_id', $this->record->id)
+            $existing = ClinicalRecord::where('clinic_id', tenant('id'))
+                ->where('patient_id', $this->record->id)
                 ->where('tooth_number', $this->selectedTooth)
                 ->where('surface', $this->selectedSurfaces[0])
                 ->first();
@@ -224,7 +225,8 @@ class Odontogram extends Widget implements HasForms
 
     public function deleteRecord($tooth, $surface)
     {
-        ClinicalRecord::where('patient_id', $this->record->id)
+        ClinicalRecord::where('clinic_id', tenant('id'))
+            ->where('patient_id', $this->record->id)
             ->where('tooth_number', $tooth)
             ->where('surface', $surface)
             ->delete();

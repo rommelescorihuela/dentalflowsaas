@@ -11,6 +11,10 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            return;
+        }
+
         // Step 1: Add clinic_id column as nullable
         Schema::table('role_has_permissions', function (Blueprint $table) {
             $table->string('clinic_id')->nullable()->after('role_id');

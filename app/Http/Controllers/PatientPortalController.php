@@ -13,8 +13,15 @@ class PatientPortalController extends Controller
     public function dashboard($patient)
     {
         if (!($patient instanceof Patient)) {
-            $patient = Patient::findOrFail($patient);
+            $patient = Patient::where('id', $patient)
+                ->where('clinic_id', tenant('id'))
+                ->firstOrFail();
         }
+
+        if ($patient->clinic_id !== tenant('id')) {
+            abort(403, 'No tienes acceso a este paciente.');
+        }
+
         $patient->load(['appointments', 'budgets', 'clinicalRecords']);
 
         return view('patient-portal.dashboard', [
@@ -24,6 +31,10 @@ class PatientPortalController extends Controller
 
     public function acceptBudget(Budget $budget)
     {
+        if ($budget->clinic_id !== tenant('id')) {
+            abort(403, 'No tienes acceso a este presupuesto.');
+        }
+
         $budget->update([
             'status' => 'accepted',
         ]);
