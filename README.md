@@ -9,7 +9,7 @@ DentalFlow SaaS es una plataforma completa de gestión para clínicas dentales q
 ![Livewire](https://img.shields.io/badge/Livewire-3.x-pink?logo=livewire)
 ![PHP](https://img.shields.io/badge/PHP-8.3-blue?logo=php)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14-blue?logo=postgresql)
-![Tests](https://img.shields.io/badge/Tests-48%20passing-green)
+![Tests](https://img.shields.io/badge/Tests-180%20API%20%2B%2011%20E2E-green)
 
 ---
 

@@ -3,15 +3,11 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use App\Models\Clinic;
-use App\Models\User;
 use App\Models\Patient;
 use App\Models\Appointment;
 use App\Models\Budget;
 use App\Models\BudgetItem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Stancl\Tenancy\Facades\Tenancy;
-use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class PatientAndAppointmentsTest extends TestCase
@@ -27,7 +23,7 @@ class PatientAndAppointmentsTest extends TestCase
     public function test_can_create_patient(): void
     {
         $this->switchTenant('clinic-a');
-        
+
         $patient = Patient::create([
             'name' => 'Juan Pérez',
             'email' => 'juan@test.clinic-a.test',
@@ -39,14 +35,14 @@ class PatientAndAppointmentsTest extends TestCase
             'medical_history' => json_encode(['Hipertensión']),
         ]);
 
-        $this->assertNotNull($patient->id);
+        $this->assertEquals('12345678-9', $patient->rut);
         $this->assertEquals('Juan Pérez', $patient->name);
     }
 
     public function test_can_create_appointment(): void
     {
         $this->switchTenant('clinic-a');
-        
+
         $appointment = Appointment::create([
             'clinic_id' => 'clinic-a',
             'patient_id' => $this->patientA->id,
@@ -57,14 +53,14 @@ class PatientAndAppointmentsTest extends TestCase
             'notes' => 'Limpieza dental',
         ]);
 
-        $this->assertNotNull($appointment->id);
+        $this->assertEquals('control', $appointment->type);
         $this->assertEquals('scheduled', $appointment->status);
     }
 
     public function test_can_create_budget(): void
     {
         $this->switchTenant('clinic-a');
-        
+
         $budget = Budget::create([
             'clinic_id' => 'clinic-a',
             'patient_id' => $this->patientA->id,
@@ -72,14 +68,14 @@ class PatientAndAppointmentsTest extends TestCase
             'status' => 'pending',
         ]);
 
-        $this->assertNotNull($budget->id);
+        $this->assertEquals(150000, $budget->total);
         $this->assertEquals('pending', $budget->status);
     }
 
     public function test_budget_can_have_items(): void
     {
         $this->switchTenant('clinic-a');
-        
+
         $budget = Budget::create([
             'clinic_id' => 'clinic-a',
             'patient_id' => $this->patientA->id,
@@ -111,7 +107,7 @@ class PatientAndAppointmentsTest extends TestCase
     public function test_patient_can_have_multiple_appointments(): void
     {
         $this->switchTenant('clinic-a');
-        
+
         for ($i = 1; $i <= 5; $i++) {
             Appointment::create([
                 'clinic_id' => 'clinic-a',
@@ -129,7 +125,7 @@ class PatientAndAppointmentsTest extends TestCase
     public function test_patient_can_have_multiple_budgets(): void
     {
         $this->switchTenant('clinic-a');
-        
+
         Budget::create([
             'clinic_id' => 'clinic-a',
             'patient_id' => $this->patientA->id,
@@ -151,7 +147,7 @@ class PatientAndAppointmentsTest extends TestCase
     public function test_appointment_isolation_between_clinics(): void
     {
         $this->switchTenant('clinic-a');
-        
+
         $appointmentA = Appointment::create([
             'clinic_id' => 'clinic-a',
             'patient_id' => $this->patientA->id,
@@ -161,7 +157,7 @@ class PatientAndAppointmentsTest extends TestCase
         ]);
 
         $this->switchTenant('clinic-b');
-        
+
         $appointmentB = Appointment::create([
             'clinic_id' => 'clinic-b',
             'patient_id' => $this->patientB->id,
@@ -171,7 +167,7 @@ class PatientAndAppointmentsTest extends TestCase
         ]);
 
         $this->switchTenant('clinic-a');
-        
+
         $appointmentsInA = Appointment::all()->count();
         $this->assertEquals(1, $appointmentsInA);
     }
@@ -179,7 +175,7 @@ class PatientAndAppointmentsTest extends TestCase
     public function test_budget_status_transitions(): void
     {
         $this->switchTenant('clinic-a');
-        
+
         $budget = Budget::create([
             'clinic_id' => 'clinic-a',
             'patient_id' => $this->patientA->id,
@@ -197,36 +193,30 @@ class PatientAndAppointmentsTest extends TestCase
         $this->assertEquals('completed', $budget->status);
     }
 
-    public function test_patient_cannot_access_other_clinic_appointments(): void
-    {
-        $this->switchTenant('clinic-a');
-        
-        Appointment::create([
-            'clinic_id' => 'clinic-a',
-            'patient_id' => $this->patientA->id,
-            'start_time' => Carbon::now()->addDay()->setHour(10),
-            'end_time' => Carbon::now()->addDay()->setHour(10)->addMinutes(30),
-            'status' => 'scheduled',
-        ]);
-
-        $this->switchTenant('clinic-b');
-        
-        $count = Appointment::all()->count();
-        $this->assertEquals(0, $count);
-    }
-
     public function test_patient_rut_is_unique_per_clinic(): void
     {
         $this->switchTenant('clinic-a');
-        
+
+        $uniqueRut = '60000001-' . time();
+
         $patient = Patient::create([
             'name' => 'Paciente 1',
-            'email' => 'p1@clinic-a.test',
+            'email' => 'p1-' . time() . '@clinic-a.test',
             'phone' => '+56911111111',
             'clinic_id' => 'clinic-a',
-            'rut' => '11111111-1',
+            'rut' => $uniqueRut,
         ]);
 
-        $this->assertNotNull($patient->id);
+        $this->assertEquals('Paciente 1', $patient->name);
+
+        $this->expectException(\Illuminate\Database\QueryException::class);
+
+        Patient::create([
+            'name' => 'Paciente Duplicado',
+            'email' => 'p2-' . time() . '@clinic-a.test',
+            'phone' => '+56922222222',
+            'clinic_id' => 'clinic-a',
+            'rut' => $uniqueRut,
+        ]);
     }
 }

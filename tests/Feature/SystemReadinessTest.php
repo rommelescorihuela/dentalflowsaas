@@ -46,6 +46,6 @@ class SystemReadinessTest extends TestCase
 
     public function test_tenant_service_is_configured(): void
     {
-        $this->assertNotNull(config('tenancy.tenant_model'));
+        $this->assertEquals(\App\Models\Clinic::class, config('tenancy.tenant_model'));
     }
 }

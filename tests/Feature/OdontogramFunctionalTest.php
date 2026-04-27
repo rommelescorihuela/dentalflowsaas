@@ -34,7 +34,7 @@ class OdontogramFunctionalTest extends TestCase
             'status' => 'in_progress',
         ]);
 
-        $this->assertNotNull($odontogram->id);
+        $this->assertEquals('Consulta Inicial', $odontogram->name);
         $this->assertEquals('in_progress', $odontogram->status);
     }
 
@@ -61,7 +61,7 @@ class OdontogramFunctionalTest extends TestCase
             'notes' => 'Caries detected',
         ]);
 
-        $this->assertNotNull($record->id);
+        $this->assertEquals(11, $record->tooth_number);
         $this->assertEquals('caries', $record->diagnosis_code);
     }
 
