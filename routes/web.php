@@ -28,11 +28,14 @@ Route::get('/login', function () {
     return redirect('/admin/login');
 })->name('login');
 
-// Portal Routes (Modified to include optional tenant prefix if needed for identification,
-// but primarily used for named route generation in Filament)
+Route::get('/terms', [\App\Http\Controllers\LegalController::class, 'terms'])->name('legal.terms');
+Route::get('/privacy', [\App\Http\Controllers\LegalController::class, 'privacy'])->name('legal.privacy');
+
+// Portal Routes (signed URLs for patient access)
 Route::middleware([
     'web',
     'signed',
+    'throttle:portal',
     \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class,
 ])->group(function () {
     Route::get('/{tenant?}/portal/{patient}', [\App\Http\Controllers\PatientPortalController::class , 'dashboard'])->name('portal.dashboard');

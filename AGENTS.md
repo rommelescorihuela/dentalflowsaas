@@ -5,7 +5,7 @@
 - **Multi-tenancy**: Stancl Tenancy 3.9 (domain-based)
 - **Auth/RBAC**: Spatie Permissions 6.0
 - **Payments**: Laravel Cashier (Stripe)
-- **Tests**: 48 passing (88 assertions) across 6 Feature test files
+- **Tests**: 175 passing (359 assertions) across 17 Feature test files
 
 ## Critical Commands
 ```bash
@@ -30,6 +30,7 @@ composer run setup
 ## Database
 - **Engine**: PostgreSQL only — do NOT use SQLite
 - **Test DB**: `dentalflow_test` on `127.0.0.1:5432` (see `phpunit.xml`)
+- Test credentials in `.env.testing` (added to `.gitignore`)
 - Test credentials in `phpunit.xml` must match your local PostgreSQL setup
 
 ## Architecture
@@ -42,14 +43,16 @@ composer run setup
 - **Existing tenants**: `clinic1`, `clinic2` (see `domains` table for custom domains)
 - **Tenant isolation**: Models use `BelongsToClinic` trait with global scopes filtering by `clinic_id`
 - **Permission sync**: `SyncSpatiePermissionsTeamId` middleware ties Spatie permissions to clinic
+- **Rate limiting**: Portal routes throttled to 30 req/min per IP
 - **Key directories**:
   - `app/Filament/App/` — clinic panel resources and widgets
   - `app/Filament/Resources/` — shared Filament resources
   - `app/Livewire/` — Odontogram interactive component, PatientPortal components
   - `app/Models/` — Patient, Odontogram, ClinicalRecord, Budget, Appointment, etc.
-  - `app/Observers/` — model observers
+  - `app/Observers/` — model observers (Appointment, Odontogram)
   - `app/Policies/` — authorization policies
   - `app/Scopes/` — global scopes for tenant filtering
+  - `app/Services/` — `BudgetGenerator` for auto-budget creation
   - `app/Traits/` — `BelongsToClinic`, `HasSpatiePermissions`, `ActivityLogger`
 
 ## Build & Assets
@@ -58,13 +61,19 @@ composer run setup
 - Run `npm run dev` (or `composer run dev`) during development
 
 ## Testing
-- **Test suite**: 6 Feature files, no Unit tests currently
+- **Test suite**: 17 Feature files, 1 Unit file
 - `SecurityTenantIsolationTest` — 9 tenant isolation tests
 - `OdontogramFunctionalTest` — odontogram session/record tests
 - `PatientAndAppointmentsTest` — patient and appointment workflows
 - `AuthorizationRbacTest` — RBAC permission checks
 - `SystemReadinessTest` — structural checks (models, middleware, routes)
+- `HttpApiTest` — 20 HTTP/API endpoint tests
+- `BudgetGeneratorTest` — 7 auto-budget generation tests
+- `CalendarWidgetValidationTest` — 6 calendar drag-and-drop validation tests
 - Requires PostgreSQL `dentalflow_test` database to exist before running
+- Uses `RefreshDatabase` and `$this->switchTenant('clinic-a')`
+- 34 redundant tests removed across 11 files
+- 39 weak assertions replaced with strong ones (`assertEquals`, `assertCount`)
 
 ## Security Fixes Applied (2026-04-21)
 - IDOR in PatientPortalController (dashboard, budget acceptance)
@@ -73,13 +82,57 @@ composer run setup
 - Routes in web.php missing tenancy middleware
 - See `SECURITY_AUDIT.md` for details
 
+## Recent Updates (2026-04-28)
+
+### Bug Fixes
+- Added `procedureInventories()` relationship to `ProcedurePrice` model (inventory deduction was broken)
+- Added validation to `CalendarWidget::updateAppointment()` (past dates, overlapping slots)
+- Added `BelongsToClinic` trait to `BudgetItem` model + migration for `clinic_id` column
+- Fixed `BookAppointment` to use procedure duration instead of hardcoded 30min
+- Removed duplicate portal routes from `tenant.php` (centralized in `web.php`)
+- Fixed `AppointmentResource` query: only doctors filtered by assignment, admin/assistants see all
+- Fixed `ActivityLogger` to prioritize `tenant('id')` over `session('tenant_id')`
+
+### Features
+- **Auto-budget generation**: `BudgetGenerator` service creates draft budgets from completed odontograms
+- `OdontogramObserver` triggers budget generation when status changes to `completed`
+- Manual "Generate Budget" action in `OdontogramsRelationManager` for completed odontograms
+- `ProcedurePrice` now supports `diagnosis_code` mapping for automatic pricing
+- `Budget` model linked to `odontogram` via `odontogram_id` foreign key
+- `Budget` model has `notes` field for additional context
+- `BudgetResource` UI shows source odontogram link, status colors, and notes column
+
+### Production Readiness
+- CI/CD workflow: `.github/workflows/ci.yml` (tests, code quality, security scan)
+- Dockerfile: production-ready PHP 8.3-fpm image with `--no-dev` Composer install
+- Deploy guide: `DEPLOY.md` (manual, Docker Compose, Forge/Vapor, Nginx, rollback)
+- Transactional emails: Budget sent, Appointment reminders, Password reset
+- Legal pages: Terms of Service (`/terms`), Privacy Policy (`/privacy`)
+
+### Code Quality
+- Added `ActivityLogger` trait to `Odontogram` and `Treatment` models
+- Removed empty Schema classes (`PatientForm`, `AppointmentForm`, `BudgetForm`)
+- Added `User::appointments()` inverse relationship
+- Created `BudgetItemFactory` with automatic `clinic_id` from parent budget
+- Updated `ProcedurePriceFactory` with `diagnosis_code` and integer `duration`
+- Created `ProcedurePriceSeeder` with 6 default diagnosis-to-procedure mappings
+- Added rate limiting (30 req/min) to patient portal routes
+
 ## Setup
 ```bash
 composer install
 cp .env.example .env
 php artisan key:generate
 php artisan migrate
+php artisan db:seed --class=ProcedurePriceSeeder  # seed default procedure prices
 npm install
 npm run build
 php artisan make:filament-user   # create admin user
 ```
+
+## Production Readiness
+- Deploy with `composer install --no-dev --optimize-autoloader`
+- Use `npm install && npm run build` for assets
+- Set `COMPOSER_FLAGS=--no-dev` in CI/CD or Forge/Vapor
+- CI/CD workflows configured in `.github/workflows/ci.yml`
+- Docker deployment via `Dockerfile` or `docker-compose.yml` (see `DEPLOY.md`)

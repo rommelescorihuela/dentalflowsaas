@@ -110,9 +110,11 @@ class AppointmentResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
-        if (auth()->check() && !auth()->user()->hasRole('admin')) {
+        if (auth()->check() && auth()->user()->hasRole('doctor')) {
+            // Doctors only see their own appointments
             $query->where('user_id', auth()->id());
         }
+        // Admin and assistant roles see all appointments
 
         return $query;
     }

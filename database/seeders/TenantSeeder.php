@@ -28,7 +28,8 @@ class TenantSeeder extends Seeder
         ])->assignRole('admin');
 
         // Seed data for Tenant 1
-        $procedures = \App\Models\ProcedurePrice::factory()->count(10)->create(['clinic_id' => $clinic1->id]);
+        $this->call(ProcedurePriceSeeder::class);
+        $procedures = \App\Models\ProcedurePrice::where('clinic_id', $clinic1->id)->get();
         $patients = \App\Models\Patient::factory()->count(20)->create(['clinic_id' => $clinic1->id]);
         \App\Models\Inventory::factory()->count(20)->create(['clinic_id' => $clinic1->id]);
 

@@ -42,16 +42,52 @@ class CalendarWidget extends Widget
     {
         $appointment = Appointment::find($id);
 
-        if ($appointment) {
-            $appointment->update([
-                'start_time' => Carbon::parse($start),
-                'end_time' => Carbon::parse($end),
-            ]);
-
-            \Filament\Notifications\Notification::make()
-                ->title('Appointment Rescheduled')
-                ->success()
-                ->send();
+        if (!$appointment) {
+            return;
         }
+
+        $newStart = Carbon::parse($start);
+        $newEnd = Carbon::parse($end);
+
+        // Validate: no past dates
+        if ($newStart->lt(now())) {
+            \Filament\Notifications\Notification::make()
+                ->title('Cannot reschedule to past date')
+                ->body('Appointments cannot be moved to a date in the past.')
+                ->danger()
+                ->send();
+            return;
+        }
+
+        // Validate: no overlapping appointments for the same patient
+        $overlapping = Appointment::where('patient_id', $appointment->patient_id)
+            ->where('id', '!=', $appointment->id)
+            ->where('status', '!=', 'cancelled')
+            ->where(function ($query) use ($newStart, $newEnd) {
+                $query->where(function ($q) use ($newStart, $newEnd) {
+                    $q->where('start_time', '<', $newEnd)
+                      ->where('end_time', '>', $newStart);
+                });
+            })
+            ->exists();
+
+        if ($overlapping) {
+            \Filament\Notifications\Notification::make()
+                ->title('Time slot unavailable')
+                ->body('The patient already has an appointment during this time.')
+                ->danger()
+                ->send();
+            return;
+        }
+
+        $appointment->update([
+            'start_time' => $newStart,
+            'end_time' => $newEnd,
+        ]);
+
+        \Filament\Notifications\Notification::make()
+            ->title('Appointment Rescheduled')
+            ->success()
+            ->send();
     }
 }

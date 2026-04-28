@@ -5,11 +5,11 @@
 DentalFlow SaaS es una plataforma completa de gestión para clínicas dentales que permite administrar pacientes, citas, presupuestos y un odontograma interactivo avanzado con historial clínico por sesiones.
 
 ![Laravel](https://img.shields.io/badge/Laravel-12.47-red?logo=laravel)
-![Filament](https://img.shields.io/badge/Filament-3.x-orange?logo=filament)
+![Filament](https://img.shields.io/badge/Filament-4.x-orange?logo=filament)
 ![Livewire](https://img.shields.io/badge/Livewire-3.x-pink?logo=livewire)
 ![PHP](https://img.shields.io/badge/PHP-8.3-blue?logo=php)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14-blue?logo=postgresql)
-![Tests](https://img.shields.io/badge/Tests-180%20API%20%2B%2011%20E2E-green)
+![Tests](https://img.shields.io/badge/Tests-175%20passing%20(359%20assertions)-green)
 
 ---
 
@@ -42,16 +42,19 @@ DentalFlow SaaS es una plataforma completa de gestión para clínicas dentales q
 - Portal de paciente para reservas
 
 ### 📅 Sistema de Citas
-- Calendario interactivo
+- Calendario interactivo con drag-and-drop
+- Validación automática de fechas pasadas y solapamientos
 - Gestión de horarios personalizados por clínica
 - Generación automática de slots
 - Notificaciones automáticas
 
 ### 💰 Presupuestos
-- Creación de presupuestos detallados
+- **Generación automática** desde odontogramas completados
+- Creación manual de presupuestos detallados
 - Ítems de tratamiento personalizables
-- Seguimiento de estados (pending/accepted/completed)
+- Seguimiento de estados (draft/sent/accepted/rejected)
 - Integración con pagos
+- Notas y link al odontograma origen
 
 ### 🦷 Odontograma Interactivo
 - **SVG interactivo** con 32 dientes
@@ -60,6 +63,7 @@ DentalFlow SaaS es una plataforma completa de gestión para clínicas dentales q
 - **Historial por sesiones** - múltiples odontogramas
 - **Códigos de diagnóstico** con colores
 - **Panel flotante** no bloqueante
+- **Presupuesto automático** al completar odontograma
 
 ### 📊 Business Intelligence
 - Dashboard con métricas financieras
@@ -106,6 +110,11 @@ Request → InitializeTenancyByDomain → SetTenancyUrlDefaults → SyncSpatiePe
 | 5 | Portal Sin Middleware | 🟠 ALTA | routes/web.php | ✅ |
 | 6 | Soft Deletes Sin Verificación | 🟡 MEDIA | OdontogramsRelationManager.php | ✅ |
 
+### Hardening Adicional
+- Rate limiting en portal (30 req/min por IP)
+- Credenciales de test en `.env.testing` (gitignored)
+- `require-dev` aislado en `composer.json`
+
 ### RBAC
 - Roles por clínica: Doctor, Asistente, Admin
 - Permisos granulares por recurso
@@ -115,7 +124,7 @@ Request → InitializeTenancyByDomain → SetTenancyUrlDefaults → SyncSpatiePe
 
 ## 🧪 Testing
 
-### Suite de Tests (48 tests, 88 aserciones)
+### Suite de Tests (175 tests, 359 aserciones)
 
 ```bash
 # Ejecutar todos los tests
@@ -126,6 +135,9 @@ php artisan test --filter=SecurityTenantIsolationTest
 php artisan test --filter=OdontogramFunctionalTest
 php artisan test --filter=PatientAndAppointmentsTest
 php artisan test --filter=AuthorizationRbacTest
+php artisan test --filter=BudgetGeneratorTest
+php artisan test --filter=CalendarWidgetValidationTest
+php artisan test --filter=HttpApiTest
 ```
 
 ### Tests de Aislamiento (9 tests)
@@ -148,6 +160,32 @@ php artisan test --filter=AuthorizationRbacTest
 - Valid codes ✅
 - Valid surfaces ✅
 - Treatment status ✅
+
+### Tests HTTP/API (20 tests)
+- Landing page ✅
+- Auth routes ✅
+- Admin panel ✅
+- Clinic panel ✅
+- Patient portal ✅
+- API endpoints ✅
+- Health check `/up` ✅
+
+### Tests de Presupuesto Automático (7 tests)
+- Generación desde odontograma completado ✅
+- No duplica presupuestos existentes ✅
+- Manejo de registros vacíos ✅
+- Mapeo con ProcedurePrice por diagnosis_code ✅
+- Omite tratamientos completados ✅
+- Fecha de expiración automática ✅
+- Notas de generación automática ✅
+
+### Tests de Validación de Calendario (6 tests)
+- No permite reprogramar a fechas pasadas ✅
+- No permite solapamientos ✅
+- Permite slots válidos futuros ✅
+- Manejo de citas inexistentes ✅
+- Omite citas canceladas ✅
+- Eventos en rango de fechas ✅
 
 ---
 
@@ -209,6 +247,9 @@ php artisan key:generate
 # Migraciones
 php artisan migrate
 
+# Seed de procedimientos por defecto
+php artisan db:seed --class=ProcedurePriceSeeder
+
 # Crear usuario admin
 php artisan make:filament-user
 
@@ -233,6 +274,9 @@ php artisan tenants:migrate         # Migrar tenant
 php artisan test                    # Todos los tests
 php artisan test --filter=TestName    # Test específico
 
+# Seeders
+php artisan db:seed --class=ProcedurePriceSeeder  # Procedimientos por defecto
+
 # Limpieza
 php artisan optimize:clear           # Limpiar caché
 ```
@@ -252,8 +296,11 @@ dentalflowsaas/
 │   │   │   ├── Patients/
 │   │   │   │   ├── PatientResource.php
 │   │   │   │   └── RelationManagers/
+│   │   │   │       └── OdontogramsRelationManager.php  # Botón "Generate Budget"
 │   │   │   └── Budgets/
+│   │   │       └── BudgetResource.php  # Link a odontograma, notas, colores
 │   │   └── Widgets/
+│   │       └── CalendarWidget.php  # Validación drag-and-drop
 │   ├── Http/Middleware/
 │   │   ├── SyncSpatiePermissionsTeamId.php
 │   │   ├── ForceOnboardingMiddleware.php
@@ -261,12 +308,18 @@ dentalflowsaas/
 │   ├── Livewire/
 │   │   ├── Odontogram.php            # Odontograma interactivo
 │   │   └── PatientPortal/
-│   │       └── BookAppointment.php
+│   │       └── BookAppointment.php   # Duración dinámica
 │   ├── Models/
 │   │   ├── Patient.php
-│   │   ├── Odontogram.php
+│   │   ├── Odontogram.php            # ActivityLogger añadido
 │   │   ├── ClinicalRecord.php
-│   │   └── Budget.php
+│   │   ├── Budget.php                # odontogram_id, notes
+│   │   └── BudgetItem.php            # BelongsToClinic añadido
+│   ├── Observers/
+│   │   ├── AppointmentObserver.php   # Deducción de inventario
+│   │   └── OdontogramObserver.php    # Generación automática de presupuestos
+│   ├── Services/
+│   │   └── BudgetGenerator.php       # Servicio de generación de presupuestos
 │   └── Traits/
 │       ├── BelongsToClinic.php
 │       ├── HasSpatiePermissions.php
@@ -277,15 +330,26 @@ dentalflowsaas/
 │   ├── PatientAndAppointmentsTest.php
 │   ├── AuthorizationRbacTest.php
 │   ├── SystemReadinessTest.php
-│   └── ExampleTest.php
-├── database/migrations/
-├── benchmark.php                    # Script de rendimiento
-├── verify_system_health.php      # Verificación sistema
-├── verify_all_phases.php         # Verificación features
-├── verify_registration.php        # Verificación registro
-├── SECURITY_AUDIT.md            # Informe de seguridad
-├── CONTEXT.md                   # Contexto del proyecto
-└── README.md                    # Este archivo
+│   ├── HttpApiTest.php
+│   ├── BudgetGeneratorTest.php       # 7 tests
+│   └── CalendarWidgetValidationTest.php  # 6 tests
+├── database/
+│   ├── factories/
+│   │   ├── BudgetItemFactory.php     # Nueva factory
+│   │   └── ProcedurePriceFactory.php # Con diagnosis_code
+│   ├── migrations/
+│   │   ├── ..._add_clinic_id_to_budget_items_table.php
+│   │   ├── ..._add_odontogram_id_to_budgets_table.php
+│   │   ├── ..._add_notes_to_budgets_table.php
+│   │   └── ..._add_diagnosis_code_to_procedure_prices_table.php
+│   └── seeders/
+│       └── ProcedurePriceSeeder.php  # 6 mapeos diagnosis→procedimiento
+├── .github/workflows/ci.yml          # CI/CD pipeline
+├── Dockerfile                        # Producción PHP 8.3-fpm
+├── DEPLOY.md                         # Guía de despliegue
+├── SECURITY_AUDIT.md                 # Informe de seguridad
+├── CONTEXT.md                        # Contexto del proyecto
+└── README.md                         # Este archivo
 ```
 
 ---
@@ -301,10 +365,13 @@ dentalflowsaas/
 | `odontograms` | Sesiones de odontograma |
 | `clinical_records` | Registros por superficie |
 | `appointments` | Citas |
-| `budgets` | Presupuestos |
-| `budget_items` | Items de presupuesto |
+| `budgets` | Presupuestos (con odontogram_id, notes) |
+| `budget_items` | Items de presupuesto (con clinic_id) |
+| `procedure_prices` | Precios de procedimientos (con diagnosis_code) |
 | `payments` | Pagos |
 | `system_activities` | Log de actividades |
+| `inventories` | Inventario |
+| `procedure_inventory` | Inventario de procedimientos |
 
 ### Diagnósticos del Odontograma
 | Código | Color | Descripción |
@@ -318,7 +385,7 @@ dentalflowsaas/
 
 ---
 
-## 📊 Diagnóstico Actual (2026-04-21)
+## 📊 Diagnóstico Actual (2026-04-28)
 
 ### Estado del Sistema
 ```
@@ -330,6 +397,10 @@ dentalflowsaas/
 ✅ BI Dashboard: 3 KPIs
 ✅ Tenant Isolation: OK
 ✅ Odontogram: OK
+✅ RUT único por clínica: OK
+✅ Validación de citas: OK
+✅ Presupuesto automático: OK
+✅ Rate limiting portal: OK
 ```
 
 ### Benchmark
@@ -344,9 +415,33 @@ Promedio:     38ms  🚀
 
 ### Tests
 ```
-Tests: 48 passed, 88 assertions ✅
-Duration: ~11s
+Tests: 175 passed, 359 assertions ✅
+Duration: ~35s
 ```
+
+### Mejoras Recientes
+- Validación de fechas pasadas y solapamientos en citas
+- RUT único por clínica
+- Credenciales de test seguras (`.env.testing` en `.gitignore`)
+- 34 tests redundantes eliminados
+- 39 aserciones débiles reemplazadas por fuertes
+- 20 nuevos tests HTTP/API
+- 7 tests de generación automática de presupuestos
+- 6 tests de validación de calendario
+- Health check `/up` configurado
+- `require-dev` correctamente aislado
+- CI/CD pipeline configurado
+- Dockerfile y guía de despliegue
+
+### Preparación para Producción
+- Desplegar con `composer install --no-dev --optimize-autoloader`
+- Usar `npm install && npm run build` para assets
+- Configurar `COMPOSER_FLAGS=--no-dev` en CI/CD o Forge/Vapor
+- CI/CD: `.github/workflows/ci.yml` (tests, code quality, security scan)
+- Docker: `Dockerfile` (PHP 8.3-fpm, production-ready)
+- Guía completa: `DEPLOY.md`
+- **Emails transaccionales**: Presupuesto enviado, recordatorio de citas, reset de contraseña
+- **Legal**: Términos de Servicio (`/terms`) y Política de Privacidad (`/privacy`)
 
 ---
 

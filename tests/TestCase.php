@@ -132,6 +132,8 @@ abstract class TestCase extends BaseTestCase
         $superAdmin->syncPermissions($this->permissions);
 
         $admin = Role::findByName('admin');
+        // Admin has same permissions as super-admin but is limited to single clinic
+        // The distinction is enforced at the application level via clinic_id
         $admin->syncPermissions($this->permissions);
 
         $doctor = Role::findByName('doctor');

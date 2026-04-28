@@ -50,9 +50,17 @@ class BookAppointment extends Component
         $startHour = isset($tenantData['schedule_start']) ?Carbon::parse($tenantData['schedule_start'])->hour : 9;
         $endHour = isset($tenantData['schedule_end']) ?Carbon::parse($tenantData['schedule_end'])->hour : 18;
 
+        // Use procedure duration if available, otherwise default to 30 minutes
+        $interval = 30;
+        if ($this->selectedProcedureId) {
+            $procedure = ProcedurePrice::find($this->selectedProcedureId);
+            if ($procedure && $procedure->duration) {
+                $interval = (int) $procedure->duration;
+            }
+        }
+
         $start = $date->copy()->setTime($startHour, 0);
         $end = $date->copy()->setTime($endHour, 0);
-        $interval = 30; // minutes
 
         $existingAppointments = Appointment::whereDate('start_time', $date)
             ->where('status', '!=', 'cancelled')
@@ -104,16 +112,19 @@ class BookAppointment extends Component
     {
         $this->validate();
 
+        $procedure = ProcedurePrice::findOrFail($this->selectedProcedureId);
+        $duration = $procedure->duration ?? 30; // Fallback to 30 minutes if not set
+
         $date = Carbon::parse($this->selectedDate);
         $timeParts = explode(':', $this->selectedTimeSlot);
         $startTime = $date->copy()->setTime($timeParts[0], $timeParts[1]);
-        $endTime = $startTime->copy()->addMinutes(30); // Default duration
+        $endTime = $startTime->copy()->addMinutes($duration);
 
         // Create appointment
         Appointment::create([
             'patient_id' => $this->patient->id,
             'clinic_id' => tenant('id'),
-            'notes' => 'Cita Web: ' . ProcedurePrice::find($this->selectedProcedureId)->procedure_name,
+            'notes' => 'Cita Web: ' . $procedure->procedure_name,
             'start_time' => $startTime,
             'end_time' => $endTime,
             'status' => 'scheduled',

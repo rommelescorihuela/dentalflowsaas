@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Traits\BelongsToClinic;
+use App\Traits\ActivityLogger;
 
 class Odontogram extends Model
 {
-    use BelongsToClinic;
+    use BelongsToClinic, ActivityLogger;
 
     protected $fillable = [
         'clinic_id',
@@ -32,5 +33,10 @@ class Odontogram extends Model
     public function clinicalRecords(): HasMany
     {
         return $this->hasMany(ClinicalRecord::class);
+    }
+
+    public function budget(): HasMany
+    {
+        return $this->hasMany(Budget::class);
     }
 }

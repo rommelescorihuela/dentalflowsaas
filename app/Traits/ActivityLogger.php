@@ -33,7 +33,7 @@ trait ActivityLogger
 
         SystemActivity::create([
             'uuid' => (string) \Illuminate\Support\Str::uuid(),
-            'clinic_id' => session('tenant_id') ?? $model->clinic_id ?? null, // Attempt to capture tenant
+            'clinic_id' => tenant('id') ?? $model->clinic_id ?? session('tenant_id'), // Use tenant() helper first, fallback to model then session
             'user_id' => Auth::id(),
             'user_type' => Auth::user() ? class_basename(Auth::user()) : null,
             'action' => $action,

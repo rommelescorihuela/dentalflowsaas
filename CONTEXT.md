@@ -24,14 +24,14 @@
 | `Odontogram` | `odontograms` | Sesión de odontograma (status: in_progress/completed) |
 | `ClinicalRecord` | `clinical_records` | Registro clínico por superficie dental |
 | `Appointment` | `appointments` | Citas de pacientes |
-| `Budget` | `budgets` | Presupuestos |
-| `BudgetItem` | `budget_items` | Items de presupuesto |
+| `Budget` | `budgets` | Presupuestos (con odontogram_id, notes) |
+| `BudgetItem` | `budget_items` | Items de presupuesto (con clinic_id) |
 | `Treatment` | `treatments` | Tratamientos disponibles |
 | `Domain` | `domains` | Dominios personalizados por tenant |
 | `SystemActivity` | `system_activities` | Log de actividades |
 | `Payment` | `payments` | Pagos |
 | `SubscriptionPayment` | `subscription_payments` | Pagos de suscripción |
-| `ProcedurePrice` | `procedure_prices` | Precios de procedimientos |
+| `ProcedurePrice` | `procedure_prices` | Precios de procedimientos (con diagnosis_code) |
 | `Inventory` | `inventories` | Inventario |
 | `ProcedureInventory` | `procedure_inventory` | Inventario de procedimientos |
 
@@ -45,6 +45,7 @@
 - **Diagnósticos**: caries (rojo), filled (azul), endodontic (amarillo), missing (negro), crown (púrpura), healthy (blanco)
 - **Panel flotante** no bloqueante para edición
 - **Historial por sesiones** - múltiples odontogramas por paciente
+- **Presupuesto automático** al completar odontograma
 - **Trait**: `BelongsToClinic` para aislamiento multi-tenant
 
 ### Códigos de Diagnóstico
@@ -106,6 +107,8 @@ php artisan diagnostic:all --skip-tests
 # Tests
 php artisan test
 php artisan test --filter=SecurityTenantIsolationTest
+php artisan test --filter=BudgetGeneratorTest
+php artisan test --filter=CalendarWidgetValidationTest
 
 # Rutas
 php artisan test:routes
@@ -115,6 +118,9 @@ php artisan route:list
 php artisan tenants:create
 php artisan tenants:migrate
 php artisan tenants:artisan
+
+# Seeders
+php artisan db:seed --class=ProcedurePriceSeeder
 
 # Filament
 php artisan make:filament-user
@@ -152,12 +158,14 @@ app/
 │       │   ├── Patients/
 │       │   │   ├── PatientResource.php
 │       │   │   ├── RelationManagers/
-│       │   │   │   └── OdontogramsRelationManager.php
+│       │   │   │   └── OdontogramsRelationManager.php  # "Generate Budget"
 │       │   │   └── Pages/
 │       │   │       └── ViewOdontogram.php
 │       │   ├── Budgets/
+│       │   │   └── BudgetResource.php  # Link odontograma, notas, colores
 │       │   └── SystemActivities/
 │       └── Widgets/
+│           └── CalendarWidget.php  # Validación drag-and-drop
 ├── Http/
 │   ├── Controllers/
 │   │   └── PatientPortalController.php
@@ -168,18 +176,22 @@ app/
 ├── Livewire/
 │   ├── Odontogram.php                 # Componente odontograma
 │   └── PatientPortal/
-│       └── BookAppointment.php         # Reservar citas
+│       └── BookAppointment.php         # Reservar citas (duración dinámica)
 ├── Models/
 │   ├── Patient.php
-│   ├── Odontogram.php
+│   ├── Odontogram.php                 # ActivityLogger añadido
 │   ├── ClinicalRecord.php
-│   ├── Budget.php
-│   └── BudgetItem.php
+│   ├── Budget.php                     # odontogram_id, notes
+│   ├── BudgetItem.php                 # BelongsToClinic añadido
+│   └── ProcedurePrice.php             # diagnosis_code, procedureInventories()
+├── Observers/
+│   ├── AppointmentObserver.php        # Deducción de inventario
+│   └── OdontogramObserver.php         # Generación automática de presupuestos
+├── Services/
+│   └── BudgetGenerator.php            # Servicio de generación de presupuestos
 ├── Providers/
 │   ├── TenancyServiceProvider.php
-│   └── AppServiceProvider.php
-├── Services/
-│   └── TenantService.php
+│   └── AppServiceProvider.php         # Rate limiting, observers
 └── Traits/
     ├── BelongsToClinic.php
     ├── HasSpatiePermissions.php
@@ -188,7 +200,7 @@ app/
 
 ---
 
-## Testing (48 tests, 88 aserciones)
+## Testing (175 tests, 359 aserciones)
 
 ### Suites de Tests
 - `SecurityTenantIsolationTest` - 9 tests de aislamiento
@@ -196,12 +208,18 @@ app/
 - `PatientAndAppointmentsTest` - 10 tests de pacientes
 - `AuthorizationRbacTest` - 8 tests de autorización
 - `SystemReadinessTest` - 6 tests de sistema
-- `ExampleTest` - 4 tests de ejemplo
+- `HttpApiTest` - 20 tests HTTP/API
+- `BudgetGeneratorTest` - 7 tests de generación automática de presupuestos
+- `CalendarWidgetValidationTest` - 6 tests de validación de calendario
+- 34 tests redundantes eliminados
+- 39 aserciones débiles reemplazadas por fuertes
 
 ### Ejecución
 ```bash
 php artisan test
 php artisan test --filter=SecurityTenantIsolationTest
+php artisan test --filter=BudgetGeneratorTest
+php artisan test --filter=CalendarWidgetValidationTest
 ```
 
 ---
@@ -218,9 +236,51 @@ php artisan test --filter=SecurityTenantIsolationTest
 | 5 | Portal Routes Sin Middleware | 🟠 ALTA | routes/web.php |
 | 6 | Soft Deletes Sin Verificación | 🟡 MEDIA | OdontogramsRelationManager.php |
 
+## Actualizaciones Recientes (2026-04-28)
+
+### Validaciones y Restricciones
+- Validación de fechas pasadas en `Appointment.php`
+- Validación de solapamiento de horarios en `Appointment.php`
+- RUT único por clínica (migración `2026_04_27_195120`)
+- Validación en `CalendarWidget::updateAppointment()` (drag-and-drop)
+
+### Presupuesto Automático
+- `BudgetGenerator` service genera presupuestos desde odontogramas completados
+- `OdontogramObserver` dispara generación al cambiar status a `completed`
+- Botón "Generate Budget" manual en `OdontogramsRelationManager`
+- `ProcedurePrice` con `diagnosis_code` para mapeo automático
+- `Budget` con `odontogram_id` y campo `notes`
+- `BudgetResource` UI mejorada con link a odontograma y colores por estado
+
+### Testing y Seguridad
+- `.env.testing` creado y añadido a `.gitignore`
+- 34 tests redundantes eliminados
+- 39 aserciones débiles reemplazadas por fuertes
+- 20 nuevos tests HTTP/API (`HttpApiTest.php`)
+- 7 tests de generación automática (`BudgetGeneratorTest.php`)
+- 6 tests de validación de calendario (`CalendarWidgetValidationTest.php`)
+- Health check `/up` configurado en `bootstrap/app.php`
+- `require-dev` correctamente aislado en `composer.json`
+- Rate limiting en portal (30 req/min por IP)
+
+### Producción
+- CI/CD: `.github/workflows/ci.yml` (tests, code quality, security scan)
+- Docker: `Dockerfile` (PHP 8.3-fpm, production-ready)
+- Guía de despliegue: `DEPLOY.md` (manual, Docker Compose, Forge/Vapor, Nginx, rollback)
+- **Emails transaccionales**: Presupuesto enviado, recordatorio de citas, reset de contraseña
+- **Legal**: Términos de Servicio (`/terms`) y Política de Privacidad (`/privacy`)
+
+### Code Quality
+- `ActivityLogger` añadido a `Odontogram` y `Treatment`
+- Eliminadas clases Schema vacías (`PatientForm`, `AppointmentForm`, `BudgetForm`)
+- Añadida relación `User::appointments()`
+- Creada `BudgetItemFactory` con `clinic_id` automático
+- Actualizada `ProcedurePriceFactory` con `diagnosis_code` y `duration` integer
+- Creado `ProcedurePriceSeeder` con 6 mapeos diagnosis→procedimiento
+
 ---
 
-## Estado del Sistema (2026-04-21)
+## Estado del Sistema (2026-04-28)
 
 ### Salud
 ```
@@ -236,11 +296,21 @@ php artisan test --filter=SecurityTenantIsolationTest
 ✅ BI Dashboard: 3 KPIs
 ✅ Tenant Isolation: OK
 ✅ Odontogram: OK
+✅ RUT único por clínica: OK
+✅ Validación de citas: OK
+✅ Presupuesto automático: OK
+✅ Rate limiting portal: OK
 ```
 
 ### Benchmark (Promedio: 35-40ms)
 ```
 🚀 Excelente rendimiento
+```
+
+### Tests
+```
+Tests: 175 passed, 359 assertions ✅
+Duration: ~35s
 ```
 
 ---

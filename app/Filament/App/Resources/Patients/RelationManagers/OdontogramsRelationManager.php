@@ -23,6 +23,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
 use App\Models\Odontogram;
+use App\Services\BudgetGenerator;
 
 class OdontogramsRelationManager extends RelationManager
 {
@@ -179,6 +180,34 @@ class OdontogramsRelationManager extends RelationManager
                         'patient' => $record->patient_id,
                         'odontogram' => $record->id,
                     ])),
+                \Filament\Actions\Action::make('generate_budget')
+                    ->label('Generate Budget')
+                    ->icon('heroicon-o-document-currency-dollar')
+                    ->color('success')
+                    ->visible(fn($record) => $record->status === 'completed')
+                    ->requiresConfirmation()
+                    ->modalHeading('Generate Budget from Odontogram')
+                    ->modalDescription('This will create a draft budget based on the clinical records. You can edit it before sending to the patient.')
+                    ->modalSubmitActionLabel('Generate')
+                    ->action(function (Odontogram $record, BudgetGenerator $generator) {
+                        $existing = \App\Models\Budget::where('odontogram_id', $record->id)->first();
+                        if ($existing) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Budget already exists')
+                                ->body('A budget has already been generated for this odontogram. You can edit it from the Budgets section.')
+                                ->warning()
+                                ->send();
+                            return;
+                        }
+
+                        $budget = $generator->generate($record);
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Budget generated')
+                            ->body('Draft budget #' . $budget->id . ' created with total $' . number_format($budget->total, 0, ',', '.') . '. You can now edit it.')
+                            ->success()
+                            ->send();
+                    }),
                 \Filament\Actions\Action::make('delete')
                     ->label('Delete')
                     ->icon('heroicon-o-trash')

@@ -53,6 +53,11 @@ class User extends Authenticatable implements HasTenants, FilamentUser
         return $this->tenant();
     }
 
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class, 'user_id');
+    }
+
     /**
      * The attributes that are mass assignable.
      *

@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\Budgets;
 
 use App\Filament\App\Resources\Budgets\Pages;
+use App\Filament\App\Resources\Patients\PatientResource;
 use App\Models\Budget;
 use BackedEnum;
 use Filament\Forms;
@@ -38,6 +39,14 @@ class BudgetResource extends Resource
                     ])
                     ->required(),
                 Forms\Components\DatePicker::make('expires_at'),
+                Forms\Components\Placeholder::make('odontogram_link')
+                    ->label('Source Odontogram')
+                    ->visible(fn(?Budget $record) => $record?->odontogram !== null)
+                    ->content(fn(Budget $record) => view('filament.components.odontogram-link', ['odontogram' => $record->odontogram])),
+                Forms\Components\Textarea::make('notes')
+                    ->columnSpanFull()
+                    ->rows(3)
+                    ->placeholder('Additional notes for the patient...'),
                 Forms\Components\Repeater::make('items')
                     ->relationship()
                     ->schema([
@@ -54,18 +63,43 @@ class BudgetResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('patient.name')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('total')
-                    ->money('USD'),
+                    ->money('USD')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('status')
-                    ->badge(),
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'draft' => 'gray',
+                        'sent' => 'warning',
+                        'accepted' => 'success',
+                        'rejected' => 'danger',
+                        default => 'gray',
+                    }),
+                Tables\Columns\TextColumn::make('odontogram.name')
+                    ->label('Source')
+                    ->placeholder('Manual')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('notes')
+                    ->limit(50)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('expires_at')
-                    ->date(),
+                    ->date()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime(),
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        'draft' => 'Draft',
+                        'sent' => 'Sent',
+                        'accepted' => 'Accepted',
+                        'rejected' => 'Rejected',
+                    ]),
             ])
             ->actions([
                 \Filament\Actions\EditAction::make(),

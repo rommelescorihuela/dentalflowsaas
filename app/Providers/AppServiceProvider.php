@@ -6,6 +6,8 @@ use Illuminate\Support\ServiceProvider;
 use Spatie\Permission\PermissionRegistrar;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\Odontogram;
+use App\Observers\OdontogramObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,6 +35,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        \Illuminate\Support\Facades\RateLimiter::for('portal', function (\Illuminate\Http\Request $request) {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(30)->by($request->ip());
+        });
+
+        Odontogram::observe(OdontogramObserver::class);
+
         app(PermissionRegistrar::class)
             ->setPermissionClass(Permission::class)
             ->setRoleClass(Role::class);
