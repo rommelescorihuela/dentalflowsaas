@@ -11,11 +11,12 @@ return new class extends Migration {
             $table->id();
             $table->string('clinic_id');
             $table->foreignId('patient_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete(); // Doctor
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('procedure_price_id')->nullable()->constrained('procedure_prices')->nullOnDelete();
             $table->dateTime('start_time');
             $table->dateTime('end_time');
-            $table->string('status')->default('scheduled'); // scheduled, confirmed, completed, cancelled
-            $table->string('type')->default('control'); // urgent, control, cleaning, surgery
+            $table->string('status')->default('scheduled');
+            $table->string('type')->default('control');
             $table->text('notes')->nullable();
             $table->timestamps();
 

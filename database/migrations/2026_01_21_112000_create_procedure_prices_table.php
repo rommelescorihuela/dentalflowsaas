@@ -5,15 +5,13 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('procedure_prices', function (Blueprint $table) {
             $table->id();
             $table->string('clinic_id');
             $table->string('procedure_name');
+            $table->string('diagnosis_code')->nullable();
             $table->decimal('price', 10, 2);
             $table->string('duration');
             $table->string('image_path')->nullable();
@@ -21,12 +19,10 @@ return new class extends Migration {
             $table->timestamps();
 
             $table->foreign('clinic_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
+            $table->index('diagnosis_code');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('procedure_prices');

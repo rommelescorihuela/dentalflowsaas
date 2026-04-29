@@ -11,9 +11,11 @@ return new class extends Migration {
             $table->id();
             $table->string('clinic_id');
             $table->foreignId('patient_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete(); // Created by
+            $table->foreignId('odontogram_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->decimal('total', 10, 2);
-            $table->string('status')->default('draft'); // draft, sent, accepted, rejected
+            $table->string('status')->default('draft');
+            $table->text('notes')->nullable();
             $table->date('expires_at')->nullable();
             $table->timestamps();
 
@@ -22,11 +24,14 @@ return new class extends Migration {
 
         Schema::create('budget_items', function (Blueprint $table) {
             $table->id();
+            $table->string('clinic_id');
             $table->foreignId('budget_id')->constrained()->cascadeOnDelete();
             $table->string('treatment_name');
             $table->integer('quantity')->default(1);
             $table->decimal('cost', 10, 2);
             $table->timestamps();
+
+            $table->foreign('clinic_id')->references('id')->on('tenants')->onDelete('cascade');
         });
     }
 

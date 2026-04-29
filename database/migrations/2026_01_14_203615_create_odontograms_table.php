@@ -5,18 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('odontograms', function (Blueprint $table) {
             $table->id();
             $table->string('clinic_id');
             $table->foreignId('patient_id')->constrained()->cascadeOnDelete();
-            $table->string('name'); // e.g., "Initial Checkup"
+            $table->string('name');
             $table->date('date')->default(now());
             $table->text('notes')->nullable();
+            $table->string('status')->default('in_progress');
             $table->timestamps();
 
             $table->foreign('clinic_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
@@ -24,9 +22,6 @@ return new class extends Migration {
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('odontograms');

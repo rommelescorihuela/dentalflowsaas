@@ -11,10 +11,12 @@ return new class extends Migration {
             $table->id();
             $table->string('clinic_id');
             $table->foreignId('patient_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('odontogram_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('procedure_price_id')->nullable()->constrained('procedure_prices')->nullOnDelete();
             $table->integer('tooth_number');
-            $table->string('surface')->nullable(); // Distal, Mesial, Occlusal, etc.
-            $table->string('diagnosis_code')->nullable(); // Caries, Extraction, etc.
-            $table->string('treatment_status')->default('planned'); // planned, in_progress, completed
+            $table->string('surface')->nullable();
+            $table->string('diagnosis_code')->nullable();
+            $table->string('treatment_status')->default('planned');
             $table->text('notes')->nullable();
             $table->timestamps();
 
