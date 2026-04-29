@@ -46,7 +46,17 @@ class BudgetGenerator
             $total = 0;
 
             foreach ($records as $record) {
-                $procedure = $this->findProcedure($odontogram->clinic_id, $record->diagnosis_code);
+                $procedure = null;
+
+                // First try to get the exact procedure from the clinical record
+                if ($record->procedure_price_id) {
+                    $procedure = ProcedurePrice::find($record->procedure_price_id);
+                }
+
+                // Fallback to diagnosis code lookup
+                if (!$procedure) {
+                    $procedure = $this->findProcedure($odontogram->clinic_id, $record->diagnosis_code);
+                }
 
                 if ($procedure) {
                     $cost = $procedure->price;

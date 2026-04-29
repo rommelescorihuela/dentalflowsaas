@@ -82,6 +82,34 @@ composer run setup
 - Routes in web.php missing tenancy middleware
 - See `SECURITY_AUDIT.md` for details
 
+## Recent Updates (2026-04-29)
+
+### Odontogram & Procedimientos Dinámicos
+- **Odontograma lee procedimientos del CRUD**: El formulario del odontograma ahora consulta `procedure_prices` en lugar de usar opciones hardcodeadas
+- **Selector muestra nombre + precio**: Cada procedimiento aparece como "Obturación ($50.000)"
+- **`procedure_price_id` en `clinical_records`**: Nueva migración guarda referencia directa al procedimiento seleccionado
+- **Resolución de `diagnosis_code`**: Al guardar, se resuelve el código de diagnóstico desde el procedimiento para mantener colores correctos
+- **40+ colores mapeados**: `$statusColors` expandido para soportar todos los procedimientos (implantes, ortodoncia, prótesis, etc.)
+- **Fallback seguro en vista**: `tooth.blade.php` usa función `$getColor()` con fallback gris para códigos sin color definido
+
+### Seeders con Datos Reales
+- **`ProcedurePriceSeeder`**: 47 procedimientos reales organizados por especialidad (general, endodoncia, periodoncia, cirugía, implantes, ortodoncia, prótesis, estética, pediatría, radiología)
+- **`InventorySeeder`**: 95 items de inventario real (anestesia, restauración, endodoncia, impresión, ortodoncia, bioseguridad, instrumental, farmacia, radiología, blanqueamiento, prótesis, pedodoncia)
+- **Demo odontogramas**: 5 pacientes con odontogramas demo y 8 registros clínicos cada uno (caries, restauraciones, endodoncias, coronas)
+- **`PermissionSeeder`**: Agregado `Odontogram` a modelos extra para crear permisos CRUD
+- **`TenantSeeder`**: Inicializa contexto de tenancy (`tenancy()->initialize()`) antes de llamar seeders
+
+### Generación de Presupuestos Mejorada
+- **`BudgetGenerator` usa `procedure_price_id`**: Prioriza el procedimiento exacto del registro clínico antes de buscar por diagnosis_code
+- **Notificaciones en `OdontogramObserver`**: Toast con monto del presupuesto al completar odontograma
+- **UI en `ViewOdontogram`**: Panel de presupuesto generado (estado, total, items), botón "Ver Presupuesto" o "Generar Presupuesto"
+- **Hint en campo status**: Indica que cambiar a "Completed" genera presupuesto automático
+
+### Bug Fixes
+- **Odontogram permissions**: Agregados permisos `ViewAny`, `View`, `Create`, `Update`, `Delete`, `Restore`, `ForceDelete` para `Odontogram`
+- **Tenant context en seeders**: `ProcedurePriceSeeder` e `InventorySeeder` usan `Clinic::first()` como fallback cuando `tenant('id')` es null
+- **`ViewOdontogram` form**: Eliminado `->color('success')` inexistente en Filament 4 Section
+
 ## Recent Updates (2026-04-28)
 
 ### Bug Fixes

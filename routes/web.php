@@ -30,6 +30,12 @@ Route::get('/login', function () {
 
 Route::get('/terms', [\App\Http\Controllers\LegalController::class, 'terms'])->name('legal.terms');
 Route::get('/privacy', [\App\Http\Controllers\LegalController::class, 'privacy'])->name('legal.privacy');
+Route::get('/lang/{locale}', function ($locale) {
+    if (in_array($locale, ['en', 'es'])) {
+        session(['locale' => $locale]);
+    }
+    return redirect()->back();
+})->name('lang.switch');
 
 // Portal Routes (signed URLs for patient access)
 Route::middleware([

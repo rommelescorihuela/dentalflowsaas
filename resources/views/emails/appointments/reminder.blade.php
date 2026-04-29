@@ -1,20 +1,20 @@
 @component('mail::message')
-# Hola {{ $appointment->patient->name }}
+# {{ __('emails.appointments.reminder.greeting', ['name' => $appointment->patient->name]) }}
 
-Te recordamos que tienes una cita programada en nuestra clínica.
+{{ __('emails.appointments.reminder.intro') }}
 
-## Detalle de la Cita
-- **Fecha:** {{ $appointment->start_time->format('d/m/Y') }}
-- **Hora:** {{ $appointment->start_time->format('H:i') }}
-- **Tipo:** {{ ucfirst($appointment->type) }}
-- **Notas:** {{ $appointment->notes ?? 'Sin notas adicionales' }}
+## {{ __('emails.appointments.reminder.detail_title') }}
+- **{{ __('emails.appointments.reminder.date') }}:** {{ $appointment->start_time->format('d/m/Y') }}
+- **{{ __('emails.appointments.reminder.time') }}:** {{ $appointment->start_time->format('H:i') }}
+- **{{ __('emails.appointments.reminder.type') }}:** {{ ucfirst($appointment->type) }}
+- **{{ __('emails.appointments.reminder.notes') }}:** {{ $appointment->notes ?? __('emails.appointments.reminder.no_notes') }}
 
 @component('mail::button', ['url' => $actionUrl ?? url('/portal/' . $appointment->patient->id)])
-Ver Mis Citas
+{{ __('emails.appointments.reminder.button') }}
 @endcomponent
 
-Si necesitas reagendar o cancelar, por favor contáctanos con al menos 24 horas de antelación.
+{{ __('emails.appointments.reminder.outro') }}
 
-Saludos,<br>
-El equipo de DentalFlow
+{{ __('emails.common.greetings') }},<br>
+{{ __('emails.common.team') }}
 @endcomponent

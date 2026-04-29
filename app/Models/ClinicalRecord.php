@@ -21,4 +21,9 @@ class ClinicalRecord extends Model
     {
         return $this->belongsTo(Odontogram::class);
     }
+
+    public function procedurePrice(): BelongsTo
+    {
+        return $this->belongsTo(ProcedurePrice::class);
+    }
 }

@@ -60,10 +60,11 @@ DentalFlow SaaS es una plataforma completa de gestión para clínicas dentales q
 - **SVG interactivo** con 32 dientes
 - **6 superficies por diente**: top, bottom, left, right, center, root
 - **Multi-selección** de superficies
+- **Procedimientos dinámicos** desde CRUD (47+ procedimientos reales)
 - **Historial por sesiones** - múltiples odontogramas
-- **Códigos de diagnóstico** con colores
+- **40+ colores** para todos los tipos de procedimiento
 - **Panel flotante** no bloqueante
-- **Presupuesto automático** al completar odontograma
+- **Presupuesto automático** con notificación al completar odontograma
 
 ### 📊 Business Intelligence
 - Dashboard con métricas financieras
@@ -275,7 +276,8 @@ php artisan test                    # Todos los tests
 php artisan test --filter=TestName    # Test específico
 
 # Seeders
-php artisan db:seed --class=ProcedurePriceSeeder  # Procedimientos por defecto
+php artisan db:seed --class=ProcedurePriceSeeder  # 47 procedimientos reales
+php artisan db:seed --class=InventorySeeder        # 95 items de inventario real
 
 # Limpieza
 php artisan optimize:clear           # Limpiar caché
@@ -341,9 +343,12 @@ dentalflowsaas/
 │   │   ├── ..._add_clinic_id_to_budget_items_table.php
 │   │   ├── ..._add_odontogram_id_to_budgets_table.php
 │   │   ├── ..._add_notes_to_budgets_table.php
-│   │   └── ..._add_diagnosis_code_to_procedure_prices_table.php
+│   │   ├── ..._add_diagnosis_code_to_procedure_prices_table.php
+│   │   └── ..._add_procedure_price_id_to_clinical_records_table.php
 │   └── seeders/
-│       └── ProcedurePriceSeeder.php  # 6 mapeos diagnosis→procedimiento
+│       ├── ProcedurePriceSeeder.php  # 47 procedimientos reales
+│       ├── InventorySeeder.php       # 95 items de inventario real
+│       └── TenantSeeder.php          # Datos demo con odontogramas
 ├── .github/workflows/ci.yml          # CI/CD pipeline
 ├── Dockerfile                        # Producción PHP 8.3-fpm
 ├── DEPLOY.md                         # Guía de despliegue
@@ -368,9 +373,10 @@ dentalflowsaas/
 | `budgets` | Presupuestos (con odontogram_id, notes) |
 | `budget_items` | Items de presupuesto (con clinic_id) |
 | `procedure_prices` | Precios de procedimientos (con diagnosis_code) |
+| `clinical_records` | Registros por superficie (con procedure_price_id) |
 | `payments` | Pagos |
 | `system_activities` | Log de actividades |
-| `inventories` | Inventario |
+| `inventories` | Inventario (95 items reales) |
 | `procedure_inventory` | Inventario de procedimientos |
 
 ### Diagnósticos del Odontograma
@@ -383,24 +389,33 @@ dentalflowsaas/
 | `crown` | 🟣 #a855f7 | Corona |
 | `healthy` | ⚪ #ffffff | Sano |
 
+> **Nota**: El odontograma ahora lee procedimientos dinámicamente desde el CRUD (`procedure_prices`). Se soportan 40+ códigos adicionales (implantes, ortodoncia, prótesis, etc.) con colores mapeados automáticamente.
+
 ---
 
-## 📊 Diagnóstico Actual (2026-04-28)
+## 📊 Diagnóstico Actual (2026-04-29)
 
 ### Estado del Sistema
 ```
 ✅ Base de datos: OK
-✅ Clínicas: 8 activas
-✅ Usuarios: 9 registrados
+✅ Clínicas: 2 activas (clinic1, clinic2)
+✅ Usuarios: Dr. House (clinic1), Dr. Strange (clinic2)
 ✅ Onboarding: OK
 ✅ Patient Portal: 18 slots
 ✅ BI Dashboard: 3 KPIs
 ✅ Tenant Isolation: OK
-✅ Odontogram: OK
-✅ RUT único por clínica: OK
-✅ Validación de citas: OK
-✅ Presupuesto automático: OK
+✅ Odontogram: OK (procedimientos dinámicos desde CRUD)
+✅ Presupuesto automático: OK (con notificación toast)
 ✅ Rate limiting portal: OK
+✅ Permisos Odontogram: OK (7 permisos CRUD)
+```
+
+### Datos Demo
+```
+✅ Procedimientos: 47 por clínica (catálogo completo)
+✅ Inventario: 95 items por clínica (datos reales)
+✅ Odontogramas: 5 con registros demo (clinic1)
+✅ Registros Clínicos: 40 demo (caries, restauraciones, endodoncias, coronas)
 ```
 
 ### Benchmark
@@ -420,6 +435,13 @@ Duration: ~35s
 ```
 
 ### Mejoras Recientes
+- **Odontograma dinámico**: Procedimientos desde CRUD en lugar de opciones hardcodeadas
+- **47 procedimientos reales**: Catálogo completo por especialidad
+- **95 items de inventario real**: Datos con proveedores y precios reales
+- **Migración `procedure_price_id`**: Vinculación directa a procedimientos
+- **40+ colores mapeados**: Soporte para todos los tipos de procedimiento
+- **Presupuesto automático mejorado**: Notificación toast con monto generado
+- **Permisos Odontogram**: 7 permisos CRUD agregados
 - Validación de fechas pasadas y solapamientos en citas
 - RUT único por clínica
 - Credenciales de test seguras (`.env.testing` en `.gitignore`)

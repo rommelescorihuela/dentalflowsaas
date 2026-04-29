@@ -19,6 +19,9 @@ class TenantSeeder extends Seeder
 
         $clinic1->domains()->firstOrCreate(['domain' => 'clinic1.localhost']);
 
+        // Initialize tenancy for clinic1
+        tenancy()->initialize($clinic1);
+
         // Create User for Tenant 1
         setPermissionsTeamId($clinic1->id);
         User::firstOrCreate(['email' => 'house@clinic1.com'], [
@@ -29,9 +32,46 @@ class TenantSeeder extends Seeder
 
         // Seed data for Tenant 1
         $this->call(ProcedurePriceSeeder::class);
+        $this->call(InventorySeeder::class);
         $procedures = \App\Models\ProcedurePrice::where('clinic_id', $clinic1->id)->get();
         $patients = \App\Models\Patient::factory()->count(20)->create(['clinic_id' => $clinic1->id]);
-        \App\Models\Inventory::factory()->count(20)->create(['clinic_id' => $clinic1->id]);
+
+        // Create demo odontograms with clinical records for first 5 patients
+        $demoPatients = $patients->take(5);
+        foreach ($demoPatients as $patient) {
+            $odontogram = \App\Models\Odontogram::create([
+                'clinic_id' => $clinic1->id,
+                'patient_id' => $patient->id,
+                'name' => 'Odontograma Inicial',
+                'date' => now()->subDays(rand(1, 30)),
+                'status' => 'in_progress',
+            ]);
+
+            // Add some demo clinical records
+            $demoRecords = [
+                ['tooth' => 16, 'surface' => 'center', 'diagnosis' => 'caries', 'status' => 'planned'],
+                ['tooth' => 16, 'surface' => 'top', 'diagnosis' => 'caries', 'status' => 'planned'],
+                ['tooth' => 24, 'surface' => 'center', 'diagnosis' => 'filled', 'status' => 'completed'],
+                ['tooth' => 36, 'surface' => 'center', 'diagnosis' => 'endodontic', 'status' => 'completed'],
+                ['tooth' => 36, 'surface' => 'root', 'diagnosis' => 'endodontic', 'status' => 'completed'],
+                ['tooth' => 46, 'surface' => 'center', 'diagnosis' => 'crown', 'status' => 'completed'],
+                ['tooth' => 11, 'surface' => 'center', 'diagnosis' => 'missing', 'status' => 'completed'],
+                ['tooth' => 21, 'surface' => 'center', 'diagnosis' => 'filled', 'status' => 'existing'],
+            ];
+
+            foreach ($demoRecords as $rec) {
+                \App\Models\ClinicalRecord::create([
+                    'clinic_id' => $clinic1->id,
+                    'patient_id' => $patient->id,
+                    'odontogram_id' => $odontogram->id,
+                    'tooth_number' => $rec['tooth'],
+                    'surface' => $rec['surface'],
+                    'diagnosis_code' => $rec['diagnosis'],
+                    'treatment_status' => $rec['status'],
+                    'notes' => 'Registro demo',
+                ]);
+            }
+        }
 
         foreach ($patients as $patient) {
             // 1. Appointments & Treatments
@@ -94,6 +134,9 @@ class TenantSeeder extends Seeder
 
         $clinic2->domains()->firstOrCreate(['domain' => 'clinic2.localhost']);
 
+        // Initialize tenancy for clinic2
+        tenancy()->initialize($clinic2);
+
         setPermissionsTeamId($clinic2->id);
         User::firstOrCreate(['email' => 'strange@clinic2.com'], [
             'name' => 'Dr. Strange',
@@ -101,7 +144,9 @@ class TenantSeeder extends Seeder
             'clinic_id' => $clinic2->id,
         ])->assignRole('admin');
 
-        // Seed data for Tenant 2 (Simpler)
+        // Seed data for Tenant 2
+        $this->call(ProcedurePriceSeeder::class);
+        $this->call(InventorySeeder::class);
         \App\Models\Patient::factory()->count(5)->create(['clinic_id' => $clinic2->id]);
     }
 }

@@ -20,7 +20,7 @@ class AppointmentReminder extends Mailable
 
     public function build(): self
     {
-        return $this->subject('Recordatorio de Cita - DentalFlow')
+        return $this->subject(__('emails.appointments.reminder.subject'))
             ->markdown('emails.appointments.reminder');
     }
 }

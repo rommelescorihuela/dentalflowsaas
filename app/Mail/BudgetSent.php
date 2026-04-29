@@ -20,7 +20,7 @@ class BudgetSent extends Mailable
 
     public function build(): self
     {
-        return $this->subject('Nuevo Presupuesto Disponible - DentalFlow')
+        return $this->subject(__('emails.budget.sent.subject'))
             ->markdown('emails.budget.sent');
     }
 }

@@ -1,19 +1,19 @@
 @component('mail::message')
-# Hola {{ $budget->patient->name }}
+# {{ __('emails.budget.sent.greeting', ['name' => $budget->patient->name]) }}
 
-Tu presupuesto **#{{ $budget->id }}** está listo para revisión.
+{{ __('emails.budget.sent.intro', ['id' => $budget->id]) }}
 
-## Detalle del Presupuesto
-- **Total:** ${{ number_format($budget->total, 0, ',', '.') }}
-- **Clínica:** {{ $budget->clinic->name ?? 'DentalFlow' }}
-- **Válido hasta:** {{ $budget->expires_at?->format('d/m/Y') ?? 'Sin fecha de expiración' }}
+## {{ __('emails.budget.sent.detail_title') }}
+- **{{ __('emails.budget.sent.total') }}:** ${{ number_format($budget->total, 0, ',', '.') }}
+- **{{ __('emails.budget.sent.clinic') }}:** {{ $budget->clinic->name ?? 'DentalFlow' }}
+- **{{ __('emails.budget.sent.valid_until') }}:** {{ $budget->expires_at?->format('d/m/Y') ?? __('emails.budget.sent.no_expiry') }}
 
 @component('mail::button', ['url' => $actionUrl ?? url('/portal/' . $budget->patient->id)])
-Ver Presupuesto
+{{ __('emails.budget.sent.button') }}
 @endcomponent
 
-Si tienes alguna duda, no dudes en contactarnos.
+{{ __('emails.budget.sent.outro') }}
 
-Saludos,<br>
-El equipo de DentalFlow
+{{ __('emails.common.greetings') }},<br>
+{{ __('emails.common.team') }}
 @endcomponent

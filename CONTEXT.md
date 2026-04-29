@@ -32,8 +32,9 @@
 | `Payment` | `payments` | Pagos |
 | `SubscriptionPayment` | `subscription_payments` | Pagos de suscripción |
 | `ProcedurePrice` | `procedure_prices` | Precios de procedimientos (con diagnosis_code) |
-| `Inventory` | `inventories` | Inventario |
+| `Inventory` | `inventories` | Inventario (95 items reales por clínica) |
 | `ProcedureInventory` | `procedure_inventory` | Inventario de procedimientos |
+| `ClinicalRecord` | `clinical_records` | Registro clínico (con procedure_price_id) |
 
 ---
 
@@ -42,13 +43,16 @@
 - **SVG interactivo** con 32 dientes (18 superiores + 18 inferiores, num 11-48)
 - **6 superficies por diente**: top, bottom, left, right, center, root
 - **Multi-selección** de superficies para tratamientos en lote
-- **Diagnósticos**: caries (rojo), filled (azul), endodontic (amarillo), missing (negro), crown (púrpura), healthy (blanco)
+- **Procedimientos dinámicos**: El selector lee directamente de `procedure_prices` (CRUD), mostrando nombre + precio
+- **`procedure_price_id`**: Cada registro clínico guarda referencia al procedimiento exacto seleccionado
+- **40+ colores mapeados**: Soporte para todos los procedimientos (implantes, ortodoncia, prótesis, etc.)
+- **Fallback seguro**: `tooth.blade.php` usa `$getColor()` con fallback gris para códigos sin color
 - **Panel flotante** no bloqueante para edición
 - **Historial por sesiones** - múltiples odontogramas por paciente
 - **Presupuesto automático** al completar odontograma
 - **Trait**: `BelongsToClinic` para aislamiento multi-tenant
 
-### Códigos de Diagnóstico
+### Códigos de Diagnóstico (Principales)
 | Código | Color | Descripción |
 |--------|-------|-------------|
 | `caries` | 🔴 #ef4444 | Caries |
@@ -57,6 +61,9 @@
 | `missing` | ⚫ #1f2937 | Pieza Faltante |
 | `crown` | 🟣 #a855f7 | Corona |
 | `healthy` | ⚪ #ffffff | Sano |
+
+### Códigos Adicionales (40+)
+`prophylaxis`, `sealant`, `fluoride`, `inlay`, `scaling`, `gingivectomy`, `flap_surgery`, `surgical_extraction`, `wisdom_tooth`, `apicoectomy`, `frenectomy`, `implant`, `implant_crown`, `sinus_lift`, `braces_metal`, `braces_aesthetic`, `ortho_adjustment`, `retainer_fixed`, `retainer_removable`, `crown_pfm`, `crown_zirconia`, `bridge`, `partial_denture`, `full_denture`, `denture_rebase`, `whitening`, `veneer_composite`, `veneer_ceramic`, `gingival_contouring`, `ss_crown`, `pulpotomy`, `space_maintainer`, `consultation`, `xray_periapical`, `xray_panoramic`, `cbct`
 
 ---
 
@@ -120,7 +127,8 @@ php artisan tenants:migrate
 php artisan tenants:artisan
 
 # Seeders
-php artisan db:seed --class=ProcedurePriceSeeder
+php artisan db:seed --class=ProcedurePriceSeeder  # 47 procedimientos reales
+php artisan db:seed --class=InventorySeeder        # 95 items de inventario real
 
 # Filament
 php artisan make:filament-user
@@ -278,15 +286,47 @@ php artisan test --filter=CalendarWidgetValidationTest
 - Actualizada `ProcedurePriceFactory` con `diagnosis_code` y `duration` integer
 - Creado `ProcedurePriceSeeder` con 6 mapeos diagnosis→procedimiento
 
+## Actualizaciones Recientes (2026-04-29)
+
+### Odontograma Dinámico
+- **Procedimientos desde CRUD**: El odontograma ahora lee `procedure_prices` en lugar de opciones hardcodeadas
+- **Migración `procedure_price_id`**: Nueva columna en `clinical_records` para vincular al procedimiento exacto
+- **40+ colores**: `$statusColors` expandido para todos los procedimientos del catálogo
+- **Fallback seguro**: `tooth.blade.php` usa `$getColor()` con fallback gris para evitar errores
+
+### Seeders con Datos Reales
+- **`ProcedurePriceSeeder`**: 47 procedimientos organizados por especialidad (general, endodoncia, periodoncia, cirugía, implantes, ortodoncia, prótesis, estética, pediatría, radiología)
+- **`InventorySeeder`**: 95 items de inventario real (anestesia, restauración, endodoncia, impresión, ortodoncia, bioseguridad, instrumental, farmacia, radiología, blanqueamiento, prótesis, pedodoncia)
+- **Demo odontogramas**: 5 pacientes con odontogramas y 8 registros clínicos demo cada uno
+- **Contexto de tenancy**: `TenantSeeder` inicializa `tenancy()->initialize()` antes de llamar seeders
+
+### Presupuesto Automático Mejorado
+- **`BudgetGenerator`**: Ahora prioriza `procedure_price_id` del registro clínico antes de buscar por `diagnosis_code`
+- **`OdontogramObserver`**: Envía notificación toast con el monto del presupuesto generado
+- **`ViewOdontogram`**: Panel de presupuesto generado (estado, total, items), botón "Ver Presupuesto" o "Generar Presupuesto"
+
+### Bug Fixes
+- **Permisos de Odontogram**: Agregados 7 permisos CRUD (`ViewAny`, `View`, `Create`, `Update`, `Delete`, `Restore`, `ForceDelete`)
+- **Tenant context en seeders**: `ProcedurePriceSeeder` e `InventorySeeder` usan `Clinic::first()` como fallback
+- **`ViewOdontogram`**: Eliminado `->color('success')` inexistente en Filament 4 Section
+
 ---
 
-## Estado del Sistema (2026-04-28)
+## Estado del Sistema (2026-04-29)
 
 ### Salud
 ```
 ✅ Base de datos: OK
-✅ Clínicas: 8 activas
-✅ Usuarios: 9 registrados
+✅ Clínicas: 2 activas (clinic1, clinic2)
+✅ Usuarios: Dr. House (clinic1), Dr. Strange (clinic2)
+```
+
+### Datos Demo
+```
+✅ Procedimientos: 47 por clínica (catálogo completo)
+✅ Inventario: 95 items por clínica (datos reales)
+✅ Odontogramas: 5 con registros demo (clinic1)
+✅ Registros Clínicos: 40 demo (caries, restauraciones, endodoncias, coronas)
 ```
 
 ### Features
@@ -295,6 +335,11 @@ php artisan test --filter=CalendarWidgetValidationTest
 ✅ Patient Portal: 18 slots
 ✅ BI Dashboard: 3 KPIs
 ✅ Tenant Isolation: OK
+✅ Odontogram: OK (procedimientos dinámicos desde CRUD)
+✅ Presupuesto automático: OK (con notificación toast)
+✅ Rate limiting portal: OK
+✅ Permisos Odontogram: OK (7 permisos CRUD)
+```
 ✅ Odontogram: OK
 ✅ RUT único por clínica: OK
 ✅ Validación de citas: OK

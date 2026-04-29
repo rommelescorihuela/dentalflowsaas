@@ -1,16 +1,16 @@
 @component('mail::message')
-# Restablecer Contraseña
+# {{ __('emails.password_reset.subject') }}
 
-Recibiste este correo porque solicitaste restablecer la contraseña de tu cuenta en **DentalFlow**.
+{{ __('emails.password_reset.intro') }}
 
 @component('mail::button', ['url' => $actionUrl])
-Restablecer Contraseña
+{{ __('emails.password_reset.button') }}
 @endcomponent
 
-Este enlace expirará en **60 minutos**.
+{{ __('emails.password_reset.expiry', ['count' => 60]) }}
 
-Si no solicitaste este cambio, puedes ignorar este correo de forma segura.
+{{ __('emails.password_reset.ignore') }}
 
-Saludos,<br>
-El equipo de DentalFlow
+{{ __('emails.common.greetings') }},<br>
+{{ __('emails.common.team') }}
 @endcomponent

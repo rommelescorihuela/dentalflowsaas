@@ -52,8 +52,8 @@ class PermissionSeeder extends Seeder
         }
 
         // Add any extra models that might not have a Resource but need permissions
-        // $extraModels = ['SomeModel'];
-        // $modelNames = array_merge($modelNames, $extraModels);
+        $extraModels = ['Odontogram'];
+        $modelNames = array_merge($modelNames, $extraModels);
 
         $permissions = [];
         foreach ($modelNames as $model) {
