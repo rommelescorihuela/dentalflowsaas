@@ -42,7 +42,7 @@ class BudgetGenerator
                 ]);
             }
 
-            $items = [];
+            $groupedItems = [];
             $total = 0;
 
             foreach ($records as $record) {
@@ -59,20 +59,30 @@ class BudgetGenerator
                 }
 
                 if ($procedure) {
+                    $key = 'proc_' . $procedure->id;
+                    $name = $procedure->procedure_name;
                     $cost = $procedure->price;
-                    $name = $procedure->procedure_name . ' (Diente ' . $record->tooth_number . ' - ' . ($record->surface ?? 'general') . ')';
+                    $procedurePriceId = $procedure->id;
                 } else {
                     $default = $this->diagnosisDefaults[$record->diagnosis_code] ?? null;
+                    $key = 'default_' . ($record->diagnosis_code ?? 'unknown');
                     $cost = $default ? 50000 * $default['multiplier'] : 50000;
-                    $name = ($default['name'] ?? 'Tratamiento') . ' (Diente ' . $record->tooth_number . ' - ' . ($record->surface ?? 'general') . ')';
+                    $name = $default['name'] ?? 'Tratamiento';
+                    $procedurePriceId = null;
                 }
 
-                $items[] = [
-                    'treatment_name' => $name,
-                    'cost' => $cost,
-                    'quantity' => 1,
-                ];
+                if (!isset($groupedItems[$key])) {
+                    $groupedItems[$key] = [
+                        'treatment_name' => $name,
+                        'cost' => $cost,
+                        'quantity' => 0,
+                        'procedure_price_id' => $procedurePriceId,
+                        'teeth' => [],
+                    ];
+                }
 
+                $groupedItems[$key]['quantity']++;
+                $groupedItems[$key]['teeth'][] = $record->tooth_number;
                 $total += $cost;
             }
 
@@ -86,10 +96,16 @@ class BudgetGenerator
                 'expires_at' => now()->addDays(30),
             ]);
 
-            foreach ($items as $item) {
+            foreach ($groupedItems as $item) {
+                $teethList = implode(', ', array_unique($item['teeth']));
+                $treatmentName = $item['treatment_name'] . ' (Dientes: ' . $teethList . ')';
+
                 $budget->items()->create([
                     'clinic_id' => $odontogram->clinic_id,
-                    ...$item,
+                    'treatment_name' => $treatmentName,
+                    'cost' => $item['cost'],
+                    'quantity' => $item['quantity'],
+                    'procedure_price_id' => $item['procedure_price_id'],
                 ]);
             }
 

@@ -2,7 +2,9 @@
 
 namespace App\Filament\App\Resources\Patients\Pages;
 
+use App\Filament\App\Resources\Budgets\BudgetResource;
 use App\Filament\App\Resources\Patients\PatientResource;
+use App\Models\Budget;
 use App\Models\Odontogram;
 use App\Services\BudgetGenerator;
 use Filament\Resources\Pages\Page;
@@ -23,6 +25,8 @@ class ViewOdontogram extends Page implements HasForms
 
     public Odontogram $odontogram;
 
+    public ?Budget $budget = null;
+
     public ?array $data = [];
 
     public function mount(int $patient, Odontogram $odontogram): void
@@ -33,62 +37,48 @@ class ViewOdontogram extends Page implements HasForms
             abort(404);
         }
 
+        $this->loadBudget();
         $this->form->fill($this->odontogram->attributesToArray());
+    }
+
+    protected function loadBudget(): void
+    {
+        $this->budget = Budget::where('odontogram_id', $this->odontogram->id)->first();
     }
 
     public function form(Schema $form): Schema
     {
-        $components = [
-            \Filament\Schemas\Components\Section::make('Odontogram Details')
-                ->columns(2)
-                ->schema([
-                    \Filament\Forms\Components\TextInput::make('name')
-                        ->required()
-                        ->maxLength(255),
-                    \Filament\Forms\Components\DatePicker::make('date')
-                        ->required(),
-                    \Filament\Forms\Components\Select::make('status')
-                        ->options([
-                            'in_progress' => 'In Progress',
-                            'completed' => 'Completed',
-                        ])
-                        ->required()
-                        ->hint('Change to "Completed" to auto-generate a budget'),
-                    \Filament\Forms\Components\Textarea::make('notes')
-                        ->rows(3)
-                        ->columnSpanFull(),
-                ]),
-        ];
-
-        $budget = \App\Models\Budget::where('odontogram_id', $this->odontogram->id)->first();
-        if ($budget) {
-            $components[] = \Filament\Schemas\Components\Section::make('Generated Budget')
-                ->schema([
-                    \Filament\Forms\Components\Placeholder::make('budget_status')
-                        ->label('Budget Status')
-                        ->content(fn() => ucfirst($budget->status)),
-                    \Filament\Forms\Components\Placeholder::make('budget_total')
-                        ->label('Total')
-                        ->content(fn() => '$' . number_format($budget->total, 0, ',', '.')),
-                    \Filament\Forms\Components\Placeholder::make('budget_items')
-                        ->label('Items')
-                        ->content(fn() => $budget->items()->count()),
-                ])
-                ->columns(3);
-        }
-
-        $components[] = \Filament\Schemas\Components\Section::make('Odontogram')
-            ->schema([
-                \Filament\Schemas\Components\View::make('filament.app.resources.patients.pages.components.odontogram-embed')
-                    ->viewData([
-                        'patient' => $this->odontogram->patient,
-                        'odontogramId' => $this->odontogram->id,
-                    ]),
-            ])
-            ->columnSpanFull();
-
         return $form
-            ->components($components)
+            ->components([
+                \Filament\Schemas\Components\Section::make('Odontogram Details')
+                    ->columns(2)
+                    ->schema([
+                        \Filament\Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255),
+                        \Filament\Forms\Components\DatePicker::make('date')
+                            ->required(),
+                        \Filament\Forms\Components\Select::make('status')
+                            ->options([
+                                'in_progress' => 'In Progress',
+                                'completed' => 'Completed',
+                            ])
+                            ->required()
+                            ->hint('Change to "Completed" to auto-generate a budget'),
+                        \Filament\Forms\Components\Textarea::make('notes')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                    ]),
+                \Filament\Schemas\Components\Section::make('Odontogram')
+                    ->schema([
+                        \Filament\Schemas\Components\View::make('filament.app.resources.patients.pages.components.odontogram-embed')
+                            ->viewData([
+                                'patient' => $this->odontogram->patient,
+                                'odontogramId' => $this->odontogram->id,
+                            ]),
+                    ])
+                    ->columnSpanFull(),
+            ])
             ->statePath('data')
             ->model($this->odontogram);
     }
@@ -98,10 +88,14 @@ class ViewOdontogram extends Page implements HasForms
         $data = $this->form->getState();
         $this->odontogram->update($data);
 
+        $this->budget = Budget::where('odontogram_id', $this->odontogram->id)->first();
+
         Notification::make()
             ->success()
             ->title('Odontogram saved')
             ->send();
+
+        $this->js('window.location.reload()');
     }
 
     public function getTitle(): string
@@ -129,14 +123,12 @@ class ViewOdontogram extends Page implements HasForms
         ];
 
         if ($this->odontogram->status === 'completed') {
-            $existingBudget = \App\Models\Budget::where('odontogram_id', $this->odontogram->id)->first();
-
-            if ($existingBudget) {
+            if ($this->budget) {
                 $actions[] = \Filament\Actions\Action::make('view_budget')
-                    ->label('Ver Presupuesto #' . $existingBudget->id)
+                    ->label('Ver Presupuesto #' . $this->budget->id)
                     ->icon('heroicon-o-document-currency-dollar')
                     ->color('success')
-                    ->url(fn() => \App\Filament\App\Resources\Budgets\BudgetResource::getUrl('edit', ['record' => $existingBudget->id]));
+                    ->url(fn() => \App\Filament\App\Resources\Budgets\BudgetResource::getUrl('edit', ['record' => $this->budget->id]));
             } else {
                 $actions[] = Action::make('generate_budget')
                     ->label('Generar Presupuesto')
@@ -146,6 +138,7 @@ class ViewOdontogram extends Page implements HasForms
                     ->action(function (BudgetGenerator $generator) {
                         $budget = $generator->generate($this->odontogram);
                         if ($budget) {
+                            $this->budget = $budget;
                             Notification::make()
                                 ->success()
                                 ->title('Presupuesto generado')

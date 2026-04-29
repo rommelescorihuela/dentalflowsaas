@@ -16,4 +16,9 @@ class BudgetItem extends Model
     {
         return $this->belongsTo(Budget::class);
     }
+
+    public function procedurePrice(): BelongsTo
+    {
+        return $this->belongsTo(ProcedurePrice::class);
+    }
 }

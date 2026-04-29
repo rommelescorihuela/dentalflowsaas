@@ -50,11 +50,56 @@ class BudgetResource extends Resource
                 Forms\Components\Repeater::make('items')
                     ->relationship()
                     ->schema([
-                        Forms\Components\TextInput::make('treatment_name')->required(),
-                        Forms\Components\TextInput::make('quantity')->numeric()->default(1)->required(),
-                        Forms\Components\TextInput::make('cost')->numeric()->prefix('$')->required(),
+                        Forms\Components\Select::make('procedure_price_id')
+                            ->label('Procedure')
+                            ->options(function () {
+                                return \App\Models\ProcedurePrice::where('clinic_id', tenant('id'))
+                                    ->pluck('procedure_name', 'id')
+                                    ->toArray();
+                            })
+                            ->searchable()
+                            ->live()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if ($state) {
+                                    $procedure = \App\Models\ProcedurePrice::find($state);
+                                    if ($procedure) {
+                                        $set('treatment_name', $procedure->procedure_name);
+                                        $set('cost', $procedure->price);
+                                    }
+                                }
+                            })
+                            ->required(),
+                        Forms\Components\Hidden::make('treatment_name'),
+                        Forms\Components\TextInput::make('quantity')
+                            ->numeric()
+                            ->default(1)
+                            ->live()
+                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                $cost = $get('cost') ?? 0;
+                                $qty = $state ?? 1;
+                                $set('subtotal', $cost * $qty);
+                            })
+                            ->required(),
+                        Forms\Components\TextInput::make('cost')
+                            ->numeric()
+                            ->prefix('$')
+                            ->live()
+                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                $cost = $state ?? 0;
+                                $qty = $get('quantity') ?? 1;
+                                $set('subtotal', $cost * $qty);
+                            })
+                            ->required(),
+                        Forms\Components\Placeholder::make('subtotal')
+                            ->label('Subtotal')
+                            ->content(function (callable $get) {
+                                $cost = $get('cost') ?? 0;
+                                $qty = $get('quantity') ?? 1;
+                                return '$' . number_format($cost * $qty, 0, ',', '.');
+                            }),
                     ])
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->columns(5),
             ]);
     }
 

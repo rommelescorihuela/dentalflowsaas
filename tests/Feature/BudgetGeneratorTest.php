@@ -128,7 +128,9 @@ class BudgetGeneratorTest extends TestCase
 
         $this->assertNotNull($budget);
         $this->assertEquals(75000, $budget->total);
-        $this->assertEquals('Obturación Premium (Diente 16 - left)', $budget->items()->first()->treatment_name);
+        $this->assertEquals(1, $budget->items()->count());
+        $this->assertEquals('Obturación Premium (Dientes: 16)', $budget->items()->first()->treatment_name);
+        $this->assertEquals(1, $budget->items()->first()->quantity);
     }
 
     public function test_generate_budget_skips_completed_treatments(): void
@@ -189,5 +191,47 @@ class BudgetGeneratorTest extends TestCase
 
         $this->assertStringContainsString('automáticamente', $budget->notes);
         $this->assertStringContainsString('odontograma', $budget->notes);
+    }
+
+    public function test_generate_budget_groups_same_procedure(): void
+    {
+        ClinicalRecord::create([
+            'clinic_id' => tenant('id'),
+            'patient_id' => $this->patient->id,
+            'odontogram_id' => $this->odontogram->id,
+            'tooth_number' => 16,
+            'surface' => 'center',
+            'diagnosis_code' => 'caries',
+            'treatment_status' => 'planned',
+        ]);
+
+        ClinicalRecord::create([
+            'clinic_id' => tenant('id'),
+            'patient_id' => $this->patient->id,
+            'odontogram_id' => $this->odontogram->id,
+            'tooth_number' => 16,
+            'surface' => 'top',
+            'diagnosis_code' => 'caries',
+            'treatment_status' => 'planned',
+        ]);
+
+        ClinicalRecord::create([
+            'clinic_id' => tenant('id'),
+            'patient_id' => $this->patient->id,
+            'odontogram_id' => $this->odontogram->id,
+            'tooth_number' => 21,
+            'surface' => 'center',
+            'diagnosis_code' => 'caries',
+            'treatment_status' => 'planned',
+        ]);
+
+        $this->odontogram->update(['status' => 'completed']);
+
+        $budget = Budget::where('odontogram_id', $this->odontogram->id)->first();
+
+        $this->assertNotNull($budget);
+        $this->assertEquals(1, $budget->items()->count());
+        $this->assertEquals(3, $budget->items()->first()->quantity);
+        $this->assertStringContainsString('Dientes: 16, 21', $budget->items()->first()->treatment_name);
     }
 }

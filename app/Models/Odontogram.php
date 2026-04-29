@@ -35,8 +35,8 @@ class Odontogram extends Model
         return $this->hasMany(ClinicalRecord::class);
     }
 
-    public function budget(): HasMany
+    public function budget(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        return $this->hasMany(Budget::class);
+        return $this->hasOne(Budget::class);
     }
 }
