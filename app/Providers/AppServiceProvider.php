@@ -7,7 +7,9 @@ use Spatie\Permission\PermissionRegistrar;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Odontogram;
+use App\Models\Clinic;
 use App\Observers\OdontogramObserver;
+use App\Observers\ClinicObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -40,6 +42,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Odontogram::observe(OdontogramObserver::class);
+        Clinic::observe(ClinicObserver::class);
 
         app(PermissionRegistrar::class)
             ->setPermissionClass(Permission::class)

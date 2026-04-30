@@ -27,7 +27,17 @@ class AppPanelProvider extends PanelProvider
     {
         $host = request()->getHost();
         $centralDomains = config('tenancy.central_domains', ['localhost', '127.0.0.1']);
+        
+        // Check if host is exactly a central domain OR is a subdomain of a central domain
         $isCentral = in_array($host, $centralDomains);
+        if (!$isCentral) {
+            foreach ($centralDomains as $central) {
+                if (str_ends_with($host, '.' . $central)) {
+                    $isCentral = false; // It's a subdomain of central, so it's a tenant domain
+                    break;
+                }
+            }
+        }
         
         // Force isCentral to true if on local dev IPs just in case
         if (!$isCentral && in_array($host, ['localhost', '127.0.0.1'])) {

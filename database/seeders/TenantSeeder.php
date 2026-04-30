@@ -17,7 +17,12 @@ class TenantSeeder extends Seeder
             'data' => ['plan' => 'enterprise'], // Example data
         ]);
 
+        // Register domains for local and production
+        $centralDomain = env('TENANCY_CENTRAL_DOMAINS', 'localhost');
+        $centralDomain = trim(explode(',', $centralDomain)[0]);
+
         $clinic1->domains()->firstOrCreate(['domain' => 'clinic1.localhost']);
+        $clinic1->domains()->firstOrCreate(['domain' => "clinic1.{$centralDomain}"]);
 
         // Initialize tenancy for clinic1
         tenancy()->initialize($clinic1);
@@ -133,6 +138,7 @@ class TenantSeeder extends Seeder
         ]);
 
         $clinic2->domains()->firstOrCreate(['domain' => 'clinic2.localhost']);
+        $clinic2->domains()->firstOrCreate(['domain' => "clinic2.{$centralDomain}"]);
 
         // Initialize tenancy for clinic2
         tenancy()->initialize($clinic2);
