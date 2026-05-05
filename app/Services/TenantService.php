@@ -33,12 +33,15 @@ class TenantService
                 'plan' => 'free_trial', // Default plan
             ]);
 
-            // 2. Create the Domain (Skipped for path-based multi-tenancy)
-            /*
-            $clinic->domains()->create([
-                'domain' => $data['subdomain'] . '.' . config('tenancy.central_domains')[0],
-            ]);
-            */
+            // 2. Create the Domain (Conditional: only for non-localhost/IP central domains)
+            $centralDomain = config('tenancy.central_domains')[0] ?? 'localhost';
+            $isLocal = in_array($centralDomain, ['localhost', '127.0.0.1', '::1']);
+
+            if (!$isLocal) {
+                $clinic->domains()->create([
+                    'domain' => $data['subdomain'] . '.' . $centralDomain,
+                ]);
+            }
 
             // 3. Create the Admin User for this Tenant
             // We switch context to the new tenant to create the user inside it?

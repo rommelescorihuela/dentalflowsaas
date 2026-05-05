@@ -13,13 +13,22 @@ Route::get('/register/success', function (\Illuminate\Http\Request $request) {
         return redirect('/');
     }
 
-    $clinic = \App\Models\Clinic::find($request->tenant_id);
+    $clinic = \App\Models\Clinic::with('domains')->find($request->tenant_id);
     if (!$clinic) {
         return redirect('/');
     }
 
-    // URL generation for the tenant using path-based identification
-    $url = url('/' . $clinic->id . '/app');
+    // URL generation for the tenant: prioritize subdomain if it exists and we're not on localhost
+    $domain = $clinic->domains->first();
+    $host = request()->getHost();
+    $isLocal = in_array($host, ['localhost', '127.0.0.1', '::1']);
+
+    if ($domain && !$isLocal) {
+        $url = (request()->secure() ? 'https://' : 'http://') . $domain->domain . '/app';
+    } else {
+        // Fallback to path-based identification
+        $url = url('/' . $clinic->id . '/app');
+    }
 
     return view('auth.register-success', ['clinic' => $clinic, 'url' => $url]);
 })->name('register.success');
