@@ -272,6 +272,160 @@ class SystemTools extends Page
                             ->send();
                     }
                 }),
+
+            Action::make('fixDomains')
+                ->label('Fix Dominios')
+                ->icon('heroicon-o-globe-alt')
+                ->color('primary')
+                ->requiresConfirmation()
+                ->modalHeading('Fix de Dominios')
+                ->modalDescription('Este script verificará y registrará el dominio clinicatest.dentalflow.digitalwebsolution.info si no existe.')
+                ->action(function () {
+                    try {
+                        $output = [];
+                        
+                        $clinics = \Illuminate\Support\Facades\DB::table('tenants')->get();
+                        $output[] = "Clínicas encontradas: " . $clinics->count();
+                        
+                        foreach ($clinics as $clinic) {
+                            $output[] = "  - {$clinic->id}: {$clinic->name}";
+                        }
+
+                        $domains = \Illuminate\Support\Facades\DB::table('domains')->get();
+                        $output[] = "\nDominios registrados: " . $domains->count();
+                        
+                        foreach ($domains as $domain) {
+                            $output[] = "  - {$domain->domain} → {$domain->tenant_id}";
+                        }
+
+                        $targetDomain = 'clinicatest.dentalflow.digitalwebsolution.info';
+                        $domainExists = \Illuminate\Support\Facades\DB::table('domains')
+                            ->where('domain', $targetDomain)
+                            ->first();
+
+                        if ($domainExists) {
+                            $output[] = "\n✅ El dominio '{$targetDomain}' YA existe";
+                        } else {
+                            $output[] = "\n⚠️ El dominio '{$targetDomain}' NO existe";
+                            
+                            $clinic = \Illuminate\Support\Facades\DB::table('tenants')->where('id', 'clinicatest')->first();
+                            
+                            if ($clinic) {
+                                $output[] = "✅ Clínica 'clinicatest' encontrada";
+                            } else {
+                                $output[] = "⚠️ Clínica 'clinicatest' no existe, creando...";
+                                \Illuminate\Support\Facades\DB::table('tenants')->insert([
+                                    'id' => 'clinicatest',
+                                    'name' => 'Clínica Test',
+                                    'created_at' => now(),
+                                    'updated_at' => now(),
+                                ]);
+                                $output[] = "✅ Clínica creada";
+                            }
+
+                            $output[] = "Registrando dominio...";
+                            \Illuminate\Support\Facades\DB::table('domains')->insert([
+                                'id' => uniqid('dom_'),
+                                'domain' => $targetDomain,
+                                'tenant_id' => 'clinicatest',
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                            $output[] = "✅ Dominio registrado exitosamente";
+                        }
+
+                        Notification::make()
+                            ->title('Fix de dominios completado')
+                            ->success()
+                            ->body(implode("\n", $output))
+                            ->send();
+
+                    } catch (\Exception $e) {
+                        Notification::make()
+                            ->title('Error al aplicar fix')
+                            ->danger()
+                            ->body($e->getMessage())
+                            ->send();
+                    }
+                }),
+
+            Action::make('runMigrations')
+                ->label('Ejecutar Migraciones')
+                ->icon('heroicon-o-arrow-trending')
+                ->color('success')
+                ->requiresConfirmation()
+                ->modalHeading('Ejecutar Migraciones')
+                ->modalDescription('Esto ejecutará todas las migraciones pendientes en la base de datos central y en todos los tenants.')
+                ->action(function () {
+                    try {
+                        $output = [];
+                        
+                        $output[] = "=== Migraciones Centrales ===";
+                        $outputCentral = new \Symfony\Component\Console\Output\BufferedOutput();
+                        $exitCode = \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true], $outputCentral);
+                        $output[] = $outputCentral->fetch();
+                        
+                        if ($exitCode === 0) {
+                            $output[] = "✅ Migraciones centrales completadas";
+                        }
+
+                        $output[] = "\n=== Migraciones en Tenants ===";
+                        $outputTenants = new \Symfony\Component\Console\Output\BufferedOutput();
+                        $exitCode2 = \Illuminate\Support\Facades\Artisan::call('tenants:migrate', ['--force' => true], $outputTenants);
+                        $output[] = $outputTenants->fetch();
+                        
+                        if ($exitCode2 === 0) {
+                            $output[] = "✅ Migraciones en tenants completadas";
+                        }
+
+                        Notification::make()
+                            ->title('Migraciones completadas')
+                            ->success()
+                            ->body(implode("\n", $output))
+                            ->send();
+
+                    } catch (\Exception $e) {
+                        Notification::make()
+                            ->title('Error en migraciones')
+                            ->danger()
+                            ->body($e->getMessage())
+                            ->send();
+                    }
+                }),
+
+            Action::make('checkInventories')
+                ->label('Verificar Inventories')
+                ->icon('heroicon-o-clipboard-document-check')
+                ->color('info')
+                ->action(function () {
+                    try {
+                        $columns = \Illuminate\Support\Facades\DB::select("SELECT column_name FROM information_schema.columns WHERE table_name = 'inventories'");
+                        $columnNames = array_column($columns, 'column_name');
+                        
+                        $output = ["Columnas en inventories:"];
+                        $output[] = implode(', ', $columnNames);
+                        
+                        if (!in_array('price', $columnNames)) {
+                            $output[] = "\n⚠️ Falta columna 'price'";
+                            $output[] = "Ejecuta las migraciones para solucionar";
+                        } else {
+                            $output[] = "\n✅ Tabla inventories correcta";
+                        }
+
+                        Notification::make()
+                            ->title('Verificación completada')
+                            ->info()
+                            ->body(implode("\n", $output))
+                            ->send();
+
+                    } catch (\Exception $e) {
+                        Notification::make()
+                            ->title('Error en verificación')
+                            ->danger()
+                            ->body($e->getMessage())
+                            ->send();
+                    }
+                }),
         ];
     }
 }
