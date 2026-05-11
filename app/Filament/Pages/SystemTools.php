@@ -275,7 +275,7 @@ class SystemTools extends Page
 
             Action::make('fixDomains')
                 ->label('Fix Dominios')
-                ->icon('heroicon-o-globe-alt')
+                ->icon('heroicon-s-globe-alt')
                 ->color('primary')
                 ->requiresConfirmation()
                 ->modalHeading('Fix de Dominios')
@@ -351,7 +351,7 @@ class SystemTools extends Page
 
             Action::make('runMigrations')
                 ->label('Ejecutar Migraciones')
-                ->icon('heroicon-o-arrow-trending')
+                ->icon('heroicon-s-arrow-up-tray')
                 ->color('success')
                 ->requiresConfirmation()
                 ->modalHeading('Ejecutar Migraciones')
@@ -395,7 +395,7 @@ class SystemTools extends Page
 
             Action::make('checkInventories')
                 ->label('Verificar Inventories')
-                ->icon('heroicon-o-clipboard-document-check')
+                ->icon('heroicon-s-clipboard-document-check')
                 ->color('info')
                 ->action(function () {
                     try {
