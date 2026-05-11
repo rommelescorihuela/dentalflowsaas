@@ -295,7 +295,7 @@ class SystemTools extends Page
                         $output[] = "\nDominios registrados: " . $domains->count();
                         
                         foreach ($domains as $domain) {
-                            $output[] = "  - {$domain->domain} → {$domain->tenant_id}";
+                            $output[] = "  - {$domain->domain} → {$domain->clinic_id}";
                         }
 
                         $targetDomain = 'clinicatest.dentalflow.digitalwebsolution.info';
@@ -327,7 +327,7 @@ class SystemTools extends Page
                             \Illuminate\Support\Facades\DB::table('domains')->insert([
                                 'id' => uniqid('dom_'),
                                 'domain' => $targetDomain,
-                                'tenant_id' => 'clinicatest',
+                                'clinic_id' => 'clinicatest',
                                 'created_at' => now(),
                                 'updated_at' => now(),
                             ]);
