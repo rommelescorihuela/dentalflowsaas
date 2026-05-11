@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use Filament\Pages\Page;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Illuminate\Support\Facades\Artisan;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
@@ -44,8 +45,8 @@ class SystemTools extends Page
             $content = file_get_contents($systemToolsPath);
             
             // Reemplazar tenant_id por clinic_id
-            $content = str_replace('$domain->tenant_id', '$domain->clinic_id', $content);
-            $content = str_replace("'tenant_id' => 'clinicatest'", "'clinic_id' => 'clinicatest'", $content);
+            $content = str_replace('$domain->clinic_id', '$domain->clinic_id', $content);
+            $content = str_replace("'clinic_id' => 'clinicatest'", "'clinic_id' => 'clinicatest'", $content);
             
             // Guardar archivo actualizado
             file_put_contents($systemToolsPath, $content);
@@ -82,156 +83,306 @@ class SystemTools extends Page
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('updateSystem')
-                ->label('Actualizar Sistema')
-                ->icon('heroicon-s-arrow-path')
-                ->color('warning')
-                ->action('updateSystem')
-                ->requiresConfirmation()
-                ->modalHeading('Actualizar SystemTools')
-                ->modalDescription('Esto corregirá el error "tenant_id vs clinic_id" en el código. Solo ejecuta esto una vez.'),
+            ActionGroup::make([
+                Action::make('updateSystem')
+                    ->label('Actualizar Sistema')
+                    ->icon('heroicon-s-arrow-path')
+                    ->color('warning')
+                    ->action('updateSystem')
+                    ->requiresConfirmation()
+                    ->modalHeading('Actualizar SystemTools')
+                    ->modalDescription('Esto corregirá el error "tenant_id vs clinic_id" en el código. Solo ejecuta esto una vez.'),
 
-            Action::make('fixPermissions')
-                ->label('Fix Database Permissions')
-                ->icon('heroicon-m-key')
-                ->color('success')
-                ->requiresConfirmation()
-                ->modalHeading('Repair Sequence Permissions')
-                ->modalDescription('This will grant the necessary permissions for auto-incrementing IDs in PostgreSQL. Run this if you see errors like "permission denied for sequence".')
-                ->action(function () {
-                    try {
-                        $user = config('database.connections.pgsql.username');
-                        \Illuminate\Support\Facades\DB::statement("GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO \"$user\"");
-                        
-                        Notification::make()
-                            ->title('Permissions fixed successfully!')
-                            ->success()
-                            ->send();
-                    } catch (\Exception $e) {
-                        Notification::make()
-                            ->title('Error fixing permissions')
-                            ->body($e->getMessage())
-                            ->danger()
-                            ->send();
-                    }
-                }),
-
-            Action::make('fixSchema')
-                ->label('Fix Database Schema')
-                ->icon('heroicon-m-table-cells')
-                ->color('info')
-                ->requiresConfirmation()
-                ->modalHeading('Repair Database Schema')
-                ->modalDescription('This will check for common schema mismatches (like tenant_id vs clinic_id) and attempt to fix them.')
-                ->action(function () {
-                    try {
-                        $messages = [];
-
-                        // 1. Check domains.tenant_id vs clinic_id
-                        $hasTenantId = \Illuminate\Support\Facades\Schema::hasColumn('domains', 'tenant_id');
-                        $hasClinicId = \Illuminate\Support\Facades\Schema::hasColumn('domains', 'clinic_id');
-
-                        if ($hasTenantId && !$hasClinicId) {
-                            \Illuminate\Support\Facades\DB::statement('ALTER TABLE domains RENAME COLUMN tenant_id TO clinic_id');
-                            $messages[] = 'Column domains.tenant_id renamed to clinic_id.';
-                        }
-
-                        // 2. Sync Permissions Migrations (Mark as done if columns exist)
-                        $permissionMigrations = [
-                            '2026_01_15_130000_create_permission_tables' => 'permissions',
-                            '2026_01_15_140000_add_clinic_id_to_permissions_tables' => 'roles',
-                            '2026_01_21_173957_add_clinic_id_to_role_has_permissions_table' => 'role_has_permissions',
-                        ];
-
-                        foreach ($permissionMigrations as $migrationName => $tableName) {
-                            $isMigrated = \Illuminate\Support\Facades\DB::table('migrations')->where('migration', $migrationName)->exists();
-                            $tableExists = \Illuminate\Support\Facades\Schema::hasTable($tableName);
-                            $columnExists = ($tableName === 'permissions') ? true : \Illuminate\Support\Facades\Schema::hasColumn($tableName, 'clinic_id');
-
-                            if ($tableExists && $columnExists && !$isMigrated) {
-                                $maxBatch = \Illuminate\Support\Facades\DB::table('migrations')->max('batch') ?? 0;
-                                \Illuminate\Support\Facades\DB::table('migrations')->insert([
-                                    'migration' => $migrationName,
-                                    'batch' => $maxBatch + 1,
-                                ]);
-                                $messages[] = "Migration '$migrationName' marked as synced.";
-                            }
-                        }
-
-                        if (empty($messages)) {
-                            Notification::make()->title('Schema seems correct or no fixes needed.')->info()->send();
-                        } else {
+                Action::make('fixPermissions')
+                    ->label('Corregir Permisos Secuencias')
+                    ->icon('heroicon-m-key')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Reparar Permisos de Secuencias')
+                    ->modalDescription('Esto otorgará los permisos necesarios para los IDs autoincrementales en PostgreSQL. Ejecuta esto si ves errores de "permission denied for sequence".')
+                    ->action(function () {
+                        try {
+                            $user = config('database.connections.pgsql.username');
+                            \Illuminate\Support\Facades\DB::statement("GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO \"$user\"");
+                            
                             Notification::make()
-                                ->title('Schema fixes applied!')
-                                ->body(implode(' ', $messages))
+                                ->title('¡Permisos corregidos exitosamente!')
                                 ->success()
                                 ->send();
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('Error al corregir permisos')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
                         }
-                    } catch (\Exception $e) {
-                        Notification::make()
-                            ->title('Error fixing schema')
-                            ->body($e->getMessage())
-                            ->danger()
-                            ->send();
-                    }
-                }),
+                    }),
 
-            Action::make('runMigrations')
-                ->label('Run Database Migrations')
-                ->icon('heroicon-m-arrow-path')
-                ->color('primary')
-                ->requiresConfirmation()
-                ->modalHeading('Run Pending Migrations?')
-                ->modalDescription('This will execute "php artisan migrate" in production. Use this to create missing tables or columns after an update.')
-                ->action(function () {
-                    try {
-                        Artisan::call('migrate', ['--force' => true]);
-                        Notification::make()
-                            ->title('Migrations executed successfully!')
-                            ->success()
-                            ->send();
-                    } catch (\Exception $e) {
-                        Notification::make()
-                            ->title('Error running migrations')
-                            ->body($e->getMessage())
-                            ->danger()
-                            ->send();
-                    }
-                }),
+                Action::make('fixSchema')
+                    ->label('Corregir Esquema DB')
+                    ->icon('heroicon-m-table-cells')
+                    ->color('info')
+                    ->requiresConfirmation()
+                    ->modalHeading('Reparar Esquema de Base de Datos')
+                    ->modalDescription('Esto buscará inconsistencias comunes en el esquema (como tenant_id vs clinic_id) e intentará corregirlas.')
+                    ->action(function () {
+                        try {
+                            $messages = [];
 
-            Action::make('runSeeders')
-                ->label('Run Database Seeders (Soft Reset)')
-                ->icon('heroicon-m-play')
-                ->color('warning')
-                ->requiresConfirmation()
-                ->modalHeading('Run Seeders?')
-                ->modalDescription('This will execute the database seeders and insert base data into your SaaS. Since it uses firstOrCreate, it should gracefully restore roles and seed missing components without deleting production data.')
-                ->modalSubmitActionLabel('Yes, run them')
-                ->action(function () {
-                    try {
-                        Artisan::call('db:seed', ['--force' => true]);
-                        Notification::make()
-                            ->title('Seeders executed successfully!')
-                            ->body('The output was recorded in the system logs.')
-                            ->success()
-                            ->send();
-                    } catch (\Exception $e) {
-                        Notification::make()
-                            ->title('Error executing seeders')
-                            ->body($e->getMessage())
-                            ->danger()
-                            ->send();
-                    }
-                }),
+                            // 1. Check domains.tenant_id vs clinic_id
+                            $hasTenantId = \Illuminate\Support\Facades\Schema::hasColumn('domains', 'tenant_id');
+                            $hasClinicId = \Illuminate\Support\Facades\Schema::hasColumn('domains', 'clinic_id');
+
+                            if ($hasTenantId && !$hasClinicId) {
+                                \Illuminate\Support\Facades\DB::statement('ALTER TABLE domains RENAME COLUMN tenant_id TO clinic_id');
+                                $messages[] = 'Columna domains.tenant_id renombrada a clinic_id.';
+                            }
+
+                            // 2. Sync Permissions Migrations (Mark as done if columns exist)
+                            $permissionMigrations = [
+                                '2026_01_15_130000_create_permission_tables' => 'permissions',
+                                '2026_01_15_140000_add_clinic_id_to_permissions_tables' => 'roles',
+                                '2026_01_21_173957_add_clinic_id_to_role_has_permissions_table' => 'role_has_permissions',
+                            ];
+
+                            foreach ($permissionMigrations as $migrationName => $tableName) {
+                                $isMigrated = \Illuminate\Support\Facades\DB::table('migrations')->where('migration', $migrationName)->exists();
+                                $tableExists = \Illuminate\Support\Facades\Schema::hasTable($tableName);
+                                $columnExists = ($tableName === 'permissions') ? true : \Illuminate\Support\Facades\Schema::hasColumn($tableName, 'clinic_id');
+
+                                if ($tableExists && $columnExists && !$isMigrated) {
+                                    $maxBatch = \Illuminate\Support\Facades\DB::table('migrations')->max('batch') ?? 0;
+                                    \Illuminate\Support\Facades\DB::table('migrations')->insert([
+                                        'migration' => $migrationName,
+                                        'batch' => $maxBatch + 1,
+                                    ]);
+                                    $messages[] = "Migración '$migrationName' marcada como sincronizada.";
+                                }
+                            }
+
+                            if (empty($messages)) {
+                                Notification::make()->title('El esquema parece correcto o no se necesitan correcciones.').info()->send();
+                            } else {
+                                Notification::make()
+                                    ->title('¡Mejoras de esquema aplicadas!')
+                                    ->body(implode(' ', $messages))
+                                    ->success()
+                                    ->send();
+                            }
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('Error al corregir esquema')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    }),
+            ])->label('Herramientas DB')->icon('heroicon-m-wrench-screwdriver')->color('info')->button(),
+
+            ActionGroup::make([
+                Action::make('runCentralMigrations')
+                    ->label('Migraciones Centrales')
+                    ->icon('heroicon-m-arrow-path')
+                    ->color('primary')
+                    ->requiresConfirmation()
+                    ->modalHeading('¿Ejecutar Migraciones Pendientes?')
+                    ->modalDescription('Esto ejecutará "php artisan migrate" en producción. Úsalo para crear tablas o columnas faltantes después de una actualización.')
+                    ->action(function () {
+                        try {
+                            Artisan::call('migrate', ['--force' => true]);
+                            Notification::make()
+                                ->title('¡Migraciones ejecutadas exitosamente!')
+                                ->success()
+                                ->send();
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('Error al ejecutar migraciones')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    }),
+
+                Action::make('runTenantMigrations')
+                    ->label('Migraciones Tenants')
+                    ->icon('heroicon-s-arrow-up-tray')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Ejecutar Migraciones Tenants')
+                    ->modalDescription('Esto ejecutará todas las migraciones pendientes en todos los tenants.')
+                    ->action(function () {
+                        try {
+                            $output = [];
+                            
+                            $output[] = "=== Migraciones en Tenants ===";
+                            $outputTenants = new \Symfony\Component\Console\Output\BufferedOutput();
+                            $exitCode2 = \Illuminate\Support\Facades\Artisan::call('tenants:migrate', ['--force' => true], $outputTenants);
+                            $output[] = $outputTenants->fetch();
+                            
+                            if ($exitCode2 === 0) {
+                                $output[] = "✅ Migraciones en tenants completadas";
+                            }
+
+                            Notification::make()
+                                ->title('Migraciones completadas')
+                                ->success()
+                                ->body(implode("\n", $output))
+                                ->send();
+
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('Error en migraciones')
+                                ->danger()
+                                ->body($e->getMessage())
+                                ->send();
+                        }
+                    }),
+
+                Action::make('runSeeders')
+                    ->label('Ejecutar Seeders (Soft Reset)')
+                    ->icon('heroicon-m-play')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('¿Ejecutar Seeders?')
+                    ->modalDescription('Esto ejecutará los seeders de la base de datos e insertará datos base en su SaaS. Dado que utiliza firstOrCreate, debería restaurar roles y seedear componentes faltantes sin eliminar datos de producción.')
+                    ->modalSubmitActionLabel('Sí, ejecutarlos')
+                    ->action(function () {
+                        try {
+                            Artisan::call('db:seed', ['--force' => true]);
+                            Notification::make()
+                                ->title('¡Seeders ejecutados exitosamente!')
+                                ->body('La salida se registró en los logs del sistema.')
+                                ->success()
+                                ->send();
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('Error al ejecutar seeders')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    }),
+            ])->label('Migraciones y Datos')->icon('heroicon-m-circle-stack')->color('warning')->button(),
+
+            ActionGroup::make([
+                Action::make('fixDomains')
+                    ->label('Reparar Dominios')
+                    ->icon('heroicon-s-globe-alt')
+                    ->color('primary')
+                    ->requiresConfirmation()
+                    ->modalHeading('Fix de Dominios')
+                    ->modalDescription('Este script verificará y registrará el dominio clinicatest.dentalflow.digitalwebsolution.info si no existe.')
+                    ->action(function () {
+                        try {
+                            $output = [];
+                            
+                            $clinics = \Illuminate\Support\Facades\DB::table('tenants')->get();
+                            $output[] = "Clínicas encontradas: " . $clinics->count();
+                            
+                            foreach ($clinics as $clinic) {
+                                $output[] = "  - {$clinic->id}: {$clinic->name}";
+                            }
+
+                            $domains = \Illuminate\Support\Facades\DB::table('domains')->get();
+                            $output[] = "\nDominios registrados: " . $domains->count();
+                            
+                            foreach ($domains as $domain) {
+                                $output[] = "  - {$domain->domain} → {$domain->clinic_id}";
+                            }
+
+                            $targetDomain = 'clinicatest.dentalflow.digitalwebsolution.info';
+                            $domainExists = \Illuminate\Support\Facades\DB::table('domains')
+                                ->where('domain', $targetDomain)
+                                ->first();
+
+                            if ($domainExists) {
+                                $output[] = "\n✅ El dominio '{$targetDomain}' YA existe";
+                            } else {
+                                $output[] = "\n⚠️ El dominio '{$targetDomain}' NO existe";
+                                
+                                $clinic = \Illuminate\Support\Facades\DB::table('tenants')->where('id', 'clinicatest')->first();
+                                
+                                if ($clinic) {
+                                    $output[] = "✅ Clínica 'clinicatest' encontrada";
+                                } else {
+                                    $output[] = "⚠️ Clínica 'clinicatest' no existe, creando...";
+                                    \Illuminate\Support\Facades\DB::table('tenants')->insert([
+                                        'id' => 'clinicatest',
+                                        'name' => 'Clínica Test',
+                                        'created_at' => now(),
+                                        'updated_at' => now(),
+                                    ]);
+                                    $output[] = "✅ Clínica creada";
+                                }
+
+                                $output[] = "Registrando dominio...";
+                                \Illuminate\Support\Facades\DB::table('domains')->insert([
+                                    'domain' => $targetDomain,
+                                    'clinic_id' => 'clinicatest',
+                                    'created_at' => now(),
+                                    'updated_at' => now(),
+                                ]);
+                                $output[] = "✅ Dominio registrado exitosamente";
+                            }
+
+                            Notification::make()
+                                ->title('Fix de dominios completado')
+                                ->success()
+                                ->body(implode("\n", $output))
+                                ->send();
+
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('Error al aplicar fix')
+                                ->danger()
+                                ->body($e->getMessage())
+                                ->send();
+                        }
+                    }),
+
+                Action::make('checkInventories')
+                    ->label('Verificar Inventarios')
+                    ->icon('heroicon-s-clipboard-document-check')
+                    ->color('info')
+                    ->action(function () {
+                        try {
+                            $columns = \Illuminate\Support\Facades\DB::select("SELECT column_name FROM information_schema.columns WHERE table_name = 'inventories'");
+                            $columnNames = array_column($columns, 'column_name');
+                            
+                            $output = ["Columnas en inventories:"];
+                            $output[] = implode(', ', $columnNames);
+                            
+                            if (!in_array('price', $columnNames)) {
+                                $output[] = "\n⚠️ Falta columna 'price'";
+                                $output[] = "Ejecuta las migraciones para solucionar";
+                            } else {
+                                $output[] = "\n✅ Tabla inventories correcta";
+                            }
+
+                            Notification::make()
+                                ->title('Verificación completada')
+                                ->info()
+                                ->body(implode("\n", $output))
+                                ->send();
+
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('Error en verificación')
+                                ->danger()
+                                ->body($e->getMessage())
+                                ->send();
+                        }
+                    }),
+            ])->label('Mantenimiento')->icon('heroicon-m-cog-6-tooth')->color('success')->button(),
 
             Action::make('hardReset')
-                ->label('HARD RESET (Danger)')
+                ->label('HARD RESET (Peligro)')
                 ->icon('heroicon-m-trash')
                 ->color('danger')
                 ->requiresConfirmation()
-                ->modalHeading('WARNING: PERMANENT DATA LOSS')
-                ->modalDescription('THIS WILL DELETE ALL DATA IN THE DATABASE (migrate:fresh) AND START FROM ZERO. Only use this if you want to completely reset the production environment. Proceed?')
-                ->modalSubmitActionLabel('I UNDERSTAND, WIPE ALL DATA')
+                ->modalHeading('ADVERTENCIA: PÉRDIDA PERMANENTE DE DATOS')
+                ->modalDescription('ESTO ELIMINARÁ TODOS LOS DATOS EN LA BASE DE DATOS (migrate:fresh) Y COMENZARÁ DE CERO. Solo use esto si desea restablecer completamente el entorno de producción. ¿Proceder?')
+                ->modalSubmitActionLabel('ENTIENDO, BORRAR TODOS LOS DATOS')
                 ->modalIcon('heroicon-o-exclamation-triangle')
                 ->hidden(!auth()->user()->hasRole('super-admin'))
                 ->action(function () {
@@ -308,8 +459,8 @@ class SystemTools extends Page
                         }
 
                         Notification::make()
-                            ->title('Hard Reset Successful!')
-                            ->body('The database was wiped and recreated with fresh seed data. Email notifications sent to all super-admins.')
+                            ->title('¡Hard Reset Exitoso!')
+                            ->body('La base de datos fue borrada y recreada con datos iniciales frescos. Se enviaron notificaciones por correo electrónico a todos los super-admins.')
                             ->success()
                             ->send();
                     } catch (\Exception $e) {
@@ -325,163 +476,9 @@ class SystemTools extends Page
                         );
 
                         Notification::make()
-                            ->title('Error during Hard Reset')
+                            ->title('Error durante el Hard Reset')
                             ->body($e->getMessage())
                             ->danger()
-                            ->send();
-                    }
-                }),
-
-            Action::make('fixDomains')
-                ->label('Fix Dominios')
-                ->icon('heroicon-s-globe-alt')
-                ->color('primary')
-                ->requiresConfirmation()
-                ->modalHeading('Fix de Dominios')
-                ->modalDescription('Este script verificará y registrará el dominio clinicatest.dentalflow.digitalwebsolution.info si no existe.')
-                ->action(function () {
-                    try {
-                        $output = [];
-                        
-                        $clinics = \Illuminate\Support\Facades\DB::table('tenants')->get();
-                        $output[] = "Clínicas encontradas: " . $clinics->count();
-                        
-                        foreach ($clinics as $clinic) {
-                            $output[] = "  - {$clinic->id}: {$clinic->name}";
-                        }
-
-                        $domains = \Illuminate\Support\Facades\DB::table('domains')->get();
-                        $output[] = "\nDominios registrados: " . $domains->count();
-                        
-                        foreach ($domains as $domain) {
-                            $output[] = "  - {$domain->domain} → {$domain->clinic_id}";
-                        }
-
-                        $targetDomain = 'clinicatest.dentalflow.digitalwebsolution.info';
-                        $domainExists = \Illuminate\Support\Facades\DB::table('domains')
-                            ->where('domain', $targetDomain)
-                            ->first();
-
-                        if ($domainExists) {
-                            $output[] = "\n✅ El dominio '{$targetDomain}' YA existe";
-                        } else {
-                            $output[] = "\n⚠️ El dominio '{$targetDomain}' NO existe";
-                            
-                            $clinic = \Illuminate\Support\Facades\DB::table('tenants')->where('id', 'clinicatest')->first();
-                            
-                            if ($clinic) {
-                                $output[] = "✅ Clínica 'clinicatest' encontrada";
-                            } else {
-                                $output[] = "⚠️ Clínica 'clinicatest' no existe, creando...";
-                                \Illuminate\Support\Facades\DB::table('tenants')->insert([
-                                    'id' => 'clinicatest',
-                                    'name' => 'Clínica Test',
-                                    'created_at' => now(),
-                                    'updated_at' => now(),
-                                ]);
-                                $output[] = "✅ Clínica creada";
-                            }
-
-                            $output[] = "Registrando dominio...";
-                            \Illuminate\Support\Facades\DB::table('domains')->insert([
-                                'id' => uniqid('dom_'),
-                                'domain' => $targetDomain,
-                                'clinic_id' => 'clinicatest',
-                                'created_at' => now(),
-                                'updated_at' => now(),
-                            ]);
-                            $output[] = "✅ Dominio registrado exitosamente";
-                        }
-
-                        Notification::make()
-                            ->title('Fix de dominios completado')
-                            ->success()
-                            ->body(implode("\n", $output))
-                            ->send();
-
-                    } catch (\Exception $e) {
-                        Notification::make()
-                            ->title('Error al aplicar fix')
-                            ->danger()
-                            ->body($e->getMessage())
-                            ->send();
-                    }
-                }),
-
-            Action::make('runMigrations')
-                ->label('Ejecutar Migraciones')
-                ->icon('heroicon-s-arrow-up-tray')
-                ->color('success')
-                ->requiresConfirmation()
-                ->modalHeading('Ejecutar Migraciones')
-                ->modalDescription('Esto ejecutará todas las migraciones pendientes en la base de datos central y en todos los tenants.')
-                ->action(function () {
-                    try {
-                        $output = [];
-                        
-                        $output[] = "=== Migraciones Centrales ===";
-                        $outputCentral = new \Symfony\Component\Console\Output\BufferedOutput();
-                        $exitCode = \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true], $outputCentral);
-                        $output[] = $outputCentral->fetch();
-                        
-                        if ($exitCode === 0) {
-                            $output[] = "✅ Migraciones centrales completadas";
-                        }
-
-                        $output[] = "\n=== Migraciones en Tenants ===";
-                        $outputTenants = new \Symfony\Component\Console\Output\BufferedOutput();
-                        $exitCode2 = \Illuminate\Support\Facades\Artisan::call('tenants:migrate', ['--force' => true], $outputTenants);
-                        $output[] = $outputTenants->fetch();
-                        
-                        if ($exitCode2 === 0) {
-                            $output[] = "✅ Migraciones en tenants completadas";
-                        }
-
-                        Notification::make()
-                            ->title('Migraciones completadas')
-                            ->success()
-                            ->body(implode("\n", $output))
-                            ->send();
-
-                    } catch (\Exception $e) {
-                        Notification::make()
-                            ->title('Error en migraciones')
-                            ->danger()
-                            ->body($e->getMessage())
-                            ->send();
-                    }
-                }),
-
-            Action::make('checkInventories')
-                ->label('Verificar Inventories')
-                ->icon('heroicon-s-clipboard-document-check')
-                ->color('info')
-                ->action(function () {
-                    try {
-                        $columns = \Illuminate\Support\Facades\DB::select("SELECT column_name FROM information_schema.columns WHERE table_name = 'inventories'");
-                        $columnNames = array_column($columns, 'column_name');
-                        
-                        $output = ["Columnas en inventories:"];
-                        $output[] = implode(', ', $columnNames);
-                        
-                        if (!in_array('price', $columnNames)) {
-                            $output[] = "\n⚠️ Falta columna 'price'";
-                            $output[] = "Ejecuta las migraciones para solucionar";
-                        } else {
-                            $output[] = "\n✅ Tabla inventories correcta";
-                        }
-
-                        Notification::make()
-                            ->title('Verificación completada')
-                            ->info()
-                            ->body(implode("\n", $output))
-                            ->send();
-
-                    } catch (\Exception $e) {
-                        Notification::make()
-                            ->title('Error en verificación')
-                            ->danger()
-                            ->body($e->getMessage())
                             ->send();
                     }
                 }),

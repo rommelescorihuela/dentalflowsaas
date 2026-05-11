@@ -21,7 +21,10 @@
         <x-filament::section>
             <x-slot name="heading">
                 <div class="flex items-center gap-2">
-                    <x-heroicon-o-code-bracket class="w-5 h-5" />
+                    <x-filament::icon
+                        icon="heroicon-m-code-bracket"
+                        class="h-5 w-5 text-gray-500"
+                    />
                     Resultado
                 </div>
             </x-slot>
