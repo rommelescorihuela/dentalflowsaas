@@ -14,6 +14,8 @@ class SystemTools extends Page
 {
     protected string $view = 'filament.pages.system-tools';
 
+    public ?string $lastOutput = null;
+
     public static function getNavigationIcon(): string|\Illuminate\Contracts\Support\Htmlable|null
     {
         return 'heroicon-o-wrench-screwdriver';
@@ -29,9 +31,66 @@ class SystemTools extends Page
         return 'System Tools';
     }
 
+    public function updateSystem(): void
+    {
+        try {
+            $output = [];
+            $systemToolsPath = app_path('Filament/Pages/SystemTools.php');
+            
+            if (!file_exists($systemToolsPath)) {
+                throw new \Exception('No se encontró SystemTools.php');
+            }
+
+            $content = file_get_contents($systemToolsPath);
+            
+            // Reemplazar tenant_id por clinic_id
+            $content = str_replace('$domain->tenant_id', '$domain->clinic_id', $content);
+            $content = str_replace("'tenant_id' => 'clinicatest'", "'clinic_id' => 'clinicatest'", $content);
+            
+            // Guardar archivo actualizado
+            file_put_contents($systemToolsPath, $content);
+            
+            $output[] = '✅ Archivo SystemTools.php actualizado';
+            $output[] = '✅ Cambios: tenant_id → clinic_id';
+            
+            // Limpiar caché
+            Artisan::call('view:clear');
+            Artisan::call('cache:clear');
+            
+            $output[] = '✅ Caché limpiada';
+            $output[] = '';
+            $output[] = '¡LISTO! Ya puedes usar el botón Fix Dominios';
+            
+            $this->lastOutput = implode("\n", $output);
+            
+            Notification::make()
+                ->title('Sistema actualizado')
+                ->success()
+                ->send();
+
+        } catch (\Exception $e) {
+            $this->lastOutput = "ERROR: " . $e->getMessage();
+            
+            Notification::make()
+                ->title('Error en actualización')
+                ->danger()
+                ->body($e->getMessage())
+                ->send();
+        }
+    }
+
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('updateSystem')
+                ->label('Actualizar Sistema')
+                ->icon('heroicon-s-arrow-path')
+                ->color('warning')
+                ->action('updateSystem')
+                ->requiresConfirmation()
+                ->modalHeading('Actualizar SystemTools')
+                ->modalDescription('Esto corregirá el error "tenant_id vs clinic_id" en el código. Solo ejecuta esto una vez.'),
+
             Action::make('fixPermissions')
                 ->label('Fix Database Permissions')
                 ->icon('heroicon-m-key')
