@@ -26,30 +26,11 @@ class AppPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         $host = request()->getHost();
-        $centralDomains = config('tenancy.central_domains', ['localhost', '127.0.0.1']);
-        
-        // Check if host is exactly a central domain OR is a subdomain of a central domain
-        $isCentral = in_array($host, $centralDomains);
-        if (!$isCentral) {
-            foreach ($centralDomains as $central) {
-                if (str_ends_with($host, '.' . $central)) {
-                    $isCentral = false; // It's a subdomain of central, so it's a tenant domain
-                    break;
-                }
-            }
-        }
-        
-        // Force isCentral to true if on local dev IPs just in case
-        if (!$isCentral && in_array($host, ['localhost', '127.0.0.1'])) {
-            $isCentral = true;
-        }
+        $isLocalDev = in_array($host, ['localhost', '127.0.0.1']);
 
         return $panel
             ->id('app')
             ->path('app')
-            ->homeUrl(fn () => $isCentral
-                ? "/" . (tenant('id') ?? request()->route('tenant') ?? request()->segment(1) ?? 'clinic1') . "/app"
-                : "/app")
             ->login()
             ->colors([
                 'primary' => Color::Amber,
@@ -57,7 +38,7 @@ class AppPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\Filament\App\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\Filament\App\Pages')
             ->pages([
-                Dashboard::class,
+                \Filament\Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\Filament\App\Widgets')
             ->widgets([
@@ -72,14 +53,11 @@ class AppPanelProvider extends PanelProvider
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
-                $isCentral 
-                    ? \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class
-                    : \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
-                \App\Http\Middleware\SetTenancyUrlDefaults::class,
-                \App\Http\Middleware\SyncSpatiePermissionsTeamId::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-                \App\Http\Middleware\ForceOnboardingMiddleware::class,
+                \App\Http\Middleware\InitializeTenancyBySubdomainId::class,
+                \App\Http\Middleware\SetTenancyUrlDefaults::class,
+                \App\Http\Middleware\SyncSpatiePermissionsTeamId::class,
             ])
             ->plugins([
                 // Shield removed - using custom role management

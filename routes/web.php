@@ -57,3 +57,11 @@ Route::middleware([
     Route::get('/{tenant?}/portal/{patient}/book', \App\Livewire\PatientPortal\BookAppointment::class)->name('portal.book');
     Route::post('/{tenant?}/portal/budgets/{budget}/accept', [\App\Http\Controllers\PatientPortalController::class , 'acceptBudget'])->name('portal.budgets.accept');
 });
+
+Route::middleware([
+    'web',
+    \App\Http\Middleware\InitializeTenancyBySubdomainId::class,
+    \App\Http\Middleware\SetTenancyUrlDefaults::class,
+])->group(function () {
+    Route::post('/app/clinic-settings/save', [\App\Http\Controllers\ClinicSettingsController::class, 'save'])->name('clinic-settings.save');
+});

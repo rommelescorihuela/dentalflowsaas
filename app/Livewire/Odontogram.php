@@ -12,6 +12,7 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Filament\Widgets\Widget;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class Odontogram extends Widget implements HasForms
 {
@@ -144,7 +145,7 @@ class Odontogram extends Widget implements HasForms
         // Form Logic
         // If single selection, try to load existing data
         if (count($this->selectedSurfaces) === 1) {
-            $existing = ClinicalRecord::where('clinic_id', tenant('id'))
+            $existing = ClinicalRecord::where('clinic_id', $this->resolveTenantId())
                 ->where('patient_id', $this->record->id)
                 ->where('tooth_number', $this->selectedTooth)
                 ->where('surface', $this->selectedSurfaces[0])
@@ -184,7 +185,7 @@ class Odontogram extends Widget implements HasForms
     public function form(Schema $schema): Schema
     {
         // Fetch procedures from CRUD to populate options dynamically
-        $clinicId = tenant('id');
+        $clinicId = $this->resolveTenantId();
         $procedures = $clinicId ? \App\Models\ProcedurePrice::where('clinic_id', $clinicId)->get() : collect();
 
         $options = [];
@@ -272,10 +273,20 @@ class Odontogram extends Widget implements HasForms
             $diagnosisCode = $data['diagnosis_code'];
         }
 
+        $clinicId = $this->resolveTenantId();
+        if (!$clinicId) {
+            Log::error('Odontogram::saveRecord() - clinic_id could not be resolved');
+            \Filament\Notifications\Notification::make()
+                ->title('Error: clínica no identificada')
+                ->danger()
+                ->send();
+            return;
+        }
+
         foreach ($surfaces as $surface) {
             ClinicalRecord::updateOrCreate(
                 [
-                    'clinic_id' => Auth::user()->clinic_id,
+                    'clinic_id' => $clinicId,
                     'patient_id' => $this->record->id,
                     'tooth_number' => $this->selectedTooth,
                     'surface' => $surface,
@@ -306,12 +317,45 @@ class Odontogram extends Widget implements HasForms
 
     public function deleteRecord($tooth, $surface)
     {
-        ClinicalRecord::where('clinic_id', tenant('id'))
+        ClinicalRecord::where('clinic_id', $this->resolveTenantId())
             ->where('patient_id', $this->record->id)
             ->where('tooth_number', $tooth)
             ->where('surface', $surface)
             ->delete();
 
         unset($this->toothMap[$tooth][$surface]);
+    }
+
+    /**
+     * Reliably resolve the current tenant ID.
+     * Falls back to subdomain extraction if tenant() is null (common in Livewire AJAX).
+     */
+    private function resolveTenantId(): ?string
+    {
+        // 1. Try the standard helper
+        $tenantId = tenant('id');
+        if ($tenantId) {
+            return $tenantId;
+        }
+
+        // 2. Try from the authenticated user
+        $user = Auth::user();
+        if ($user && $user->clinic_id) {
+            return $user->clinic_id;
+        }
+
+        // 3. Fallback: resolve from subdomain
+        $host = request()->getHost();
+        $subdomain = explode('.', $host)[0];
+        if ($subdomain && $subdomain !== 'localhost' && $subdomain !== '127') {
+            $tenantModel = config('tenancy.tenant_model');
+            $found = $tenantModel::find($subdomain);
+            if ($found) {
+                tenancy()->initialize($found);
+                return $found->id;
+            }
+        }
+
+        return null;
     }
 }
