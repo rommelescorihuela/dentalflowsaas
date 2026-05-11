@@ -1,28 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\BelongsToClinic;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
-
 use App\Traits\ActivityLogger;
 
 class Appointment extends Model
 {
     use BelongsToClinic, ActivityLogger;
 
-
-    protected $guarded = [];
+    protected $fillable = [
+        'clinic_id',
+        'patient_id',
+        'user_id',
+        'procedure_price_id',
+        'start_time',
+        'end_time',
+        'status',
+        'type',
+        'notes',
+    ];
 
     protected $casts = [
         'start_time' => 'datetime',
         'end_time' => 'datetime',
     ];
 
-    public static function boot()
+    public static function boot(): void
     {
         parent::boot();
         self::observe(\App\Observers\AppointmentObserver::class);
@@ -69,10 +80,10 @@ class Appointment extends Model
 
     public function doctor(): BelongsTo
     {
-        return $this->belongsTo(User::class , 'user_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function treatments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function treatments(): HasMany
     {
         return $this->hasMany(Treatment::class);
     }

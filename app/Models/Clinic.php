@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 use Stancl\Tenancy\Database\Concerns\HasDomains;
-
 use App\Traits\ActivityLogger;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Clinic extends BaseTenant
 {
@@ -15,7 +17,7 @@ class Clinic extends BaseTenant
         'data' => 'array',
     ];
 
-    public function domains()
+    public function domains(): HasMany
     {
         return $this->hasMany(config('tenancy.domain_model'), 'clinic_id');
     }

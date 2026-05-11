@@ -13,8 +13,6 @@ class ClinicForm
 {
     public static function configure(Schema $schema): Schema
     {
-        $rootDomain = config('services.cpanel.root_domain', 'tudominio.com');
-
         return $schema
             ->columns(1)
             ->components([
@@ -43,7 +41,7 @@ class ClinicForm
                     ->schema([
                         TextInput::make('id')
                             ->label('Identificador Único (Tenant ID)')
-                            ->helperText("Se creará automáticamente: {id}.{$rootDomain}. No se puede cambiar una vez creado.")
+                            ->helperText('Se creará automáticamente: {id}.tudominio.com. No se puede cambiar una vez creado.')
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->regex('/^[a-z0-9-]+$/')

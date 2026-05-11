@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +16,16 @@ class Budget extends Model
 {
     use BelongsToClinic, ActivityLogger;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'clinic_id',
+        'patient_id',
+        'odontogram_id',
+        'user_id',
+        'total',
+        'status',
+        'notes',
+        'expires_at',
+    ];
 
     protected $casts = [
         'expires_at' => 'date',

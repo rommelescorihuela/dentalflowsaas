@@ -46,7 +46,7 @@ class AppPanelProvider extends PanelProvider
 
         return $panel
             ->id('app')
-            ->path($isCentral ? '{tenant}/app' : 'app')
+            ->path('app')
             ->homeUrl(fn () => $isCentral
                 ? "/" . (tenant('id') ?? request()->route('tenant') ?? request()->segment(1) ?? 'clinic1') . "/app"
                 : "/app")

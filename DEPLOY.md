@@ -184,50 +184,7 @@ ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
 ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
 ```
 
-### 10. Auto-Creación de Subdominios vía cPanel (Opcional pero Recomendado)
-
-DentalFlow puede crear automáticamente los subdominios en cPanel cuando agregas una nueva clínica desde el panel admin.
-
-#### Paso 1: Generar un API Token en cPanel
-
-1. Inicia sesión en cPanel
-2. Ve a **Security > Manage API Tokens**
-3. Haz clic en **Generate Token**
-4. Dale un nombre (ej: `dentalflow-api`)
-5. Copia el token generado (solo se muestra una vez)
-
-#### Paso 2: Configurar `.env`
-
-```env
-CPANEL_ENABLED=true
-CPANEL_URL=https://dentalflow.digitalwebsolution.info:2083
-CPANEL_USERNAME=tu_usuario_cpanel
-CPANEL_TOKEN=el_token_que_generaste
-CPANEL_ROOT_DOMAIN=dentalflow.digitalwebsolution.info
-```
-
-#### Paso 3: Verificar conexión
-
-```bash
-php artisan tinker
->>> app(\App\Services\CpanelService::class)->createSubdomain('test', 'dentalflow.digitalwebsolution.info')
-# Debe retornar true y crear el subdominio test.dentalflow.digitalwebsolution.info
-```
-
-#### ¿Cómo funciona?
-
-- Cuando creas una clínica desde `/admin/app/clinics/create`, el sistema automáticamente:
-  1. Crea el subdominio `{id}.dentalflow.digitalwebsolution.info` en cPanel
-  2. Registra el dominio en la tabla `domains`
-  3. El subdominio apunta automáticamente a la carpeta `public/` del proyecto
-
-- Cuando eliminas una clínica, el subdominio se elimina automáticamente
-
-#### URLs resultantes:
-- Clínica 1: `https://clinic1.dentalflow.digitalwebsolution.info/app/login`
-- Clínica 2: `https://clinic2.dentalflow.digitalwebsolution.info/app/login`
-
-### 11. Register Tenant Domains (si no usas cPanel auto-creación)
+### 10. Register Tenant Domains (si no usas cPanel auto-creación)
 
 After deploying, you need to register the production subdomains in the `domains` table:
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +12,17 @@ class ClinicalRecord extends Model
 {
     use BelongsToClinic;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'clinic_id',
+        'patient_id',
+        'odontogram_id',
+        'procedure_price_id',
+        'tooth_number',
+        'surface',
+        'diagnosis_code',
+        'treatment_status',
+        'notes',
+    ];
 
     public function patient(): BelongsTo
     {

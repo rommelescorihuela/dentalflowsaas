@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +15,17 @@ class Payment extends Model
 {
     use HasFactory, BelongsToClinic, ActivityLogger;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'clinic_id',
+        'patient_id',
+        'appointment_id',
+        'budget_id',
+        'amount',
+        'method',
+        'status',
+        'reference_id',
+        'paid_at',
+    ];
 
     protected $casts = [
         'amount' => 'decimal:2',

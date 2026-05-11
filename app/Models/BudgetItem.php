@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +12,14 @@ class BudgetItem extends Model
 {
     use BelongsToClinic;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'clinic_id',
+        'budget_id',
+        'procedure_price_id',
+        'treatment_name',
+        'quantity',
+        'cost',
+    ];
 
     public function budget(): BelongsTo
     {

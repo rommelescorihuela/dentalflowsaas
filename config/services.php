@@ -35,12 +35,4 @@ return [
         ],
     ],
 
-    'cpanel' => [
-        'enabled' => env('CPANEL_ENABLED', false),
-        'host' => env('CPANEL_URL', ''),
-        'username' => env('CPANEL_USERNAME', ''),
-        'token' => env('CPANEL_TOKEN', ''),
-        'root_domain' => env('CPANEL_ROOT_DOMAIN', ''),
-    ],
-
 ];

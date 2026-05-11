@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +15,12 @@ class ProcedureInventory extends Model
 
     protected $table = 'procedure_inventory';
 
-    protected $guarded = [];
+    protected $fillable = [
+        'clinic_id',
+        'procedure_price_id',
+        'inventory_id',
+        'quantity_used',
+    ];
 
     protected $casts = [
         'quantity_used' => 'decimal:2',

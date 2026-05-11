@@ -6,6 +6,9 @@ use Filament\Pages\Page;
 use Filament\Actions\Action;
 use Illuminate\Support\Facades\Artisan;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 
 class SystemTools extends Page
 {
@@ -171,20 +174,97 @@ class SystemTools extends Page
                 ->modalDescription('THIS WILL DELETE ALL DATA IN THE DATABASE (migrate:fresh) AND START FROM ZERO. Only use this if you want to completely reset the production environment. Proceed?')
                 ->modalSubmitActionLabel('I UNDERSTAND, WIPE ALL DATA')
                 ->modalIcon('heroicon-o-exclamation-triangle')
+                ->hidden(!auth()->user()->hasRole('super-admin'))
                 ->action(function () {
+                    // Verificación 1: Solo super-admin
+                    if (!auth()->user()->hasRole('super-admin')) {
+                        Notification::make()
+                            ->title('Acceso Denegado')
+                            ->body('Solo usuarios con rol super-admin pueden ejecutar un Hard Reset.')
+                            ->danger()
+                            ->send();
+                        return;
+                    }
+
+                    // Verificación 2: No en producción
+                    if (app()->environment('production')) {
+                        Notification::make()
+                            ->title('Operación Bloqueada')
+                            ->body('Hard Reset está deshabilitado en producción por seguridad.')
+                            ->danger()
+                            ->send();
+                        return;
+                    }
+
                     try {
+                        // Log de auditoría ANTES de ejecutar
+                        Log::channel('audit')->critical(
+                            'HARD RESET EXECUTED',
+                            [
+                                'user_id' => auth()->id(),
+                                'user_email' => auth()->user()->email,
+                                'user_name' => auth()->user()->name,
+                                'timestamp' => now()->toIso8601String(),
+                                'environment' => app()->environment(),
+                                'ip_address' => request()->ip(),
+                                'user_agent' => request()->userAgent(),
+                            ]
+                        );
+
                         // 1. Fresh migrate (destructive)
                         Artisan::call('migrate:fresh', ['--force' => true]);
                         
                         // 2. Run seeders
                         Artisan::call('db:seed', ['--force' => true]);
 
+                        // Log exitoso
+                        Log::channel('audit')->info(
+                            'HARD RESET COMPLETED',
+                            [
+                                'user_id' => auth()->id(),
+                                'user_email' => auth()->user()->email,
+                            ]
+                        );
+
+                        // Notificación por email a todos los super-admins
+                        $superAdmins = User::role('super-admin')->get();
+                        
+                        foreach ($superAdmins as $admin) {
+                            if ($admin->id !== auth()->id()) {  // No notificar al que ejecutó
+                                Mail::raw(
+                                    "ALERTA DE SEGURIDAD - HARD RESET EJECUTADO\n\n" .
+                                    "Usuario: " . auth()->user()->name . " (" . auth()->user()->email . ")\n" .
+                                    "Fecha: " . now()->toIso8601String() . "\n" .
+                                    "IP: " . request()->ip() . "\n" .
+                                    "Ambiente: " . app()->environment() . "\n\n" .
+                                    "La base de datos ha sido completamente reiniciada.\n" .
+                                    "Revise los logs de auditoría para más detalles.",
+                                    function ($message) use ($admin) {
+                                        $message
+                                            ->to($admin->email)
+                                            ->subject('🚨 ALERTA: Hard Reset Ejecutado en ' . config('app.name'));
+                                    }
+                                );
+                            }
+                        }
+
                         Notification::make()
                             ->title('Hard Reset Successful!')
-                            ->body('The database was wiped and recreated with fresh seed data.')
+                            ->body('The database was wiped and recreated with fresh seed data. Email notifications sent to all super-admins.')
                             ->success()
                             ->send();
                     } catch (\Exception $e) {
+                        // Log del error
+                        Log::channel('audit')->error(
+                            'HARD RESET FAILED',
+                            [
+                                'user_id' => auth()->id(),
+                                'user_email' => auth()->user()->email,
+                                'error' => $e->getMessage(),
+                                'trace' => $e->getTraceAsString(),
+                            ]
+                        );
+
                         Notification::make()
                             ->title('Error during Hard Reset')
                             ->body($e->getMessage())

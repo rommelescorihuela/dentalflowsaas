@@ -159,7 +159,7 @@ class OnboardingWizard extends Page implements HasForms
                 ->danger()
                 ->send();
             
-            $this->redirect('/' . (request()->segment(1) ?? 'login') . '/app/login');
+            $this->redirect(route('filament.app.auth.login'));
         }
     }
 

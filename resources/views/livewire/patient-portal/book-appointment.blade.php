@@ -23,14 +23,16 @@
 
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     @foreach($procedures as $procedure)
-                    <div wire:click="$set('selectedProcedureId', {{ $procedure->id }})"
-                        class="relative rounded-lg border {{ $selectedProcedureId == $procedure->id ? 'border-blue-500 ring-2 ring-blue-500' : 'border-gray-300' }} bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500 cursor-pointer">
+                    <button type="button" 
+                        wire:click="$set('selectedProcedureId', {{ $procedure->id }})"
+                        class="relative rounded-lg border {{ $selectedProcedureId == $procedure->id ? 'border-blue-500 ring-2 ring-blue-500' : 'border-gray-300' }} bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500 w-full text-left"
+                        aria-pressed="{{ $selectedProcedureId == $procedure->id ? 'true' : 'false' }}">
                         <div class="flex-1 min-w-0">
                             <span class="absolute inset-0" aria-hidden="true"></span>
                             <p class="text-sm font-medium text-gray-900">{{ $procedure->procedure_name }}</p>
                             <p class="text-sm text-gray-500 truncate">{{ $procedure->formatted_price ?? '' }}</p>
                         </div>
-                    </div>
+                    </button>
                     @endforeach
                 </div>
                 @error('selectedProcedureId') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\Budget;
@@ -42,20 +44,33 @@ class BudgetGenerator
                 ]);
             }
 
+            // OPTIMIZACIÓN: Cargar todos los procedure prices de una vez para evitar N+1
+            $procedurePriceIds = $records->pluck('procedure_price_id')->filter()->unique();
+            $procedurePrices = ProcedurePrice::whereIn('id', $procedurePriceIds)
+                ->get()
+                ->keyBy('id');
+
+            // También cargamos los procedimientos por diagnosis_code para fallback
+            $diagnosisCodes = $records->pluck('diagnosis_code')->filter()->unique();
+            $proceduresByDiagnosis = ProcedurePrice::where('clinic_id', $odontogram->clinic_id)
+                ->whereIn('diagnosis_code', $diagnosisCodes)
+                ->get()
+                ->groupBy('diagnosis_code');
+
             $groupedItems = [];
             $total = 0;
 
             foreach ($records as $record) {
                 $procedure = null;
 
-                // First try to get the exact procedure from the clinical record
-                if ($record->procedure_price_id) {
-                    $procedure = ProcedurePrice::find($record->procedure_price_id);
+                // First try to get the exact procedure from the clinical record (usando cache)
+                if ($record->procedure_price_id && isset($procedurePrices[$record->procedure_price_id])) {
+                    $procedure = $procedurePrices[$record->procedure_price_id];
                 }
 
-                // Fallback to diagnosis code lookup
-                if (!$procedure) {
-                    $procedure = $this->findProcedure($odontogram->clinic_id, $record->diagnosis_code);
+                // Fallback to diagnosis code lookup (usando cache)
+                if (!$procedure && $record->diagnosis_code && isset($proceduresByDiagnosis[$record->diagnosis_code])) {
+                    $procedure = $proceduresByDiagnosis[$record->diagnosis_code]->first();
                 }
 
                 if ($procedure) {
@@ -111,16 +126,5 @@ class BudgetGenerator
 
             return $budget;
         });
-    }
-
-    protected function findProcedure(string $clinicId, ?string $diagnosisCode): ?ProcedurePrice
-    {
-        if (!$diagnosisCode) {
-            return null;
-        }
-
-        return ProcedurePrice::where('clinic_id', $clinicId)
-            ->where('diagnosis_code', $diagnosisCode)
-            ->first();
     }
 }
