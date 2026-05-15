@@ -45,11 +45,7 @@ if (Schema::hasColumn('tenants', 'onboarding_step')) {
     echo "  {$red}✘ Schema: 'onboarding_step' column is MISSING.{$reset}\n";
 }
 
-if (class_exists(\App\Http\Middleware\ForceOnboardingMiddleware::class)) {
-    echo "  {$green}✔ Middleware: ForceOnboardingMiddleware class present.{$reset}\n";
-} else {
-    echo "  {$red}✘ Middleware: ForceOnboardingMiddleware class MISSING.{$reset}\n";
-}
+
 
 // --- 3. PHASE 3: PATIENT PORTAL & SCHEDULING ---
 echo "\n{$yellow}[3] Feature: Patient Portal & Scheduling...{$reset}\n";

@@ -87,7 +87,7 @@ Auth/RBAC:   Spatie Permissions 6.0
 
 ### Diagrama de Middleware
 ```
-Request → InitializeTenancyByDomain → SetTenancyUrlDefaults → SyncSpatiePermissionsTeamId → ForceOnboardingMiddleware → App
+Request → InitializeTenancyBySubdomainId → SetTenancyUrlDefaults → SyncSpatiePermissionsTeamId → App
 ```
 
 ### Aislamiento Multi-Tenant
@@ -305,7 +305,6 @@ dentalflowsaas/
 │   │       └── CalendarWidget.php  # Validación drag-and-drop
 │   ├── Http/Middleware/
 │   │   ├── SyncSpatiePermissionsTeamId.php
-│   │   ├── ForceOnboardingMiddleware.php
 │   │   └── SetTenancyUrlDefaults.php
 │   ├── Livewire/
 │   │   ├── Odontogram.php            # Odontograma interactivo

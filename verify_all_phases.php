@@ -23,12 +23,7 @@ if (Schema::hasColumn('tenants', 'onboarding_step')) {
     echo "❌ Database: Column 'onboarding_step' MISSING in 'tenants' table.\n";
 }
 
-// 2. Check Middleware
-if (class_exists(\App\Http\Middleware\ForceOnboardingMiddleware::class)) {
-    echo "✅ Class: ForceOnboardingMiddleware exists.\n";
-} else {
-    echo "❌ Class: ForceOnboardingMiddleware MISSING.\n";
-}
+
 
 // --- PHASE 3: SELF-SCHEDULING ---
 echo "\n[Phase 3] Verifying Self-Scheduling Logic...\n";

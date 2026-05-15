@@ -71,14 +71,14 @@
 
 ### Ciclo de Request
 ```
-Request → Tenant ID (subdomain/path) → InitializeTenancyByDomain → SetTenancyUrlDefaults → SyncSpatiePermissionsTeamId → ForceOnboardingMiddleware → App
+Request → Tenant ID (subdomain/path) → InitializeTenancyBySubdomainId → SetTenancyUrlDefaults → SyncSpatiePermissionsTeamId → App
 ```
 
 ### Middleware
 - `InitializeTenancyByDomain` - Identifica clínica por subdominio
 - `PreventAccessFromCentralDomains` - Bloquea acceso desde dominio principal
 - `SyncSpatiePermissionsTeamId` - Sincroniza permisos Spatie con clinic_id
-- `ForceOnboardingMiddleware` - Obliga onboarding
+- `SetTenancyUrlDefaults` - Configura URLs tenant-aware de Filament
 
 ### Traits
 - `BelongsToClinic` - Asocia modelos a clínica
@@ -179,7 +179,7 @@ app/
 │   │   └── PatientPortalController.php
 │   └── Middleware/
 │       ├── SyncSpatiePermissionsTeamId.php
-│       ├── ForceOnboardingMiddleware.php
+│       ├── SetTenancyUrlDefaults.php
 │       └── SetTenancyUrlDefaults.php
 ├── Livewire/
 │   ├── Odontogram.php                 # Componente odontograma

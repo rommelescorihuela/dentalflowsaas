@@ -41,7 +41,8 @@ class SystemReadinessTest extends TestCase
     public function test_middleware_are_defined(): void
     {
         $this->assertTrue(class_exists('App\Http\Middleware\SyncSpatiePermissionsTeamId'));
-        $this->assertTrue(class_exists('App\Http\Middleware\ForceOnboardingMiddleware'));
+        $this->assertTrue(class_exists('App\Http\Middleware\SetTenancyUrlDefaults'));
+        $this->assertTrue(class_exists('App\Http\Middleware\InitializeTenancyBySubdomainId'));
     }
 
     public function test_tenant_service_is_configured(): void
