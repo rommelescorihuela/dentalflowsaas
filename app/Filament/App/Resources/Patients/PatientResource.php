@@ -43,6 +43,10 @@ class PatientResource extends Resource
                     ->label('RUT / DNI')
                     ->maxLength(20),
                 Forms\Components\DatePicker::make('birth_date'),
+                Forms\Components\Select::make('doctor_id')
+                    ->relationship('doctor', 'name')
+                    ->label('Assigned Doctor')
+                    ->searchable(),
                 Forms\Components\KeyValue::make('allergies')
                     ->keyLabel('Allergy')
                     ->valueLabel('Severity')

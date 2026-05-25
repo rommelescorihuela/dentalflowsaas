@@ -16,6 +16,7 @@ class Patient extends Model
 
     protected $fillable = [
         'clinic_id',
+        'doctor_id',
         'name',
         'email',
         'phone',
@@ -29,6 +30,11 @@ class Patient extends Model
         'medical_history' => 'array',
         'allergies' => 'array',
     ];
+
+    public function doctor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'doctor_id');
+    }
 
     public function odontograms(): HasMany
     {

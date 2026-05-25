@@ -2,17 +2,17 @@
  
 namespace App\Policies;
  
-use App\Models\Budget;
 use App\Models\User;
+use App\Models\Payment;
  
-class BudgetPolicy
+class PaymentPolicy
 {
     public function viewAny(User $user): bool
     {
         return true;
     }
 
-    public function view(User $user, Budget $budget): bool
+    public function view(User $user, Payment $payment): bool
     {
         return true;
     }
@@ -22,13 +22,13 @@ class BudgetPolicy
         return true;
     }
 
-    public function update(User $user, Budget $budget): bool
+    public function update(User $user, Payment $payment): bool
     {
         if ($user->hasRole('super-admin')) {
             return true;
         }
 
-        $patient = $budget->patient;
+        $patient = $payment->patient;
         if (!$patient) {
             return false;
         }
@@ -40,13 +40,13 @@ class BudgetPolicy
         return $user->id === $patient->doctor_id;
     }
 
-    public function delete(User $user, Budget $budget): bool
+    public function delete(User $user, Payment $payment): bool
     {
         if ($user->hasRole('super-admin')) {
             return true;
         }
 
-        $patient = $budget->patient;
+        $patient = $payment->patient;
         if (!$patient) {
             return false;
         }
