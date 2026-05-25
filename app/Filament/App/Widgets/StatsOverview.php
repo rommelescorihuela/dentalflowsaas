@@ -14,17 +14,21 @@ class StatsOverview extends StatsOverviewWidget
 
     protected function getStats(): array
     {
+        $todayPatients = Patient::whereDate('created_at', today())->count();
+        $todayAppointments = Appointment::whereDate('start_time', today())->count();
+        $pendingBudgets = Budget::where('status', 'sent')->count();
+
         return [
-            Stat::make('Patients', Patient::count())
-                ->description('Total patients registered')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
+            Stat::make('Pacientes', Patient::count())
+                ->description($todayPatients > 0 ? $todayPatients . ' nuevos hoy' : 'Sin nuevos hoy')
+                ->descriptionIcon($todayPatients > 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-user-plus')
                 ->color('success'),
-            Stat::make('Appointments', Appointment::where('start_time', '>=', now())->count())
-                ->description('Upcoming appointments')
+            Stat::make('Citas', Appointment::where('start_time', '>=', now())->count())
+                ->description($todayAppointments > 0 ? $todayAppointments . ' para hoy' : 'Sin citas hoy')
                 ->descriptionIcon('heroicon-m-calendar')
                 ->color('primary'),
-            Stat::make('Pending Budgets', Budget::where('status', 'sent')->count())
-                ->description('Budgets waiting for approval')
+            Stat::make('Presupuestos Pendientes', $pendingBudgets)
+                ->description($pendingBudgets > 0 ? 'Esperando aprobación' : 'Sin pendientes')
                 ->descriptionIcon('heroicon-m-currency-dollar')
                 ->color('warning'),
         ];

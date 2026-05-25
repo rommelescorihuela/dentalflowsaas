@@ -11,7 +11,9 @@ class RevenueChart extends ChartWidget
 {
     protected static ?int $sort = 2;
 
-    protected ?string $heading = 'Evolución de Ingresos';
+    protected ?string $heading = 'Ingresos Mensuales';
+
+    protected ?string $description = 'Últimos 12 meses';
 
     protected function getData(): array
     {
@@ -27,11 +29,17 @@ class RevenueChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Ingresos Mensuales',
-                    'data' => $data->map(fn(TrendValue $value) => $value->aggregate),
-                    'borderColor' => '#10B981',
+                    'label' => 'Ingresos',
+                    'data' => $data->map(fn(TrendValue $value) => round($value->aggregate, 2)),
+                    'borderColor' => '#06b6d4',
+                    'backgroundColor' => 'rgba(6, 182, 212, 0.1)',
                     'fill' => 'start',
-                    'backgroundColor' => 'rgba(16, 185, 129, 0.1)',
+                    'tension' => 0.4,
+                    'pointBackgroundColor' => '#06b6d4',
+                    'pointBorderColor' => '#fff',
+                    'pointBorderWidth' => 2,
+                    'pointRadius' => 4,
+                    'borderWidth' => 3,
                 ],
             ],
             'labels' => $data->map(fn(TrendValue $value) => $value->date),
@@ -41,5 +49,19 @@ class RevenueChart extends ChartWidget
     protected function getType(): string
     {
         return 'line';
+    }
+
+    protected function getOptions(): array
+    {
+        return [
+            'scales' => [
+                'y' => [
+                    'beginAtZero' => true,
+                    'ticks' => [
+                        'callback' => 'function(value) { return "$" + value.toLocaleString(); }',
+                    ],
+                ],
+            ],
+        ];
     }
 }
