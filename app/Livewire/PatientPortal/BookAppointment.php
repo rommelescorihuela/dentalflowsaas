@@ -12,15 +12,12 @@ class BookAppointment extends Component
 {
     public Patient $patient;
 
-    // Steps
     public int $step = 1;
 
-    // Selections
     public $selectedProcedureId;
     public $selectedDate;
     public $selectedTimeSlot;
 
-    // Data
     public $availableSlots = [];
 
     protected $rules = [
@@ -36,21 +33,28 @@ class BookAppointment extends Component
 
     public function updatedSelectedDate($value)
     {
+        $this->selectedTimeSlot = null;
         $this->loadTimeSlots();
+    }
+
+    public function updatedSelectedProcedureId()
+    {
+        $this->selectedTimeSlot = null;
+        if ($this->selectedDate) {
+            $this->loadTimeSlots();
+        }
     }
 
     public function loadTimeSlots()
     {
-        if (!$this->selectedDate)
-            return;
+        if (!$this->selectedDate) return;
 
         $date = Carbon::parse($this->selectedDate);
 
         $tenantData = tenant()->data ?? [];
-        $startHour = isset($tenantData['schedule_start']) ?Carbon::parse($tenantData['schedule_start'])->hour : 9;
-        $endHour = isset($tenantData['schedule_end']) ?Carbon::parse($tenantData['schedule_end'])->hour : 18;
+        $startHour = isset($tenantData['schedule_start']) ? Carbon::parse($tenantData['schedule_start'])->hour : 9;
+        $endHour = isset($tenantData['schedule_end']) ? Carbon::parse($tenantData['schedule_end'])->hour : 18;
 
-        // Use procedure duration if available, otherwise default to 30 minutes
         $interval = 30;
         if ($this->selectedProcedureId) {
             $procedure = ProcedurePrice::find($this->selectedProcedureId);
@@ -72,10 +76,7 @@ class BookAppointment extends Component
         while ($current->lt($end)) {
             $slotEnd = $current->copy()->addMinutes($interval);
 
-            // Check formatted strings for simplicity in this MVP
-            // Ideally, checking overlaps is better
             $isTaken = $existingAppointments->contains(function ($apt) use ($current, $slotEnd) {
-                // If appointment overlaps with this slot
                 return $apt->start_time->lt($slotEnd) && $apt->end_time->gt($current);
             });
 
@@ -113,14 +114,13 @@ class BookAppointment extends Component
         $this->validate();
 
         $procedure = ProcedurePrice::findOrFail($this->selectedProcedureId);
-        $duration = $procedure->duration ?? 30; // Fallback to 30 minutes if not set
+        $duration = $procedure->duration ?? 30;
 
         $date = Carbon::parse($this->selectedDate);
         $timeParts = explode(':', $this->selectedTimeSlot);
         $startTime = $date->copy()->setTime($timeParts[0], $timeParts[1]);
         $endTime = $startTime->copy()->addMinutes($duration);
 
-        // Create appointment
         Appointment::create([
             'patient_id' => $this->patient->id,
             'clinic_id' => tenant('id'),
@@ -139,7 +139,7 @@ class BookAppointment extends Component
     public function render()
     {
         return view('livewire.patient-portal.book-appointment', [
-            'procedures' => ProcedurePrice::all(),
+            'procedures' => ProcedurePrice::where('clinic_id', tenant('id'))->get(),
         ]);
     }
 }
