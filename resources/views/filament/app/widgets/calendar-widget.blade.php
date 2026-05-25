@@ -8,6 +8,7 @@
                             let calendarEl = this.$refs.calendar;
                             let calendar = new FullCalendar.Calendar(calendarEl, {
                                 initialView: 'timeGridWeek',
+                                locale: 'es',
                                 headerToolbar: {
                                     left: 'prev,next today',
                                     center: 'title',
@@ -41,5 +42,6 @@
 
         <!-- Load FullCalendar from CDN for V2 Prototype Simplicity -->
         <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+        <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/locales/es.global.min.js'></script>
     </x-filament::section>
 </x-filament::widget>

@@ -29,6 +29,19 @@ class PatientPortalController extends Controller
         ]);
     }
 
+    public function viewBudget(Budget $budget)
+    {
+        if ($budget->clinic_id !== tenant('id')) {
+            abort(403, 'No tienes acceso a este presupuesto.');
+        }
+
+        $budget->load(['items.procedurePrice', 'patient']);
+
+        return view('patient-portal.budget-detail', [
+            'budget' => $budget,
+        ]);
+    }
+
     public function acceptBudget(Budget $budget)
     {
         if ($budget->clinic_id !== tenant('id')) {
@@ -39,6 +52,19 @@ class PatientPortalController extends Controller
             'status' => 'accepted',
         ]);
 
-        return back()->with('success', 'Budget accepted successfully!');
+        return back()->with('success', '¡Presupuesto aceptado exitosamente!');
+    }
+
+    public function rejectBudget(Budget $budget)
+    {
+        if ($budget->clinic_id !== tenant('id')) {
+            abort(403, 'No tienes acceso a este presupuesto.');
+        }
+
+        $budget->update([
+            'status' => 'rejected',
+        ]);
+
+        return back()->with('success', 'Presupuesto rechazado.');
     }
 }

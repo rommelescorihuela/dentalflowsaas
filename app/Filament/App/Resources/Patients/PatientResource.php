@@ -45,11 +45,11 @@ class PatientResource extends Resource
                 Forms\Components\DatePicker::make('birth_date'),
                 Forms\Components\Select::make('doctor_id')
                     ->relationship('doctor', 'name')
-                    ->label('Assigned Doctor')
+                    ->label('Doctor Asignado')
                     ->searchable(),
                 Forms\Components\KeyValue::make('allergies')
-                    ->keyLabel('Allergy')
-                    ->valueLabel('Severity')
+                    ->keyLabel('Alergia')
+                    ->valueLabel('Severidad')
                     ->reorderable(),
             ]);
     }
@@ -93,12 +93,12 @@ class PatientResource extends Resource
             ->actions([
                 EditAction::make(),
                 Action::make('health_progress')
-                    ->label('Health Progress')
+                    ->label('Historial Salud')
                     ->icon('heroicon-o-chart-bar')
                     ->url(fn(Patient $record): string => Pages\HealthProgress::getUrl(['record' => $record]))
                     ->color('info'),
                 Action::make('portal_link')
-                    ->label('Portal')
+                    ->label('Portal Paciente')
                     ->icon('heroicon-o-link')
                     ->url(function (Patient $record) {
                         try {

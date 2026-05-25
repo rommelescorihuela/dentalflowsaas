@@ -12,7 +12,7 @@ class PatientAppointmentsChart extends ChartWidget
 {
     public ?Patient $record = null;
 
-    protected ?string $heading = 'Appointments over time';
+    protected ?string $heading = 'Citas a lo largo del tiempo';
 
     protected function getData(): array
     {
@@ -31,7 +31,7 @@ class PatientAppointmentsChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Appointments',
+                    'label' => 'Citas',
                     'data' => $data->map(fn(TrendValue $value) => $value->aggregate),
                 ],
             ],

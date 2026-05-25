@@ -22,7 +22,7 @@ class ProcedurePriceResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Clinic Management';
+        return 'Gestión de Clínica';
     }
 
     public static function form(Schema $schema): Schema

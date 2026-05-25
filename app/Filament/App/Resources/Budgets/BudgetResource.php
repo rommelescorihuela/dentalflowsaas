@@ -32,32 +32,29 @@ class BudgetResource extends Resource
                     ->required(),
                 Forms\Components\Select::make('status')
                     ->options([
-                        'draft' => 'Draft',
-                        'sent' => 'Sent',
-                        'accepted' => 'Accepted',
-                        'rejected' => 'Rejected',
+                        'draft' => 'Borrador',
+                        'sent' => 'Enviado',
+                        'accepted' => 'Aceptado',
+                        'rejected' => 'Rechazado',
                     ])
                     ->required(),
                 Forms\Components\DatePicker::make('expires_at'),
                 Forms\Components\Placeholder::make('odontogram_link')
-                    ->label('Source Odontogram')
+                    ->label('Odontograma de Origen')
                     ->visible(fn(?Budget $record) => $record?->odontogram !== null)
                     ->content(fn(Budget $record) => view('filament.components.odontogram-link', ['odontogram' => $record->odontogram])),
                 Forms\Components\Textarea::make('notes')
                     ->columnSpanFull()
                     ->rows(3)
-                    ->placeholder('Additional notes for the patient...'),
+                    ->placeholder('Notas adicionales para el paciente...'),
                 Forms\Components\Repeater::make('items')
                     ->relationship()
                     ->schema([
                         Forms\Components\Select::make('procedure_price_id')
-                            ->label('Procedure')
-                            ->options(function () {
-                                return \App\Models\ProcedurePrice::where('clinic_id', tenant('id'))
-                                    ->pluck('procedure_name', 'id')
-                                    ->toArray();
-                            })
+                            ->label('Procedimiento')
+                            ->options(\App\Models\ProcedurePrice::pluck('procedure_name', 'id')->toArray())
                             ->searchable()
+                            ->preload()
                             ->live()
                             ->afterStateUpdated(function ($state, callable $set) {
                                 if ($state) {
@@ -123,7 +120,7 @@ class BudgetResource extends Resource
                         default => 'gray',
                     }),
                 Tables\Columns\TextColumn::make('odontogram.name')
-                    ->label('Source')
+                    ->label('Origen')
                     ->placeholder('Manual')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('notes')

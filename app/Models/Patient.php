@@ -29,6 +29,7 @@ class Patient extends Model
     protected $casts = [
         'medical_history' => 'array',
         'allergies' => 'array',
+        'birth_date' => 'date',
     ];
 
     public function doctor(): \Illuminate\Database\Eloquent\Relations\BelongsTo

@@ -114,7 +114,7 @@ class BookAppointment extends Component
         $this->validate();
 
         $procedure = ProcedurePrice::findOrFail($this->selectedProcedureId);
-        $duration = $procedure->duration ?? 30;
+        $duration = (int) ($procedure->duration ?? 30);
 
         $date = Carbon::parse($this->selectedDate);
         $timeParts = explode(':', $this->selectedTimeSlot);

@@ -55,7 +55,9 @@ Route::middleware([
 ])->group(function () {
     Route::get('/{tenant?}/portal/{patient}', [\App\Http\Controllers\PatientPortalController::class , 'dashboard'])->name('portal.dashboard');
     Route::get('/{tenant?}/portal/{patient}/book', \App\Livewire\PatientPortal\BookAppointment::class)->name('portal.book');
+    Route::get('/{tenant?}/portal/budgets/{budget}', [\App\Http\Controllers\PatientPortalController::class , 'viewBudget'])->name('portal.budgets.view');
     Route::post('/{tenant?}/portal/budgets/{budget}/accept', [\App\Http\Controllers\PatientPortalController::class , 'acceptBudget'])->name('portal.budgets.accept');
+    Route::post('/{tenant?}/portal/budgets/{budget}/reject', [\App\Http\Controllers\PatientPortalController::class , 'rejectBudget'])->name('portal.budgets.reject');
 });
 
 Route::middleware([

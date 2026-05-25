@@ -20,16 +20,16 @@ class PatientStatsOverview extends BaseWidget
         $appointments = $this->record->appointments();
 
         return [
-            Stat::make('Total Appointments', $appointments->count())
+            Stat::make('Total de Citas', $appointments->count())
                 ->icon('heroicon-o-calendar'),
 
-            Stat::make('Completed Treatments', $appointments->where('status', 'completed')->count())
-                ->description('Fully processed')
+            Stat::make('Tratamientos Completados', $appointments->where('status', 'completed')->count())
+                ->description('Completados totalmente')
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success'),
 
-            Stat::make('Pending/Scheduled', $appointments->whereIn('status', ['scheduled', 'confirmed'])->count())
-                ->description('Upcoming')
+            Stat::make('Pendientes/Programadas', $appointments->whereIn('status', ['scheduled', 'confirmed'])->count())
+                ->description('Próximas')
                 ->descriptionIcon('heroicon-m-clock')
                 ->color('warning'),
         ];

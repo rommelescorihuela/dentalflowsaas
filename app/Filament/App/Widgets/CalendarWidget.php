@@ -52,8 +52,8 @@ class CalendarWidget extends Widget
         // Validate: no past dates
         if ($newStart->lt(now())) {
             \Filament\Notifications\Notification::make()
-                ->title('Cannot reschedule to past date')
-                ->body('Appointments cannot be moved to a date in the past.')
+        ->title('No se puede reagendar a fecha pasada')
+        ->body('Las citas no pueden moverse a una fecha en el pasado.')
                 ->danger()
                 ->send();
             return;
@@ -73,8 +73,8 @@ class CalendarWidget extends Widget
 
         if ($overlapping) {
             \Filament\Notifications\Notification::make()
-                ->title('Time slot unavailable')
-                ->body('The patient already has an appointment during this time.')
+        ->title('Horario no disponible')
+        ->body('El paciente ya tiene una cita durante este horario.')
                 ->danger()
                 ->send();
             return;
@@ -86,7 +86,7 @@ class CalendarWidget extends Widget
         ]);
 
         \Filament\Notifications\Notification::make()
-            ->title('Appointment Rescheduled')
+            ->title('Cita Reagendada')
             ->success()
             ->send();
     }
