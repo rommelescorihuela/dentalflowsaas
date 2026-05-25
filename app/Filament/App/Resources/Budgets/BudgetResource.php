@@ -20,7 +20,7 @@ class BudgetResource extends Resource
 
     protected static ?string $navigationLabel = 'Presupuestos';
 
-    protected static ?string $navigationGroup = 'Finanzas';
+    protected static string|BackedEnum|null $navigationGroup = 'Finanzas';
 
     public static function getPluralModelLabel(): string
     {

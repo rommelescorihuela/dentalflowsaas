@@ -23,7 +23,7 @@ class PatientResource extends Resource
 
     protected static ?string $navigationLabel = 'Pacientes';
 
-    protected static ?string $navigationGroup = 'Gestión Clínica';
+    protected static string|BackedEnum|null $navigationGroup = 'Gestión Clínica';
 
     public static function getPluralModelLabel(): string
     {
