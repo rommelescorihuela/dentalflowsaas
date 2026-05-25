@@ -24,7 +24,13 @@ class CalendarWidget extends Widget
             ->get()
             ->map(fn(Appointment $appointment) => [
                 'id' => $appointment->id,
-                'title' => $appointment->patient->name . ' - ' . ucfirst($appointment->type),
+                'title' => $appointment->patient->name . ' - ' . match($appointment->type) {
+                    'control' => 'Control',
+                    'urgent' => 'Urgente',
+                    'cleaning' => 'Limpieza',
+                    'surgery' => 'Cirugía',
+                    default => ucfirst($appointment->type),
+                },
                 'start' => $appointment->start_time->toIso8601String(),
                 'end' => $appointment->end_time->toIso8601String(),
                 'backgroundColor' => match ($appointment->status) {

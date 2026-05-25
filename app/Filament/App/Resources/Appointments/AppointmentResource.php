@@ -37,6 +37,7 @@ class AppointmentResource extends Resource
             ->components([
             Forms\Components\Select::make('patient_id')
             ->relationship('patient', 'name')
+            ->label('Paciente')
             ->required()
             ->searchable(),
             Forms\Components\Select::make('procedure_price_id')
@@ -46,8 +47,10 @@ class AppointmentResource extends Resource
             ->label('Procedimiento')
             ->required(),
             Forms\Components\DateTimePicker::make('start_time')
+            ->label('Fecha y Hora de Inicio')
             ->required(),
             Forms\Components\DateTimePicker::make('end_time')
+            ->label('Fecha y Hora de Fin')
             ->required(),
             Forms\Components\Select::make('status')
             ->options([
@@ -66,6 +69,7 @@ class AppointmentResource extends Resource
             ])
             ->required(),
             Forms\Components\Textarea::make('notes')
+            ->label('Notas')
             ->columnSpanFull(),
         ]);
     }
@@ -75,12 +79,15 @@ class AppointmentResource extends Resource
         return $table
             ->columns([
             Tables\Columns\TextColumn::make('patient.name')
+            ->label('Paciente')
             ->searchable()
             ->sortable(),
             Tables\Columns\TextColumn::make('start_time')
+            ->label('Inicio')
             ->dateTime()
             ->sortable(),
             Tables\Columns\TextColumn::make('status')
+            ->label('Estado')
             ->badge()
             ->color(fn(string $state): string => match ($state) {
             'scheduled' => 'gray',
@@ -89,7 +96,15 @@ class AppointmentResource extends Resource
             'cancelled' => 'danger',
             default => 'gray',
         }),
-            Tables\Columns\TextColumn::make('type'),
+            Tables\Columns\TextColumn::make('type')
+            ->label('Tipo')
+            ->formatStateUsing(fn(string $state): string => match($state) {
+                'control' => 'Control',
+                'urgent' => 'Urgente',
+                'cleaning' => 'Limpieza',
+                'surgery' => 'Cirugía',
+                default => ucfirst($state),
+            }),
         ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
