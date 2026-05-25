@@ -45,23 +45,28 @@ class PatientResource extends Resource
         return $schema
             ->components([
                 Forms\Components\TextInput::make('name')
+                    ->label('Nombre Completo')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
+                    ->label('Correo Electrónico')
                     ->email()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('phone')
+                    ->label('Teléfono')
                     ->tel()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('rut')
                     ->label('RUT / DNI')
                     ->maxLength(20),
-                Forms\Components\DatePicker::make('birth_date'),
+                Forms\Components\DatePicker::make('birth_date')
+                    ->label('Fecha de Nacimiento'),
                 Forms\Components\Select::make('doctor_id')
                     ->relationship('doctor', 'name')
                     ->label('Doctor Asignado')
                     ->searchable(),
                 Forms\Components\KeyValue::make('allergies')
+                    ->label('Alergias')
                     ->keyLabel('Alergia')
                     ->valueLabel('Severidad')
                     ->reorderable(),
@@ -73,14 +78,19 @@ class PatientResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nombre')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
+                    ->label('Correo')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone')
+                    ->label('Teléfono')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('rut')
+                    ->label('RUT / DNI')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Fecha de Registro')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
