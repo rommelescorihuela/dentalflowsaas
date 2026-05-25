@@ -22,7 +22,7 @@ class PaymentResource extends Resource
 
     protected static ?string $navigationLabel = 'Pagos';
 
-    protected static string|BackedEnum|null $navigationGroup = 'Finanzas';
+    protected static string|\UnitEnum|null $navigationGroup = 'Finanzas';
 
     public static function getPluralModelLabel(): string
     {

@@ -19,7 +19,7 @@ class AppointmentResource extends Resource
 
     protected static ?string $navigationLabel = 'Citas';
 
-    protected static string|BackedEnum|null $navigationGroup = 'Gestión Clínica';
+    protected static string|\UnitEnum|null $navigationGroup = 'Gestión Clínica';
 
     public static function getPluralModelLabel(): string
     {
