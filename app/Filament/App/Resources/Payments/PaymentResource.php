@@ -11,6 +11,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 
@@ -102,14 +104,14 @@ class PaymentResource extends Resource
                 TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
+                SelectFilter::make('status')
                     ->options([
                         'pending' => 'Pendiente',
                         'paid' => 'Pagado',
                         'refunded' => 'Reembolsado',
                     ])
                     ->label('Estado'),
-                Tables\Filters\SelectFilter::make('method')
+                SelectFilter::make('method')
                     ->options([
                         'cash' => 'Efectivo',
                         'card' => 'Tarjeta',
@@ -117,7 +119,7 @@ class PaymentResource extends Resource
                         'insurance' => 'Seguro',
                     ])
                     ->label('Método'),
-                Tables\Filters\Filter::make('paid_at')
+                Filter::make('paid_at')
                     ->form([
                         DatePicker::make('paid_from')
                             ->label('Desde'),

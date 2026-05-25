@@ -42,22 +42,24 @@ class ProcedurePriceResource extends Resource
         return $schema
             ->components([
                 TextInput::make('procedure_name')
-                    ->label('Procedure Name')
+                    ->label('Nombre del Procedimiento')
                     ->required()
                     ->maxLength(255),
                 TextInput::make('price')
+                    ->label('Precio')
                     ->numeric()
                     ->prefix('$')
                     ->required(),
                 TextInput::make('duration')
-                    ->label('Duration')
-                    ->placeholder('e.g. 30 minutes')
+                    ->label('Duración')
+                    ->placeholder('ej. 30 minutos')
                     ->required()
                     ->maxLength(255),
                 Textarea::make('description')
+                    ->label('Descripción')
                     ->columnSpanFull(),
                 FileUpload::make('image_path')
-                    ->label('Image')
+                    ->label('Imagen')
                     ->image()
                     ->directory('procedure-images')
                     ->columnSpanFull(),
@@ -73,12 +75,12 @@ class ProcedurePriceResource extends Resource
                         TextInput::make('quantity_used')
                             ->numeric()
                             ->required()
-                            ->label('Quantity to Deduct')
+                            ->label('Cantidad a Descontar')
                             ->default(1),
                     ])
                     ->columns(2)
                     ->columnSpanFull()
-                    ->label('Linked Inventory Items'),
+                    ->label('Ítems de Inventario Vinculados'),
             ]);
     }
 
@@ -87,15 +89,18 @@ class ProcedurePriceResource extends Resource
         return $table
             ->columns([
                 ImageColumn::make('image_path')
-                    ->label('Image')
+                    ->label('Imagen')
                     ->circular(),
                 TextColumn::make('procedure_name')
+                    ->label('Procedimiento')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('price')
+                    ->label('Precio')
                     ->money('USD')
                     ->sortable(),
-                TextColumn::make('duration'),
+                TextColumn::make('duration')
+                    ->label('Duración'),
             ])
             ->filters([
                 //

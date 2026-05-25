@@ -17,24 +17,24 @@ class RolesTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('Role Name')
+                    ->label('Nombre del Rol')
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('clinic.name')
-                    ->label('Clinic (Tenant)')
-                    ->placeholder('Global Role')
+                    ->label('Clínica (Tenant)')
+                    ->placeholder('Rol Global')
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('permissions_count')
-                    ->label('Permissions')
+                    ->label('Permisos')
                     ->counts('permissions')
                     ->badge()
                     ->color('success'),
 
                 TextColumn::make('users_count')
-                    ->label('Users')
+                    ->label('Usuarios')
                     ->counts('users')
                     ->badge()
                     ->color('info'),
@@ -44,20 +44,22 @@ class RolesTable
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')
+                    ->label('Fecha de Creación')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('updated_at')
+                    ->label('Fecha de Actualización')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('clinic_id')
-                    ->label('Filter by Clinic')
+                    ->label('Filtrar por Clínica')
                     ->options(Clinic::all()->pluck('name', 'id'))
-                    ->placeholder('All Roles'),
+                    ->placeholder('Todos los Roles'),
             ])
             ->recordActions([
                 EditAction::make(),

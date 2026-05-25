@@ -36,12 +36,15 @@ class DomainsRelationManager extends RelationManager
             ->recordTitleAttribute('domain')
             ->columns([
                 TextColumn::make('domain')
+                    ->label('Dominio')
                     ->searchable(),
                 TextColumn::make('created_at')
+                    ->label('Fecha de Creación')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('Fecha de Actualización')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

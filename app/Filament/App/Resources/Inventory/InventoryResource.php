@@ -42,46 +42,56 @@ class InventoryResource extends Resource
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label('Nombre')
                     ->required()
                     ->maxLength(255),
                 Select::make('category')
+                    ->label('Categoría')
                     ->options([
-                        'Consumables' => 'Consumables',
-                        'Instruments' => 'Instruments',
-                        'Equipment' => 'Equipment',
-                        'Other' => 'Other',
+                        'Consumables' => 'Consumibles',
+                        'Instruments' => 'Instrumentos',
+                        'Equipment' => 'Equipos',
+                        'Other' => 'Otros',
                     ])
                     ->required(),
                 TextInput::make('supplier')
+                    ->label('Proveedor')
                     ->required()
                     ->maxLength(255),
                 TextInput::make('price')
+                    ->label('Precio')
                     ->numeric()
                     ->prefix('$')
                     ->required(),
                 TextInput::make('quantity')
+                    ->label('Cantidad')
                     ->numeric()
                     ->required(),
                 TextInput::make('low_stock_threshold')
+                    ->label('Umbral de Stock Bajo')
                     ->numeric()
                     ->default(10)
                     ->required(),
                 TextInput::make('unit')
-                    ->default('pieces')
+                    ->label('Unidad')
+                    ->default('piezas')
                     ->required(),
                 TextInput::make('items_per_unit')
+                    ->label('Ítems por Unidad')
                     ->numeric()
                     ->default(1)
                     ->required(),
                 Select::make('expiration_type')
+                    ->label('Tipo de Vencimiento')
                     ->options([
-                        'Expirable' => 'Expirable',
-                        'Inexpirable' => 'Inexpirable',
+                        'Expirable' => 'Con Vencimiento',
+                        'Inexpirable' => 'Sin Vencimiento',
                     ])
                     ->default('Expirable')
                     ->reactive()
                     ->required(),
                 DatePicker::make('expiration_date')
+                    ->label('Fecha de Vencimiento')
                     ->hidden(fn($get) => $get('expiration_type') === 'Inexpirable'),
             ]);
     }
@@ -90,13 +100,33 @@ class InventoryResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('category')->sortable(),
-                TextColumn::make('supplier')->searchable(),
-                TextColumn::make('quantity')->sortable()
+                TextColumn::make('name')
+                    ->label('Nombre')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('category')
+                    ->label('Categoría')
+                    ->sortable()
+                    ->formatStateUsing(fn(string $state): string => match($state) {
+                        'Consumables' => 'Consumibles',
+                        'Instruments' => 'Instrumentos',
+                        'Equipment' => 'Equipos',
+                        'Other' => 'Otros',
+                        default => $state,
+                    }),
+                TextColumn::make('supplier')
+                    ->label('Proveedor')
+                    ->searchable(),
+                TextColumn::make('quantity')
+                    ->label('Cantidad')
+                    ->sortable()
                     ->color(fn(Inventory $record) => $record->quantity <= $record->low_stock_threshold ? 'danger' : 'success'),
-                TextColumn::make('price')->money('USD'),
-                TextColumn::make('expiration_date')->date(),
+                TextColumn::make('price')
+                    ->label('Precio')
+                    ->money('USD'),
+                TextColumn::make('expiration_date')
+                    ->label('Fecha de Vencimiento')
+                    ->date(),
             ])
             ->filters([
                 //

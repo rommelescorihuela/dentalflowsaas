@@ -15,23 +15,27 @@ class UsersTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label('Nombre')
                     ->searchable(),
                 TextColumn::make('email')
-                    ->label('Email address')
+                    ->label('Correo Electrónico')
                     ->searchable(),
                 TextColumn::make('email_verified_at')
+                    ->label('Fecha de Verificación')
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('created_at')
+                    ->label('Fecha de Creación')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('Fecha de Actualización')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('clinic.name')
-                    ->label('Clinic (Tenant)')
+                    ->label('Clínica (Tenant)')
                     ->sortable()
                     ->searchable(),
             ])

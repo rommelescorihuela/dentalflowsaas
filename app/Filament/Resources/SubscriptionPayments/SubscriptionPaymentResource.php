@@ -24,9 +24,9 @@ class SubscriptionPaymentResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'transaction_id';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Finance';
+    protected static string|\UnitEnum|null $navigationGroup = 'Finanzas';
 
-    protected static ?string $navigationLabel = 'Subscription Payments';
+    protected static ?string $navigationLabel = 'Pagos de Suscripción';
 
     public static function form(Schema $schema): Schema
     {

@@ -16,31 +16,35 @@ class UserForm
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label('Nombre')
                     ->required(),
                 TextInput::make('email')
-                    ->label('Email address')
+                    ->label('Correo Electrónico')
                     ->email()
                     ->required()
                     ->unique(ignoreRecord: true),
-                DateTimePicker::make('email_verified_at'),
+                DateTimePicker::make('email_verified_at')
+                    ->label('Fecha de Verificación'),
                 TextInput::make('password')
+                    ->label('Contraseña')
                     ->password()
                     ->confirmed()
                     ->dehydrated(fn($state) => filled($state))
                     ->required(fn(string $operation): bool => $operation === 'create'),
                 TextInput::make('password_confirmation')
+                    ->label('Confirmar Contraseña')
                     ->password()
                     ->required(fn(string $operation): bool => $operation === 'create')
                     ->visible(fn(string $operation, $get): bool => $operation === 'create' || filled($get('password'))),
                 \Filament\Forms\Components\Select::make('clinic_id')
-                    ->label('Clinic (Tenant)')
+                    ->label('Clínica (Tenant)')
                     ->relationship('clinic', 'name')
                     ->searchable()
                     ->preload()
-                    ->live(), // Important to reload roles when this changes
+                    ->live(),
 
                 \Filament\Forms\Components\Select::make('roles')
-                    ->label('Roles (Tenant Scoped)')
+                    ->label('Roles (Ámbito Tenant)')
                     ->options(function ($get) {
                         $tenantId = $get('clinic_id');
                         $query = \App\Models\Role::withoutGlobalScopes();
@@ -50,35 +54,28 @@ class UserForm
                                     ->orWhereNull('clinic_id');
                             });
                         }
-                        // No tenant selected: show all roles (global + tenant scoped)
                         return $query->pluck('name', 'id');
                     })
                     ->multiple()
                     ->saveRelationshipsUsing(function (\Illuminate\Database\Eloquent\Model $record, $state) {
                         $tenantId = $record->clinic_id;
 
-                        // If a tenant is selected, set Spatie team context so role insertion uses the correct clinic_id
                         if (!is_null($tenantId)) {
                             setPermissionsTeamId($tenantId);
                         }
 
-                        // Delete existing role assignments
                         if (is_null($tenantId)) {
-                            // Global user: remove only global role assignments (clinic_id = null)
                             \Illuminate\Support\Facades\DB::table('model_has_roles')
                                 ->where('model_id', $record->id)
                                 ->where('model_type', get_class($record))
                                 ->whereNull('clinic_id')
                                 ->delete();
                         } else {
-                            // Tenant‑scoped user: remove roles for this tenant **and** any global roles
-                            // First, delete tenant‑specific assignments
                             \Illuminate\Support\Facades\DB::table('model_has_roles')
                                 ->where('model_id', $record->id)
                                 ->where('model_type', get_class($record))
                                 ->where('clinic_id', $tenantId)
                                 ->delete();
-                            // Then, delete any global role assignments (clinic_id = null) to avoid lingering admin rights
                             \Illuminate\Support\Facades\DB::table('model_has_roles')
                                 ->where('model_id', $record->id)
                                 ->where('model_type', get_class($record))
@@ -86,7 +83,6 @@ class UserForm
                                 ->delete();
                         }
 
-                        // Insert new role assignments with correct clinic_id
                         if (!empty($state)) {
                             $inserts = [];
                             foreach ($state as $roleId) {
@@ -100,7 +96,6 @@ class UserForm
                             \Illuminate\Support\Facades\DB::table('model_has_roles')->insert($inserts);
                         }
 
-                        // Clear permission cache
                         app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
                     })
                     ->loadStateFromRelationshipsUsing(function ($component, $record) {
@@ -108,7 +103,6 @@ class UserForm
                             return $component->state([]);
                         }
 
-                        // Direct query to bypass Spatie's Team ID scope
                         $roleIds = \Illuminate\Support\Facades\DB::table('model_has_roles')
                             ->where('model_id', $record->id)
                             ->where('model_type', get_class($record))

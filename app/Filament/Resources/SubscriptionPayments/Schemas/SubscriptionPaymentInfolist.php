@@ -11,21 +11,30 @@ class SubscriptionPaymentInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('clinic_id'),
+                TextEntry::make('clinic_id')
+                    ->label('Clínica'),
                 TextEntry::make('amount')
+                    ->label('Monto')
                     ->numeric(),
-                TextEntry::make('currency'),
-                TextEntry::make('method'),
-                TextEntry::make('status'),
+                TextEntry::make('currency')
+                    ->label('Moneda'),
+                TextEntry::make('method')
+                    ->label('Método'),
+                TextEntry::make('status')
+                    ->label('Estado'),
                 TextEntry::make('transaction_id')
+                    ->label('ID Transacción')
                     ->placeholder('-'),
                 TextEntry::make('paid_at')
+                    ->label('Fecha de Pago')
                     ->dateTime()
                     ->placeholder('-'),
                 TextEntry::make('created_at')
+                    ->label('Fecha de Creación')
                     ->dateTime()
                     ->placeholder('-'),
                 TextEntry::make('updated_at')
+                    ->label('Fecha de Actualización')
                     ->dateTime()
                     ->placeholder('-'),
             ]);
