@@ -140,11 +140,38 @@ class BudgetResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
-                        'draft' => 'Draft',
-                        'sent' => 'Sent',
-                        'accepted' => 'Accepted',
-                        'rejected' => 'Rejected',
-                    ]),
+                        'draft' => 'Borrador',
+                        'sent' => 'Enviado',
+                        'accepted' => 'Aceptado',
+                        'rejected' => 'Rechazado',
+                    ])
+                    ->label('Estado'),
+                Tables\Filters\Filter::make('expires_at')
+                    ->form([
+                        Forms\Components\DatePicker::make('expires_from')
+                            ->label('Vence desde'),
+                        Forms\Components\DatePicker::make('expires_until')
+                            ->label('Vence hasta'),
+                    ])
+                    ->query(function ($query, array $data) {
+                        return $query
+                            ->when($data['expires_from'] ?? null, fn($q) => $q->whereDate('expires_at', '>=', $data['expires_from']))
+                            ->when($data['expires_until'] ?? null, fn($q) => $q->whereDate('expires_at', '<=', $data['expires_until']));
+                    }),
+                Tables\Filters\Filter::make('total')
+                    ->form([
+                        Forms\Components\TextInput::make('min_total')
+                            ->label('Monto mínimo')
+                            ->numeric(),
+                        Forms\Components\TextInput::make('max_total')
+                            ->label('Monto máximo')
+                            ->numeric(),
+                    ])
+                    ->query(function ($query, array $data) {
+                        return $query
+                            ->when($data['min_total'] ?? null, fn($q) => $q->where('total', '>=', $data['min_total']))
+                            ->when($data['max_total'] ?? null, fn($q) => $q->where('total', '<=', $data['max_total']));
+                    }),
             ])
             ->actions([
                 \Filament\Actions\EditAction::make(),

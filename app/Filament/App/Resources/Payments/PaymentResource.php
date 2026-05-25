@@ -90,13 +90,41 @@ class PaymentResource extends Resource
                 TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        'pending' => 'Pendiente',
+                        'paid' => 'Pagado',
+                        'refunded' => 'Reembolsado',
+                    ])
+                    ->label('Estado'),
+                Tables\Filters\SelectFilter::make('method')
+                    ->options([
+                        'cash' => 'Efectivo',
+                        'card' => 'Tarjeta',
+                        'transfer' => 'Transferencia',
+                        'insurance' => 'Seguro',
+                    ])
+                    ->label('Método'),
+                Tables\Filters\Filter::make('paid_at')
+                    ->form([
+                        DatePicker::make('paid_from')
+                            ->label('Desde'),
+                        DatePicker::make('paid_until')
+                            ->label('Hasta'),
+                    ])
+                    ->query(function ($query, array $data) {
+                        return $query
+                            ->when($data['paid_from'] ?? null, fn($q) => $q->whereDate('paid_at', '>=', $data['paid_from']))
+                            ->when($data['paid_until'] ?? null, fn($q) => $q->whereDate('paid_at', '<=', $data['paid_until']));
+                    }),
             ])
             ->actions([
-                //
+                \Filament\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                //
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
 

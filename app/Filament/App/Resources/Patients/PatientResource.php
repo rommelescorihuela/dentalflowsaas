@@ -72,7 +72,23 @@ class PatientResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('doctor')
+                    ->relationship('doctor', 'name')
+                    ->label('Doctor Asignado')
+                    ->searchable()
+                    ->preload(),
+                Tables\Filters\Filter::make('created_at')
+                    ->form([
+                        Forms\Components\DatePicker::make('created_from')
+                            ->label('Desde'),
+                        Forms\Components\DatePicker::make('created_until')
+                            ->label('Hasta'),
+                    ])
+                    ->query(function ($query, array $data) {
+                        return $query
+                            ->when($data['created_from'] ?? null, fn($q) => $q->whereDate('created_at', '>=', $data['created_from']))
+                            ->when($data['created_until'] ?? null, fn($q) => $q->whereDate('created_at', '<=', $data['created_until']));
+                    }),
             ])
             ->actions([
                 EditAction::make(),

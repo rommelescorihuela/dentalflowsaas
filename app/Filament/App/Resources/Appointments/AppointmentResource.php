@@ -78,8 +78,40 @@ class AppointmentResource extends Resource
             Tables\Columns\TextColumn::make('type'),
         ])
             ->filters([
-            //
-        ])
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        'scheduled' => 'Programada',
+                        'confirmed' => 'Confirmada',
+                        'completed' => 'Completada',
+                        'cancelled' => 'Cancelada',
+                    ])
+                    ->label('Estado'),
+                Tables\Filters\SelectFilter::make('type')
+                    ->options([
+                        'control' => 'Control',
+                        'urgent' => 'Urgente',
+                        'cleaning' => 'Limpieza',
+                        'surgery' => 'Cirugía',
+                    ])
+                    ->label('Tipo'),
+                Tables\Filters\SelectFilter::make('patient.doctor')
+                    ->relationship('patient.doctor', 'name')
+                    ->label('Doctor del Paciente')
+                    ->searchable()
+                    ->preload(),
+                Tables\Filters\Filter::make('start_time')
+                    ->form([
+                        Forms\Components\DatePicker::make('date_from')
+                            ->label('Desde'),
+                        Forms\Components\DatePicker::make('date_until')
+                            ->label('Hasta'),
+                    ])
+                    ->query(function ($query, array $data) {
+                        return $query
+                            ->when($data['date_from'] ?? null, fn($q) => $q->whereDate('start_time', '>=', $data['date_from']))
+                            ->when($data['date_until'] ?? null, fn($q) => $q->whereDate('start_time', '<=', $data['date_until']));
+                    }),
+            ])
             ->actions([
             \Filament\Actions\EditAction::make(),
         ])
