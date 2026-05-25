@@ -42,6 +42,10 @@ class PatientPolicy
             return true;
         }
 
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+
         return $user->id === $patient->doctor_id;
     }
 }

@@ -13,6 +13,15 @@ class Treatment extends Model
 {
     use BelongsToClinic, ActivityLogger;
 
+    protected $fillable = [
+        'clinic_id',
+        'appointment_id',
+        'name',
+        'notes',
+        'price',
+        'code',
+    ];
+
     public function appointment()
     {
         return $this->belongsTo(Appointment::class);
