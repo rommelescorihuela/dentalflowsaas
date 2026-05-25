@@ -46,22 +46,27 @@ class PaymentResource extends Resource
         return $schema
             ->components([
                 Select::make('patient_id')
+                    ->label('Paciente')
                     ->relationship('patient', 'name')
                     ->searchable()
                     ->required(),
                 Select::make('appointment_id')
+                    ->label('Cita')
                     ->relationship('appointment', 'id')
                     ->searchable()
                     ->placeholder('Seleccionar Cita (Opcional)'),
                 Select::make('budget_id')
+                    ->label('Presupuesto')
                     ->relationship('budget', 'id')
                     ->searchable()
                     ->placeholder('Seleccionar Presupuesto (Opcional)'),
                 TextInput::make('amount')
+                    ->label('Monto')
                     ->numeric()
                     ->prefix('$')
                     ->required(),
                 Select::make('method')
+                    ->label('Método de Pago')
                     ->options([
                         'cash' => 'Efectivo',
                         'card' => 'Tarjeta',
@@ -70,6 +75,7 @@ class PaymentResource extends Resource
                     ])
                     ->required(),
                 Select::make('status')
+                    ->label('Estado')
                     ->options([
                         'pending' => 'Pendiente',
                         'paid' => 'Pagado',
@@ -81,6 +87,7 @@ class PaymentResource extends Resource
                     ->label('ID de Referencia')
                     ->maxLength(255),
                 DateTimePicker::make('paid_at')
+                    ->label('Fecha de Pago')
                     ->default(now()),
             ]);
     }
@@ -89,19 +96,48 @@ class PaymentResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('patient.name')->searchable()->sortable(),
-                TextColumn::make('amount')->money('USD')->sortable(),
-                TextColumn::make('method')->badge(),
+                TextColumn::make('patient.name')
+                    ->label('Paciente')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('amount')
+                    ->label('Monto')
+                    ->money('USD')
+                    ->sortable(),
+                TextColumn::make('method')
+                    ->label('Método')
+                    ->badge()
+                    ->formatStateUsing(fn(string $state): string => match($state) {
+                        'cash' => 'Efectivo',
+                        'card' => 'Tarjeta',
+                        'transfer' => 'Transferencia',
+                        'insurance' => 'Seguro',
+                        default => $state,
+                    }),
                 TextColumn::make('status')
+                    ->label('Estado')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'paid' => 'success',
                         'pending' => 'warning',
                         'refunded' => 'danger',
                         default => 'gray',
+                    })
+                    ->formatStateUsing(fn(string $state): string => match($state) {
+                        'paid' => 'Pagado',
+                        'pending' => 'Pendiente',
+                        'refunded' => 'Reembolsado',
+                        default => ucfirst($state),
                     }),
-                TextColumn::make('paid_at')->dateTime()->sortable(),
-                TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('paid_at')
+                    ->label('Fecha de Pago')
+                    ->dateTime()
+                    ->sortable(),
+                TextColumn::make('created_at')
+                    ->label('Fecha de Creación')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('status')
