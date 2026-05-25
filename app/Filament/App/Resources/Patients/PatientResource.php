@@ -21,6 +21,20 @@ class PatientResource extends Resource
 
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-users';
 
+    protected static ?string $navigationLabel = 'Pacientes';
+
+    protected static ?string $navigationGroup = 'Gestión Clínica';
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Pacientes';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Paciente';
+    }
+
     public static function shouldRegisterNavigation(): bool
     {
         return true;

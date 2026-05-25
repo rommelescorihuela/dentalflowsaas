@@ -20,7 +20,19 @@ class PaymentResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-banknotes';
 
-    protected static ?string $navigationLabel = 'Pagos de Pacientes';
+    protected static ?string $navigationLabel = 'Pagos';
+
+    protected static ?string $navigationGroup = 'Finanzas';
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Pagos';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Pago';
+    }
 
     public static function getNavigationGroup(): ?string
     {

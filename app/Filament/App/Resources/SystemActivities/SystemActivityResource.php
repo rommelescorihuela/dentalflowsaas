@@ -24,6 +24,16 @@ class SystemActivityResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'description';
 
+    public static function getPluralModelLabel(): string
+    {
+        return 'Actividades';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Actividad';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema

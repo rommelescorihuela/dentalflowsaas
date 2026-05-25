@@ -20,9 +20,21 @@ class ProcedurePriceResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedCurrencyDollar;
 
+    protected static ?string $navigationLabel = 'Procedimientos';
+
     public static function getNavigationGroup(): ?string
     {
         return 'Gestión de Clínica';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Procedimientos';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Procedimiento';
     }
 
     public static function form(Schema $schema): Schema

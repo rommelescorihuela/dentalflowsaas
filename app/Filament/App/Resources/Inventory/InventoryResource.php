@@ -20,9 +20,21 @@ class InventoryResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedArchiveBox;
 
+    protected static ?string $navigationLabel = 'Inventario';
+
     public static function getNavigationGroup(): ?string
     {
         return 'Gestión de Clínica';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Inventario';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Producto';
     }
 
     public static function form(Schema $schema): Schema

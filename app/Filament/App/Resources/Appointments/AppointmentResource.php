@@ -17,6 +17,20 @@ class AppointmentResource extends Resource
 
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-calendar';
 
+    protected static ?string $navigationLabel = 'Citas';
+
+    protected static ?string $navigationGroup = 'Gestión Clínica';
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Citas';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Cita';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema

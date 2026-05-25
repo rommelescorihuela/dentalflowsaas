@@ -18,6 +18,20 @@ class BudgetResource extends Resource
 
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-currency-dollar';
 
+    protected static ?string $navigationLabel = 'Presupuestos';
+
+    protected static ?string $navigationGroup = 'Finanzas';
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Presupuestos';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Presupuesto';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema

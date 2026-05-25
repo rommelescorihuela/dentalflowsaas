@@ -30,6 +30,16 @@ class RoleResource extends Resource
         return 'Roles';
     }
 
+    public static function getPluralModelLabel(): string
+    {
+        return 'Roles';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Rol';
+    }
+
     public static function getNavigationSort(): ?int
     {
         return 1;
