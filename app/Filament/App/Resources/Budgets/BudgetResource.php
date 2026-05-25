@@ -38,13 +38,16 @@ class BudgetResource extends Resource
             ->components([
                 Forms\Components\Select::make('patient_id')
                     ->relationship('patient', 'name')
+                    ->label('Paciente')
                     ->required()
                     ->searchable(),
                 Forms\Components\TextInput::make('total')
+                    ->label('Total')
                     ->numeric()
                     ->prefix('$')
                     ->required(),
                 Forms\Components\Select::make('status')
+                    ->label('Estado')
                     ->options([
                         'draft' => 'Borrador',
                         'sent' => 'Enviado',
@@ -52,16 +55,19 @@ class BudgetResource extends Resource
                         'rejected' => 'Rechazado',
                     ])
                     ->required(),
-                Forms\Components\DatePicker::make('expires_at'),
+                Forms\Components\DatePicker::make('expires_at')
+                    ->label('Fecha de Vencimiento'),
                 Forms\Components\Placeholder::make('odontogram_link')
                     ->label('Odontograma de Origen')
                     ->visible(fn(?Budget $record) => $record?->odontogram !== null)
                     ->content(fn(Budget $record) => view('filament.components.odontogram-link', ['odontogram' => $record->odontogram])),
                 Forms\Components\Textarea::make('notes')
+                    ->label('Notas')
                     ->columnSpanFull()
                     ->rows(3)
                     ->placeholder('Notas adicionales para el paciente...'),
                 Forms\Components\Repeater::make('items')
+                    ->label('Ítems del Presupuesto')
                     ->relationship()
                     ->schema([
                         Forms\Components\Select::make('procedure_price_id')
@@ -82,6 +88,7 @@ class BudgetResource extends Resource
                             ->required(),
                         Forms\Components\Hidden::make('treatment_name'),
                         Forms\Components\TextInput::make('quantity')
+                            ->label('Cantidad')
                             ->numeric()
                             ->default(1)
                             ->live()
@@ -92,6 +99,7 @@ class BudgetResource extends Resource
                             })
                             ->required(),
                         Forms\Components\TextInput::make('cost')
+                            ->label('Costo Unitario')
                             ->numeric()
                             ->prefix('$')
                             ->live()
@@ -119,12 +127,15 @@ class BudgetResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('patient.name')
+                    ->label('Paciente')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('total')
+                    ->label('Total')
                     ->money('USD')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
+                    ->label('Estado')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'draft' => 'gray',
@@ -132,18 +143,28 @@ class BudgetResource extends Resource
                         'accepted' => 'success',
                         'rejected' => 'danger',
                         default => 'gray',
+                    })
+                    ->formatStateUsing(fn(string $state): string => match($state) {
+                        'draft' => 'Borrador',
+                        'sent' => 'Enviado',
+                        'accepted' => 'Aceptado',
+                        'rejected' => 'Rechazado',
+                        default => ucfirst($state),
                     }),
                 Tables\Columns\TextColumn::make('odontogram.name')
-                    ->label('Origen')
+                    ->label('Odontograma')
                     ->placeholder('Manual')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('notes')
+                    ->label('Notas')
                     ->limit(50)
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('expires_at')
+                    ->label('Vencimiento')
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Fecha de Creación')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
