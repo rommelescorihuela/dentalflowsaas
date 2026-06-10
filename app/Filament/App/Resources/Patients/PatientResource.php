@@ -73,7 +73,7 @@ class PatientResource extends Resource
             ->actions([
                 EditAction::make(),
                 Action::make('health_progress')
-                    ->label('Health Progress')
+                    ->label('Progreso de Salud')
                     ->icon('heroicon-o-chart-bar')
                     ->url(fn(Patient $record): string => Pages\HealthProgress::getUrl(['record' => $record]))
                     ->color('info'),

@@ -20,11 +20,11 @@ class PaymentResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-banknotes';
 
-    protected static ?string $navigationLabel = 'Patient Payments';
+    protected static ?string $navigationLabel = 'Pagos de Pacientes';
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Finance';
+        return 'Finanzas';
     }
 
     public static function form(Schema $schema): Schema
@@ -49,22 +49,22 @@ class PaymentResource extends Resource
                     ->required(),
                 Select::make('method')
                     ->options([
-                        'cash' => 'Cash',
-                        'card' => 'Card',
-                        'transfer' => 'Bank Transfer',
-                        'insurance' => 'Insurance',
+                        'cash' => 'Efectivo',
+                        'card' => 'Tarjeta',
+                        'transfer' => 'Transferencia',
+                        'insurance' => 'Seguro',
                     ])
                     ->required(),
                 Select::make('status')
                     ->options([
-                        'pending' => 'Pending',
-                        'paid' => 'Paid',
-                        'refunded' => 'Refunded',
+                        'pending' => 'Pendiente',
+                        'paid' => 'Pagado',
+                        'refunded' => 'Reembolsado',
                     ])
                     ->default('paid')
                     ->required(),
                 TextInput::make('reference_id')
-                    ->label('Reference ID')
+                    ->label('ID de Referencia')
                     ->maxLength(255),
                 DateTimePicker::make('paid_at')
                     ->default(now()),

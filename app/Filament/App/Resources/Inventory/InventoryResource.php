@@ -22,7 +22,7 @@ class InventoryResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Clinic Management';
+        return 'Gestión de Clínica';
     }
 
     public static function form(Schema $schema): Schema
@@ -34,10 +34,10 @@ class InventoryResource extends Resource
                     ->maxLength(255),
                 Select::make('category')
                     ->options([
-                        'Consumables' => 'Consumables',
-                        'Instruments' => 'Instruments',
-                        'Equipment' => 'Equipment',
-                        'Other' => 'Other',
+                        'Consumables' => 'Consumibles',
+                        'Instruments' => 'Instrumentos',
+                        'Equipment' => 'Equipos',
+                        'Other' => 'Otros',
                     ])
                     ->required(),
                 TextInput::make('supplier')
@@ -63,8 +63,8 @@ class InventoryResource extends Resource
                     ->required(),
                 Select::make('expiration_type')
                     ->options([
-                        'Expirable' => 'Expirable',
-                        'Inexpirable' => 'Inexpirable',
+                        'Expirable' => 'Caducable',
+                        'Inexpirable' => 'No Caducable',
                     ])
                     ->default('Expirable')
                     ->reactive()

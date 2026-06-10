@@ -15,16 +15,16 @@ class RoleForm
     {
         return $schema
             ->components([
-                Section::make('Role Information')
+                Section::make('Información del Rol')
                     ->schema([
                         TextInput::make('name')
-                            ->label('Role Name')
+                            ->label('Nombre del Rol')
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->helperText('e.g., super_admin, global_manager'),
 
                         Select::make('clinic_id')
-                            ->label('Clinic (Leave empty for global role)')
+                            ->label('Clínica (Vacío = rol global)')
                             ->relationship('clinic', 'name')
                             ->searchable()
                             ->preload()
@@ -40,10 +40,10 @@ class RoleForm
                     ])
                     ->columns(2),
 
-                Section::make('Permissions')
+                Section::make('Permisos')
                     ->schema([
                         CheckboxList::make('permissions')
-                            ->label('Assign Permissions')
+                            ->label('Asignar Permisos')
                             ->relationship('permissions', 'name')
                             ->options(Permission::all()->pluck('name', 'id'))
                             ->columns(3)

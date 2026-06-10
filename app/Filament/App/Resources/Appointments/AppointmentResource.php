@@ -29,7 +29,7 @@ class AppointmentResource extends Resource
             ->relationship('procedurePrice', 'procedure_name')
             ->searchable()
             ->preload()
-            ->label('Procedure')
+            ->label('Procedimiento')
             ->required(),
             Forms\Components\DateTimePicker::make('start_time')
             ->required(),
@@ -37,18 +37,18 @@ class AppointmentResource extends Resource
             ->required(),
             Forms\Components\Select::make('status')
             ->options([
-                'scheduled' => 'Scheduled',
-                'confirmed' => 'Confirmed',
-                'completed' => 'Completed',
-                'cancelled' => 'Cancelled',
+                'scheduled' => 'Programada',
+                'confirmed' => 'Confirmada',
+                'completed' => 'Completada',
+                'cancelled' => 'Cancelada',
             ])
             ->required(),
             Forms\Components\Select::make('type')
             ->options([
                 'control' => 'Control',
-                'urgent' => 'Urgent',
-                'cleaning' => 'Cleaning',
-                'surgery' => 'Surgery',
+                'urgent' => 'Urgencia',
+                'cleaning' => 'Limpieza',
+                'surgery' => 'Cirugía',
             ])
             ->required(),
             Forms\Components\Textarea::make('notes')

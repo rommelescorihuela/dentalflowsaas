@@ -28,14 +28,14 @@ class SubscriptionPaymentForm
                     ->options([
                         'stripe' => 'Stripe',
                         'paypal' => 'PayPal',
-                        'transfer' => 'Bank Transfer',
+                        'transfer' => 'Transferencia',
                     ])
                     ->required(),
                 \Filament\Forms\Components\Select::make('status')
                     ->options([
-                        'pending' => 'Pending',
-                        'paid' => 'Paid',
-                        'failed' => 'Failed',
+                        'pending' => 'Pendiente',
+                        'paid' => 'Pagado',
+                        'failed' => 'Fallido',
                     ])
                     ->default('pending')
                     ->required(),

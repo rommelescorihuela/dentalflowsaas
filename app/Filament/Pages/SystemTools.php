@@ -24,7 +24,7 @@ class SystemTools extends Page
 
     public static function getNavigationGroup(): ?string
     {
-        return 'System';
+        return 'Sistema';
     }
 
     public function getTitle(): string

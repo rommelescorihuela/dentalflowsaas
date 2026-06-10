@@ -32,15 +32,15 @@ class BudgetResource extends Resource
                     ->required(),
                 Forms\Components\Select::make('status')
                     ->options([
-                        'draft' => 'Draft',
-                        'sent' => 'Sent',
-                        'accepted' => 'Accepted',
-                        'rejected' => 'Rejected',
+                        'draft' => 'Borrador',
+                        'sent' => 'Enviado',
+                        'accepted' => 'Aceptado',
+                        'rejected' => 'Rechazado',
                     ])
                     ->required(),
                 Forms\Components\DatePicker::make('expires_at'),
                 Forms\Components\Placeholder::make('odontogram_link')
-                    ->label('Source Odontogram')
+                    ->label('Odontograma Origen')
                     ->visible(fn(?Budget $record) => $record?->odontogram !== null)
                     ->content(fn(Budget $record) => view('filament.components.odontogram-link', ['odontogram' => $record->odontogram])),
                 Forms\Components\Textarea::make('notes')
@@ -51,7 +51,7 @@ class BudgetResource extends Resource
                     ->relationship()
                     ->schema([
                         Forms\Components\Select::make('procedure_price_id')
-                            ->label('Procedure')
+                            ->label('Procedimiento')
                             ->options(function () {
                                 return \App\Models\ProcedurePrice::where('clinic_id', tenant('id'))
                                     ->pluck('procedure_name', 'id')
@@ -123,7 +123,7 @@ class BudgetResource extends Resource
                         default => 'gray',
                     }),
                 Tables\Columns\TextColumn::make('odontogram.name')
-                    ->label('Source')
+                    ->label('Origen')
                     ->placeholder('Manual')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('notes')
@@ -140,10 +140,10 @@ class BudgetResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
-                        'draft' => 'Draft',
-                        'sent' => 'Sent',
-                        'accepted' => 'Accepted',
-                        'rejected' => 'Rejected',
+                        'draft' => 'Borrador',
+                        'sent' => 'Enviado',
+                        'accepted' => 'Aceptado',
+                        'rejected' => 'Rechazado',
                     ]),
             ])
             ->actions([

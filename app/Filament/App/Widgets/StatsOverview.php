@@ -15,16 +15,16 @@ class StatsOverview extends StatsOverviewWidget
     protected function getStats(): array
     {
         return [
-            Stat::make('Patients', Patient::count())
-                ->description('Total patients registered')
+            Stat::make('Pacientes', Patient::count())
+                ->description('Total de pacientes registrados')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->color('success'),
-            Stat::make('Appointments', Appointment::where('start_time', '>=', now())->count())
-                ->description('Upcoming appointments')
+            Stat::make('Citas', Appointment::where('start_time', '>=', now())->count())
+                ->description('Próximas citas')
                 ->descriptionIcon('heroicon-m-calendar')
                 ->color('primary'),
-            Stat::make('Pending Budgets', Budget::where('status', 'sent')->count())
-                ->description('Budgets waiting for approval')
+            Stat::make('Presupuestos Pendientes', Budget::where('status', 'sent')->count())
+                ->description('Presupuestos esperando aprobación')
                 ->descriptionIcon('heroicon-m-currency-dollar')
                 ->color('warning'),
         ];

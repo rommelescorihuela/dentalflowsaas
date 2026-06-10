@@ -17,24 +17,24 @@ class RolesTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('Role Name')
+                    ->label('Nombre del Rol')
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('clinic.name')
-                    ->label('Clinic (Tenant)')
+                    ->label('Clínica')
                     ->placeholder('Global Role')
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('permissions_count')
-                    ->label('Permissions')
+                    ->label('Permisos')
                     ->counts('permissions')
                     ->badge()
                     ->color('success'),
 
                 TextColumn::make('users_count')
-                    ->label('Users')
+                    ->label('Usuarios')
                     ->counts('users')
                     ->badge()
                     ->color('info'),
@@ -55,7 +55,7 @@ class RolesTable
             ])
             ->filters([
                 SelectFilter::make('clinic_id')
-                    ->label('Filter by Clinic')
+                    ->label('Filtrar por Clínica')
                     ->options(Clinic::all()->pluck('name', 'id'))
                     ->placeholder('All Roles'),
             ])

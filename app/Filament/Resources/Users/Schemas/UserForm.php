@@ -18,7 +18,7 @@ class UserForm
                 TextInput::make('name')
                     ->required(),
                 TextInput::make('email')
-                    ->label('Email address')
+                    ->label('Correo Electrónico')
                     ->email()
                     ->required()
                     ->unique(ignoreRecord: true),
@@ -33,14 +33,14 @@ class UserForm
                     ->required(fn(string $operation): bool => $operation === 'create')
                     ->visible(fn(string $operation, $get): bool => $operation === 'create' || filled($get('password'))),
                 \Filament\Forms\Components\Select::make('clinic_id')
-                    ->label('Clinic (Tenant)')
+                    ->label('Clínica')
                     ->relationship('clinic', 'name')
                     ->searchable()
                     ->preload()
                     ->live(), // Important to reload roles when this changes
 
                 \Filament\Forms\Components\Select::make('roles')
-                    ->label('Roles (Tenant Scoped)')
+                    ->label('Roles (Por Clínica)')
                     ->options(function ($get) {
                         $tenantId = $get('clinic_id');
                         $query = \App\Models\Role::withoutGlobalScopes();

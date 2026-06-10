@@ -23,9 +23,9 @@ class SystemActivityResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'System';
+    protected static string|\UnitEnum|null $navigationGroup = 'Sistema';
 
-    protected static ?string $navigationLabel = 'Activity Logs';
+    protected static ?string $navigationLabel = 'Registro de Actividades';
 
     public static function form(Schema $schema): Schema
     {

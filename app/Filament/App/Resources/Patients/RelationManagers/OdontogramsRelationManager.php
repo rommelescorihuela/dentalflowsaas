@@ -67,8 +67,8 @@ class OdontogramsRelationManager extends RelationManager
                     ->default(now()),
                 \Filament\Forms\Components\Select::make('status')
                     ->options([
-                        'in_progress' => 'In Progress',
-                        'completed' => 'Completed',
+                        'in_progress' => 'En Progreso',
+                        'completed' => 'Completado',
                     ])
                     ->default('in_progress')
                     ->required(),
@@ -98,7 +98,7 @@ class OdontogramsRelationManager extends RelationManager
                     }),
                 TextColumn::make('clinicalRecords_count')
                     ->counts('clinicalRecords')
-                    ->label('Records'),
+                    ->label('Registros'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -110,7 +110,7 @@ class OdontogramsRelationManager extends RelationManager
             ])
             ->headerActions([
                 \Filament\Actions\Action::make('create_odontogram')
-                    ->label('New Odontogram')
+                    ->label('Nuevo Odontograma')
                     ->icon('heroicon-o-plus')
                     ->color('primary')
                     ->form([
@@ -123,8 +123,8 @@ class OdontogramsRelationManager extends RelationManager
                             ->default(now()),
                         \Filament\Forms\Components\Select::make('status')
                             ->options([
-                                'in_progress' => 'In Progress',
-                                'completed' => 'Completed',
+                                'in_progress' => 'En Progreso',
+                                'completed' => 'Completado',
                             ])
                             ->default('in_progress')
                             ->required(),
@@ -165,7 +165,7 @@ class OdontogramsRelationManager extends RelationManager
             ])
             ->actions([
                 \Filament\Actions\Action::make('open')
-                    ->label('View')
+                    ->label('Ver')
                     ->icon('heroicon-o-eye')
                     ->color('gray')
                     ->url(fn($record) => PatientResource::getUrl('odontograms.view', [
@@ -173,7 +173,7 @@ class OdontogramsRelationManager extends RelationManager
                         'odontogram' => $record->id,
                     ])),
                 \Filament\Actions\Action::make('edit')
-                    ->label('Edit')
+                    ->label('Editar')
                     ->icon('heroicon-o-pencil')
                     ->color('primary')
                     ->url(fn($record) => PatientResource::getUrl('odontograms.view', [
@@ -181,7 +181,7 @@ class OdontogramsRelationManager extends RelationManager
                         'odontogram' => $record->id,
                     ])),
                 \Filament\Actions\Action::make('generate_budget')
-                    ->label('Generate Budget')
+                    ->label('Generar Presupuesto')
                     ->icon('heroicon-o-document-currency-dollar')
                     ->color('success')
                     ->visible(fn($record) => $record->status === 'completed')
@@ -209,7 +209,7 @@ class OdontogramsRelationManager extends RelationManager
                             ->send();
                     }),
                 \Filament\Actions\Action::make('delete')
-                    ->label('Delete')
+                    ->label('Eliminar')
                     ->icon('heroicon-o-trash')
                     ->color('danger')
                     ->requiresConfirmation()

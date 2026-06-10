@@ -22,7 +22,7 @@ class ProcedurePriceResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Clinic Management';
+        return 'Gestión de Clínica';
     }
 
     public static function form(Schema $schema): Schema
@@ -30,7 +30,7 @@ class ProcedurePriceResource extends Resource
         return $schema
             ->components([
                 TextInput::make('procedure_name')
-                    ->label('Procedure Name')
+                    ->label('Nombre del Procedimiento')
                     ->required()
                     ->maxLength(255),
                 TextInput::make('price')
@@ -38,14 +38,14 @@ class ProcedurePriceResource extends Resource
                     ->prefix('$')
                     ->required(),
                 TextInput::make('duration')
-                    ->label('Duration')
+                    ->label('Duración')
                     ->placeholder('e.g. 30 minutes')
                     ->required()
                     ->maxLength(255),
                 Textarea::make('description')
                     ->columnSpanFull(),
                 FileUpload::make('image_path')
-                    ->label('Image')
+                    ->label('Imagen')
                     ->image()
                     ->directory('procedure-images')
                     ->columnSpanFull(),
@@ -61,12 +61,12 @@ class ProcedurePriceResource extends Resource
                         TextInput::make('quantity_used')
                             ->numeric()
                             ->required()
-                            ->label('Quantity to Deduct')
+                            ->label('Cantidad a Deducir')
                             ->default(1),
                     ])
                     ->columns(2)
                     ->columnSpanFull()
-                    ->label('Linked Inventory Items'),
+                    ->label('Items de Inventario Vinculados'),
             ]);
     }
 
@@ -75,7 +75,7 @@ class ProcedurePriceResource extends Resource
         return $table
             ->columns([
                 ImageColumn::make('image_path')
-                    ->label('Image')
+                    ->label('Imagen')
                     ->circular(),
                 TextColumn::make('procedure_name')
                     ->searchable()

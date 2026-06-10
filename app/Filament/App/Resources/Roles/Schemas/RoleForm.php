@@ -15,10 +15,10 @@ class RoleForm
     {
         return $schema
             ->components([
-                Section::make('Role Information')
+                Section::make('Información del Rol')
                     ->schema([
                         TextInput::make('name')
-                            ->label('Role Name')
+                            ->label('Nombre del Rol')
                             ->required()
                             ->unique(ignoreRecord: true, modifyRuleUsing: function ($rule) {
                                 return $rule->where('clinic_id', \Filament\Facades\Filament::getTenant()?->id);
@@ -26,7 +26,7 @@ class RoleForm
                             ->helperText('e.g., doctor, receptionist, assistant'),
 
                         TextInput::make('clinic_id')
-                            ->label('Clinic')
+                            ->label('Clínica')
                             ->default(fn() => \Filament\Facades\Filament::getTenant()?->id)
                             ->disabled()
                             ->dehydrated()
@@ -41,10 +41,10 @@ class RoleForm
                     ])
                     ->columns(2),
 
-                Section::make('Permissions')
+                Section::make('Permisos')
                     ->schema([
                         CheckboxList::make('permissions')
-                            ->label('Assign Permissions')
+                            ->label('Asignar Permisos')
                             ->relationship('permissions', 'name')
                             ->options(Permission::all()->pluck('name', 'id'))
                             ->columns(3)

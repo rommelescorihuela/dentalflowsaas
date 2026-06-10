@@ -17,7 +17,7 @@ class UsersTable
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('email')
-                    ->label('Email address')
+                    ->label('Correo Electrónico')
                     ->searchable(),
                 TextColumn::make('email_verified_at')
                     ->dateTime()
@@ -31,7 +31,7 @@ class UsersTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('clinic.name')
-                    ->label('Clinic (Tenant)')
+                    ->label('Clínica')
                     ->sortable()
                     ->searchable(),
             ])
