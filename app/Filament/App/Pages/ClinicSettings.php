@@ -170,7 +170,18 @@ class ClinicSettings extends Page implements HasForms
             return $tenant;
         }
 
-        // Fallback: resolve from the current request's subdomain
+        // Fallback 1: resolve from authenticated user's clinic_id
+        $user = auth()->user();
+        if ($user && $user->clinic_id) {
+            $tenantModel = config('tenancy.tenant_model');
+            $found = $tenantModel::find($user->clinic_id);
+            if ($found) {
+                tenancy()->initialize($found);
+                return $found;
+            }
+        }
+
+        // Fallback 2: resolve from the current request's subdomain
         $host = request()->getHost();
         $subdomain = explode('.', $host)[0];
 
@@ -179,7 +190,6 @@ class ClinicSettings extends Page implements HasForms
             $found = $tenantModel::find($subdomain);
 
             if ($found) {
-                // Re-initialize tenancy so tenant() works for the rest of the request
                 tenancy()->initialize($found);
                 return $found;
             }
