@@ -33,12 +33,10 @@ class UserForm
                 \Filament\Forms\Components\Select::make('roles')
                     ->label('Roles')
                     ->multiple()
-                    ->relationship('roles', 'name', function ($query) {
+                    ->options(function () {
                         $clinicId = tenant('id') ?? auth()->user()?->clinic_id;
-                        if ($clinicId) {
-                            $query->where('roles.clinic_id', $clinicId);
-                        }
-                        return $query;
+                        return \App\Models\Role::where('clinic_id', $clinicId)
+                            ->pluck('name', 'id');
                     })
                     ->saveRelationshipsUsing(function ($record, $state) {
                         $clinicId = tenant('id') ?? auth()->user()?->clinic_id;
@@ -48,6 +46,19 @@ class UserForm
                                 $record->roles()->attach($roleId, ['clinic_id' => $clinicId]);
                             }
                         }
+                    })
+                    ->loadStateFromRelationshipsUsing(function ($component, $record) {
+                        if (!$record?->exists) {
+                            return $component->state([]);
+                        }
+                        $clinicId = tenant('id') ?? auth()->user()?->clinic_id;
+                        $roleIds = \Illuminate\Support\Facades\DB::table('model_has_roles')
+                            ->where('model_id', $record->id)
+                            ->where('model_type', get_class($record))
+                            ->where('clinic_id', $clinicId)
+                            ->pluck('role_id')
+                            ->toArray();
+                        return $component->state($roleIds);
                     })
                     ->preload()
                     ->searchable(),
