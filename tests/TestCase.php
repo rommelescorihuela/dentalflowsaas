@@ -41,6 +41,7 @@ abstract class TestCase extends BaseTestCase
         $this->createRolesAndPermissions();
 
         Tenancy::initialize('clinic-a');
+        setPermissionsTeamId('clinic-a');
         
         $this->adminA = User::create([
             'name' => 'Admin Clínica A',
@@ -75,6 +76,7 @@ abstract class TestCase extends BaseTestCase
         ]);
 
         Tenancy::initialize('clinic-b');
+        setPermissionsTeamId('clinic-b');
         
         $this->doctorB = User::create([
             'name' => 'Dr. Carlos López',
@@ -101,6 +103,7 @@ abstract class TestCase extends BaseTestCase
         ]);
 
         Tenancy::initialize('clinic-a');
+        setPermissionsTeamId('clinic-a');
     }
 
     protected function createRolesAndPermissions(): void

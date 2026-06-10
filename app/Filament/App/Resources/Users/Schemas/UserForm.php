@@ -34,13 +34,16 @@ class UserForm
                     ->label('Roles')
                     ->multiple()
                     ->relationship('roles', 'name', function ($query) {
-                        return $query->where('roles.clinic_id', tenant('id'));
+                        $clinicId = tenant('id') ?? auth()->user()?->clinic_id;
+                        return $query->where('roles.clinic_id', $clinicId);
                     })
                     ->saveRelationshipsUsing(function ($record, $state) {
-                        $tenantId = tenant('id');
-                        $record->roles()->wherePivot('clinic_id', $tenantId)->detach();
-                        foreach ($state as $roleId) {
-                            $record->roles()->attach($roleId, ['clinic_id' => $tenantId]);
+                        $clinicId = tenant('id') ?? auth()->user()?->clinic_id;
+                        if ($clinicId) {
+                            $record->roles()->wherePivot('clinic_id', $clinicId)->detach();
+                            foreach ($state as $roleId) {
+                                $record->roles()->attach($roleId, ['clinic_id' => $clinicId]);
+                            }
                         }
                     })
                     ->preload()
