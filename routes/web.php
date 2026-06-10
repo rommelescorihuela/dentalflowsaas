@@ -62,6 +62,7 @@ Route::middleware([
     'web',
     \App\Http\Middleware\InitializeTenancyBySubdomainId::class,
     \App\Http\Middleware\SetTenancyUrlDefaults::class,
+    \App\Http\Middleware\SyncSpatiePermissionsTeamId::class,
 ])->group(function () {
     Route::post('/app/clinic-settings/save', [\App\Http\Controllers\ClinicSettingsController::class, 'save'])->name('clinic-settings.save');
 });
