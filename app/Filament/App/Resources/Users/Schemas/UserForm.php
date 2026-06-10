@@ -36,10 +36,7 @@ class UserForm
                     ->relationship('roles', 'name', function ($query) {
                         $clinicId = tenant('id') ?? auth()->user()?->clinic_id;
                         if ($clinicId) {
-                            $query->where(function ($q) use ($clinicId) {
-                                $q->where('roles.clinic_id', $clinicId)
-                                    ->orWhereNull('roles.clinic_id');
-                            });
+                            $query->where('roles.clinic_id', $clinicId);
                         }
                         return $query;
                     })
