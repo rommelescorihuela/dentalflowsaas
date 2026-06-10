@@ -1,375 +1,449 @@
-# DentalFlow SaaS - Contexto del Proyecto
+# DentalFlow SaaS — Especificaciones del Proyecto
 
 > Sistema de Gestión Dental Multi-Tenant con Odontograma Interactivo
+> Última actualización: Junio 2026
 
 ---
 
-## Stack Principal
+## Stack Tecnológico
 
-- **Backend**: Laravel 12.x, PHP 8.2+
-- **Frontend**: Filament 4.x, Livewire 3.x
-- **Base de datos**: PostgreSQL 14+
-- **Multi-tenancy**: Stancl Tenancy 3.9
-- **Auth/RBAC**: Spatie Permissions 6.0
-
----
-
-## Modelos Principales
-
-| Modelo | Tabla | Descripción |
-|--------|-------|-------------|
-| `Clinic` | `tenants` | Tenant (clínica) |
-| `User` | `users` | Usuarios con roles por clínica |
-| `Patient` | `patients` | Paciente con historial médico, alergias, RUT |
-| `Odontogram` | `odontograms` | Sesión de odontograma (status: in_progress/completed) |
-| `ClinicalRecord` | `clinical_records` | Registro clínico por superficie dental |
-| `Appointment` | `appointments` | Citas de pacientes |
-| `Budget` | `budgets` | Presupuestos (con odontogram_id, notes) |
-| `BudgetItem` | `budget_items` | Items de presupuesto (con clinic_id) |
-| `Treatment` | `treatments` | Tratamientos disponibles |
-| `Domain` | `domains` | Dominios personalizados por tenant |
-| `SystemActivity` | `system_activities` | Log de actividades |
-| `Payment` | `payments` | Pagos |
-| `SubscriptionPayment` | `subscription_payments` | Pagos de suscripción |
-| `ProcedurePrice` | `procedure_prices` | Precios de procedimientos (con diagnosis_code) |
-| `Inventory` | `inventories` | Inventario (95 items reales por clínica) |
-| `ProcedureInventory` | `procedure_inventory` | Inventario de procedimientos |
-| `ClinicalRecord` | `clinical_records` | Registro clínico (con procedure_price_id) |
+| Componente | Versión | Notas |
+|---|---|---|
+| Laravel | 12.x | Framework base |
+| PHP | 8.3+ | production (`composer.json` pide ^8.2, CI y Docker usan 8.3) |
+| Filament | 4.x | Panel admin + panel clínica |
+| Livewire | 3.x | Componentes interactivos (Odontograma, RegisterTenant, BookAppointment) |
+| Tailwind | 4.x | Vía plugin `@tailwindcss/vite` (sin archivo de configuración) |
+| PostgreSQL | ≥14 | Obligatorio; CI usa 15 |
+| Stancl Tenancy | 3.9 | Multi-tenancy con shared-DB (`clinic_id`) |
+| Spatie Permissions | 6.0 | RBAC sin Filament Shield (gestión de roles personalizada) |
+| Laravel Cashier | 16.x | Pagos Stripe |
+| Laravel Pint | 1.x | Linting (sin `pint.json` — defaults de Laravel) |
+| PHPStan | 2.x | Nivel 5, sin `phpstan.neon` |
+| Vite | 7.x | Build de assets frontend |
 
 ---
 
-## Odontograma Interactivo (Feature Principal)
+## Modelos (18)
 
-- **SVG interactivo** con 32 dientes (18 superiores + 18 inferiores, num 11-48)
+| Modelo | Tabla | Trait | Notas |
+|---|---|---|---|
+| `Appointment` | `appointments` | BelongsToClinic | Validación de solapamiento y fechas pasadas |
+| `Budget` | `budgets` | BelongsToClinic | `odontogram_id`, `notes`, `expires_at` (30 días) |
+| `BudgetItem` | `budget_items` | BelongsToClinic | `procedure_price_id`, `clinic_id` |
+| `Clinic` | `tenants` | — | Modelo tenant de Stancl; usa `clinic_id` como FK |
+| `ClinicalRecord` | `clinical_records` | BelongsToClinic | `procedure_price_id`, `diagnosis_code`, `treatment_status` |
+| `Domain` | `domains` | — | Dominios personalizados por tenant |
+| `Inventory` | `inventories` | BelongsToClinic | 95 items reales por clínica |
+| `Odontogram` | `odontograms` | BelongsToClinic, ActivityLogger | Status: `in_progress` / `completed` |
+| `Patient` | `patients` | BelongsToClinic | RUT único por clínica; `doctor_id` |
+| `Payment` | `payments` | BelongsToClinic | Integrado con presupuestos |
+| `Permission` | `permissions` | — | Modelo Spatie; permisos granulares `Action:Resource` |
+| `ProcedureInventory` | `procedure_inventory` | BelongsToClinic | Relación procedimiento↔inventario |
+| `ProcedurePrice` | `procedure_prices` | BelongsToClinic | `diagnosis_code`, `code`, `duration`, `description` |
+| `Role` | `roles` | — | Modelo Spatie; 4 roles: super-admin, admin, doctor, assistant |
+| `SubscriptionPayment` | `subscription_payments` | — | Pagos de suscripción Stripe |
+| `SystemActivity` | `system_activities` | — | Log de actividades del sistema |
+| `Treatment` | `treatments` | BelongsToClinic, ActivityLogger | Tratamientos disponibles |
+| `User` | `users` | BelongsToClinic, HasSpatiePermissions | `clinic_id`; super-admin tiene `clinic_id = null` |
+
+---
+
+## Recursos Filament
+
+### Panel Admin (Central) — 5 recursos
+`app/Filament/Resources/`
+
+| Recurso | Ruta | Funcionalidad |
+|---|---|---|
+| Clinics | `/admin/clinics` | CRUD tenants + RelationManager de dominios |
+| Users | `/admin/users` | CRUD usuarios |
+| Roles | `/admin/roles` | CRUD roles y permisos Spatie |
+| SubscriptionPayments | `/admin/subscription-payments` | CRUD pagos de suscripción |
+| SystemActivities | `/admin/system-activities` | Vista de log de actividades |
+
+### Panel App (Clínica) — 9 recursos
+`app/Filament/App/Resources/`
+
+| Recurso | Ruta | Funcionalidad |
+|---|---|---|
+| Patients | `/app/patients` | CRUD pacientes + odontogramas, health progress |
+| Appointments | `/app/appointments` | CRUD citas |
+| Budgets | `/app/budgets` | CRUD presupuestos + link a odontograma |
+| Payments | `/app/payments` | CRUD pagos |
+| ProcedurePrices | `/app/procedure-prices` | CRUD precios de procedimientos |
+| Inventory | `/app/inventory` | CRUD inventario |
+| Users | `/app/users` | CRUD usuarios (scoped a la clínica) |
+| Roles | `/app/roles` | CRUD roles (scoped a la clínica) |
+| SystemActivities | `/app/system-activities` | Vista de log (scoped a la clínica) |
+
+### Páginas Filament (2)
+
+| Panel | Página | Archivo |
+|---|---|---|
+| Admin | SystemTools | `app/Filament/Pages/SystemTools.php` |
+| App | ClinicSettings | `app/Filament/App/Pages/ClinicSettings.php` |
+
+### Widgets del Panel App (7)
+
+| Widget | Archivo |
+|---|---|
+| CalendarWidget | `app/Filament/App/Widgets/CalendarWidget.php` |
+| StatsOverview | `app/Filament/App/Widgets/StatsOverview.php` |
+| FinancialStatsOverview | `app/Filament/App/Widgets/FinancialStatsOverview.php` |
+| RevenueChart | `app/Filament/App/Widgets/RevenueChart.php` |
+| PatientGrowthChart | `app/Filament/App/Widgets/PatientGrowthChart.php` |
+| TodayAppointmentsWidget | `app/Filament/App/Widgets/TodayAppointmentsWidget.php` |
+| LowInventoryAlertWidget | `app/Filament/App/Widgets/LowInventoryAlertWidget.php` |
+
+---
+
+## Livewire (3 componentes)
+
+| Componente | Archivo | Función |
+|---|---|---|
+| Odontogram | `app/Livewire/Odontogram.php` | SVG interactivo 32 dientes × 6 superficies |
+| RegisterTenant | `app/Livewire/Auth/RegisterTenant.php` | Registro self-onboarding de clínicas |
+| BookAppointment | `app/Livewire/PatientPortal/BookAppointment.php` | Reserva de citas desde portal paciente |
+
+---
+
+## Middleware (4)
+
+| Middleware | Función |
+|---|---|
+| `InitializeTenancyBySubdomainId` | Identifica tenant por subdominio (primer segmento del host) |
+| `SetTenancyUrlDefaults` | Configura `URL::defaults(['tenant' => ...])`; fallback a `$request->segment(1)` |
+| `SyncSpatiePermissionsTeamId` | Sincroniza `setPermissionsTeamId()` con tenant actual + limpia caché |
+| `SetLocale` | Detecta y configura idioma (en, es) |
+
+---
+
+## Observers (3)
+
+| Observer | Modelo | Acción |
+|---|---|---|
+| `OdontogramObserver` | Odontogram | Al cambiar status a `completed` → genera presupuesto automático + notificación toast |
+| `AppointmentObserver` | Appointment | Deducción automática de inventario al crear cita |
+| `ClinicObserver` | Clinic | Eventos del ciclo de vida del tenant |
+
+---
+
+## Services (2)
+
+| Servicio | Función |
+|---|---|
+| `BudgetGenerator` | Genera presupuesto desde odontograma completado: agrupa por procedimiento, resuelve precios vía `procedure_price_id` → fallback `diagnosis_code`, 30 días expiración |
+| `TenantService` | Lógica de negocio para gestión de tenants |
+
+---
+
+## Commands (4)
+
+| Comando | Función |
+|---|---|
+| `diagnostic:all` | Diagnóstico completo del sistema (opción `--skip-tests`) |
+| `test:routes` | Diagnóstico de rutas Filament |
+| `check:schema` | Verifica esquema de base de datos |
+| `debug:tenant` | Debug de tenant actual |
+
+---
+
+## Controllers (4)
+
+| Controller | Función |
+|---|---|
+| `PatientPortalController` | Dashboard, viewBudget, acceptBudget, rejectBudget del portal paciente |
+| `ClinicSettingsController` | Guardar configuración de clínica |
+| `LegalController` | Páginas `/terms` y `/privacy` |
+| `Controller` | Base abstracta |
+
+---
+
+## Traits (3)
+
+| Trait | Descripción |
+|---|---|
+| `BelongsToClinic` | Global scope `ClinicScope` + auto-set `clinic_id` en `creating` |
+| `HasSpatiePermissions` | Gestión de permisos Spatie por tenant |
+| `ActivityLogger` | Log de actividades en `SystemActivity` |
+
+---
+
+## Scopes (1)
+
+| Scope | Descripción |
+|---|---|
+| `ClinicScope` | Filtra `clinic_id = tenant('id')` cuando tenancy está inicializado; macro `withoutTenancy()` para bypass |
+
+---
+
+## Policies (13)
+
+| Policy | Modelo |
+|---|---|
+| `AppointmentPolicy` | Appointment |
+| `BudgetPolicy` | Budget |
+| `ClinicPolicy` | Clinic |
+| `ClinicalRecordPolicy` | ClinicalRecord |
+| `InventoryPolicy` | Inventory |
+| `OdontogramPolicy` | Odontogram |
+| `PatientPolicy` | Patient |
+| `PaymentPolicy` | Payment |
+| `ProcedurePricePolicy` | ProcedurePrice |
+| `RolePolicy` | Role |
+| `SubscriptionPaymentPolicy` | SubscriptionPayment |
+| `SystemActivityPolicy` | SystemActivity |
+| `UserPolicy` | User |
+
+---
+
+## Mail (3)
+
+| Clase | Plantilla | Trigger |
+|---|---|---|
+| `BudgetSent` | `emails.budget.sent` | Al enviar presupuesto al paciente |
+| `AppointmentReminder` | `emails.appointments.reminder` | Recordatorio de cita |
+| `WelcomeClinic` | `emails.welcome-clinic` | Al registrar nueva clínica |
+
+---
+
+## Migraciones (24)
+
+Últimas 4 migraciones (Mayo 2026):
+
+| Migración | Cambio |
+|---|---|
+| `2026_05_15_183815_add_doctor_id_to_patients_table.php` | Agrega `doctor_id` a `patients` |
+| `2026_05_11_152000_update_treatments_table_to_match_seeder.php` | Actualiza tabla `treatments` para seeder |
+| `2026_05_11_151000_add_expiration_type_to_inventories.php` | Agrega tipo de expiración a `inventories` |
+| `2026_05_11_145636_update_inventories_table_to_match_model.php` | Alinea tabla `inventories` con modelo |
+
+Base (18 migraciones 2024): tenants, users, permissions, domains, procedure_prices, inventories, patients, odontograms, clinical_records, appointments, budgets, treatments, payments, procedure_inventory, subscription_payments, system_activities, cache/jobs, indexes
+
+---
+
+## Seeders (5)
+
+| Seeder | Registros | Notas |
+|---|---|---|
+| `DatabaseSeeder` | — | Orquestador, llama a TenantSeeder |
+| `TenantSeeder` | 2 clínicas + usuarios + pacientes + odontogramas demo | Inicializa `tenancy()->initialize()` antes de seeders |
+| `ProcedurePriceSeeder` | 47 procedimientos por clínica | 10 especialidades: general, endodoncia, periodoncia, cirugía, implantes, ortodoncia, prótesis, estética, pediatría, radiología |
+| `InventorySeeder` | 95 items por clínica | Categorías: anestesia, restauración, endodoncia, impresión, ortodoncia, bioseguridad, instrumental, farmacia, radiología, blanqueamiento, prótesis, pedodoncia |
+| `PermissionSeeder` | Permisos base | Crea permisos `Action:Resource` para todos los recursos |
+
+---
+
+## Factories (5)
+
+| Factory | Modelo |
+|---|---|
+| `UserFactory` | User |
+| `PatientFactory` | Patient |
+| `BudgetItemFactory` | BudgetItem (con `clinic_id` automático) |
+| `ProcedurePriceFactory` | ProcedurePrice (con `diagnosis_code` y `duration` integer) |
+| `InventoryFactory` | Inventory |
+
+---
+
+## Odontograma Interactivo
+
+### Arquitectura
+- **SVG interactivo**: 32 dientes (18 superiores + 18 inferiores, numeración 11-48)
 - **6 superficies por diente**: top, bottom, left, right, center, root
-- **Multi-selección** de superficies para tratamientos en lote
-- **Procedimientos dinámicos**: El selector lee directamente de `procedure_prices` (CRUD), mostrando nombre + precio
-- **`procedure_price_id`**: Cada registro clínico guarda referencia al procedimiento exacto seleccionado
-- **40+ colores mapeados**: Soporte para todos los procedimientos (implantes, ortodoncia, prótesis, etc.)
-- **Fallback seguro**: `tooth.blade.php` usa `$getColor()` con fallback gris para códigos sin color
-- **Panel flotante** no bloqueante para edición
-- **Historial por sesiones** - múltiples odontogramas por paciente
-- **Presupuesto automático** al completar odontograma
-- **Trait**: `BelongsToClinic` para aislamiento multi-tenant
+- **Multi-selección**: Selección múltiple de superficies para tratamientos en lote
+- **Procedimientos dinámicos**: El selector lee de `procedure_prices` (CRUD), mostrando nombre + precio
+- **`procedure_price_id`**: Cada `ClinicalRecord` guarda referencia al procedimiento exacto
+- **40+ colores**: Mapeo en `tooth.blade.php` con fallback gris para códigos sin color
+- **Panel flotante**: No bloqueante para edición
+- **Historial por sesiones**: Múltiples odontogramas por paciente
 
-### Códigos de Diagnóstico (Principales)
+### Códigos de Diagnóstico
 | Código | Color | Descripción |
-|--------|-------|-------------|
-| `caries` | 🔴 #ef4444 | Caries |
-| `filled` | 🔵 #3b82f6 | Restauración/Empaste |
-| `endodontic` | 🟡 #eab308 | Tratamiento Endodóntico |
-| `missing` | ⚫ #1f2937 | Pieza Faltante |
-| `crown` | 🟣 #a855f7 | Corona |
-| `healthy` | ⚪ #ffffff | Sano |
+|---|---|---|
+| `caries` | #ef4444 | Caries |
+| `filled` | #3b82f6 | Restauración |
+| `endodontic` | #eab308 | Endodoncia |
+| `missing` | #1f2937 | Pieza faltante |
+| `crown` | #a855f7 | Corona |
+| `healthy` | #ffffff | Sano |
 
-### Códigos Adicionales (40+)
-`prophylaxis`, `sealant`, `fluoride`, `inlay`, `scaling`, `gingivectomy`, `flap_surgery`, `surgical_extraction`, `wisdom_tooth`, `apicoectomy`, `frenectomy`, `implant`, `implant_crown`, `sinus_lift`, `braces_metal`, `braces_aesthetic`, `ortho_adjustment`, `retainer_fixed`, `retainer_removable`, `crown_pfm`, `crown_zirconia`, `bridge`, `partial_denture`, `full_denture`, `denture_rebase`, `whitening`, `veneer_composite`, `veneer_ceramic`, `gingival_contouring`, `ss_crown`, `pulpotomy`, `space_maintainer`, `consultation`, `xray_periapical`, `xray_panoramic`, `cbct`
-
----
-
-## Arquitectura Multi-Tenant
-
-### Ciclo de Request
-```
-Request → Tenant ID (subdomain/path) → InitializeTenancyBySubdomainId → SetTenancyUrlDefaults → SyncSpatiePermissionsTeamId → App
-```
-
-### Middleware
-- `InitializeTenancyByDomain` - Identifica clínica por subdominio
-- `PreventAccessFromCentralDomains` - Bloquea acceso desde dominio principal
-- `SyncSpatiePermissionsTeamId` - Sincroniza permisos Spatie con clinic_id
-- `SetTenancyUrlDefaults` - Configura URLs tenant-aware de Filament
-
-### Traits
-- `BelongsToClinic` - Asocia modelos a clínica
-- `HasSpatiePermissions` - Permisos por clínica
-- `ActivityLogger` - Log de actividades
-
-### Roles
-- Doctor, Asistente, Admin (por clínica)
+40+ códigos adicionales: `prophylaxis`, `sealant`, `fluoride`, `inlay`, `scaling`, `gingivectomy`, `flap_surgery`, `surgical_extraction`, `wisdom_tooth`, `apicoectomy`, `frenectomy`, `implant`, `implant_crown`, `sinus_lift`, `braces_metal`, `braces_aesthetic`, `ortho_adjustment`, `retainer_fixed`, `retainer_removable`, `crown_pfm`, `crown_zirconia`, `bridge`, `partial_denture`, `full_denture`, `denture_rebase`, `whitening`, `veneer_composite`, `veneer_ceramic`, `gingival_contouring`, `ss_crown`, `pulpotomy`, `space_maintainer`, `consultation`, `xray_periapical`, `xray_panoramic`, `cbct`
 
 ---
 
-## Rutas y Paneles
+## Presupuesto Automático (BudgetGenerator)
 
-| Ruta | Descripción |
-|------|-------------|
-| `/` | Landing page pública |
-| `/register` | Registro de nueva clínica |
-| `/login` | Login general |
-| `/admin` | Panel Admin Filament - Gestión de clínicas |
-| `/app` | Panel App Filament - Panel principal de la clínica |
-| `/portal` | Patient Portal - Portal público para pacientes |
-| `/up` | Health check |
-
----
-
-## Comandos Útiles
-
-```bash
-# Diagnóstico completo
-php artisan diagnostic:all
-php artisan diagnostic:all --skip-tests
-
-# Tests
-php artisan test
-php artisan test --filter=SecurityTenantIsolationTest
-php artisan test --filter=BudgetGeneratorTest
-php artisan test --filter=CalendarWidgetValidationTest
-
-# Rutas
-php artisan test:routes
-php artisan route:list
-
-# Tenancy
-php artisan tenants:create
-php artisan tenants:migrate
-php artisan tenants:artisan
-
-# Seeders
-php artisan db:seed --class=ProcedurePriceSeeder  # 47 procedimientos reales
-php artisan db:seed --class=InventorySeeder        # 95 items de inventario real
-
-# Filament
-php artisan make:filament-user
-php artisan make:filament-resource
-
-# Limpieza
-php artisan optimize:clear
-```
+### Flujo
+1. Cambio de status del odontograma a `completed` → `OdontogramObserver::updated()`
+2. `BudgetGenerator::generate($odontogram)` en transacción DB:
+   - Verifica si ya existe presupuesto (`odontogram_id`) → evita duplicados
+   - Obtiene `ClinicalRecords` con `treatment_status != 'completed'`
+   - Carga en batch `ProcedurePrice` por `procedure_price_id` + `diagnosis_code` (evita N+1)
+   - Para cada registro: precio vía `procedure_price_id` → fallback `diagnosis_code` → fallback defaults
+   - Agrupa items por procedimiento, concatena números de diente al nombre
+   - Crea `Budget` + `BudgetItems` con `expires_at = now() + 30 días`
+3. Notificación toast con monto total generado
 
 ---
 
-## Archivos de Verificación
+## Multi-Tenancy
 
-| Archivo | Función |
-|---------|---------|
-| `benchmark.php` | Rendimiento de rutas |
-| `verify_system_health.php` | Salud general del sistema |
-| `verify_all_phases.php` | Features por fases |
-| `verify_registration.php` | Registro de clínicas |
+### Identificación
+| Ruta | Middleware | Identificación |
+|---|---|---|
+| `/app` (Filament App Panel) | `InitializeTenancyBySubdomainId` | Subdominio: `clinic1.dentalflow.dev` → `clinic1` |
+| `/{tenant}/portal/{patient}` | `InitializeTenancyByPath` | Path segment 1 |
+| `/admin` (Filament Admin) | Ninguno | Sin tenant (central) |
+
+- Local dev (`localhost`): acceso directo `/app` (tenant vía `clinic_id` del usuario autenticado)
+- `tenancy.central_domains` = `['localhost']` por defecto; configurar en producción
+
+### Aislamiento
+- `TenancyServiceProvider::boot()`: `BelongsToTenant::$tenantIdColumn = 'clinic_id'`
+- `BelongsToClinic` trait: `ClinicScope` global scope en todos los modelos tenant
+- `clinic_id` auto-set en `creating` desde `tenant()->getTenantKey()`
+- Bypass: `->withoutTenancy()` o `->withoutGlobalScope(ClinicScope::class)` (super admin)
+
+### Cadena de Middleware (App Panel)
+```
+EncryptCookies → ... → InitializeTenancyBySubdomainId → SetTenancyUrlDefaults → SyncSpatiePermissionsTeamId → Authenticate
+```
+
+### Roles y Permisos
+- 4 roles: `super-admin`, `admin`, `doctor`, `assistant`
+- Permisos granulares: `Action:Resource` (ej: `ViewAny:Patient`, `Create:Budget`)
+- `super-admin`: todos los permisos, `clinic_id = null`
+- `admin`: mismos permisos que super-admin pero scoped a una clínica
+- `doctor`: CRUD en Patient, Appointment, Odontogram, ClinicalRecord, Budget, Payment
+- `assistant`: View+Create+Update en Patient, Appointment, Budget
 
 ---
 
-## Estructura de Archivos Clave
+## Rutas
 
-```
-app/
-├── Console/Commands/
-│   ├── SystemDiagnosticCommand.php  # diagnóstico unificado
-│   └── TestRoutesCommand.php          # diagnóstico de rutas
-├── Filament/
-│   ├── AdminPanelProvider.php       # Provider panel admin
-│   ├── AppPanelProvider.php          # Provider panel clínica
-│   └── App/
-│       ├── Resources/
-│       │   ├── Patients/
-│       │   │   ├── PatientResource.php
-│       │   │   ├── RelationManagers/
-│       │   │   │   └── OdontogramsRelationManager.php  # "Generate Budget"
-│       │   │   └── Pages/
-│       │   │       └── ViewOdontogram.php
-│       │   ├── Budgets/
-│       │   │   └── BudgetResource.php  # Link odontograma, notas, colores
-│       │   └── SystemActivities/
-│       └── Widgets/
-│           └── CalendarWidget.php  # Validación drag-and-drop
-├── Http/
-│   ├── Controllers/
-│   │   └── PatientPortalController.php
-│   └── Middleware/
-│       ├── SyncSpatiePermissionsTeamId.php
-│       ├── SetTenancyUrlDefaults.php
-│       └── SetTenancyUrlDefaults.php
-├── Livewire/
-│   ├── Odontogram.php                 # Componente odontograma
-│   └── PatientPortal/
-│       └── BookAppointment.php         # Reservar citas (duración dinámica)
-├── Models/
-│   ├── Patient.php
-│   ├── Odontogram.php                 # ActivityLogger añadido
-│   ├── ClinicalRecord.php
-│   ├── Budget.php                     # odontogram_id, notes
-│   ├── BudgetItem.php                 # BelongsToClinic añadido
-│   └── ProcedurePrice.php             # diagnosis_code, procedureInventories()
-├── Observers/
-│   ├── AppointmentObserver.php        # Deducción de inventario
-│   └── OdontogramObserver.php         # Generación automática de presupuestos
-├── Services/
-│   └── BudgetGenerator.php            # Servicio de generación de presupuestos
-├── Providers/
-│   ├── TenancyServiceProvider.php
-│   └── AppServiceProvider.php         # Rate limiting, observers
-└── Traits/
-    ├── BelongsToClinic.php
-    ├── HasSpatiePermissions.php
-    └── ActivityLogger.php
-```
+### Central (`routes/web.php`)
+| Método | Ruta | Destino |
+|---|---|---|
+| GET | `/` | `welcome` view |
+| GET | `/register` | Livewire `RegisterTenant` |
+| GET | `/register/success` | `auth.register-success` view |
+| GET | `/login` | Redirect `/admin/login` |
+| GET | `/terms` | `LegalController@terms` |
+| GET | `/privacy` | `LegalController@privacy` |
+| GET | `/lang/{locale}` | Cambio de idioma (en, es) |
+| GET | `/{tenant?}/portal/{patient}` | Portal dashboard (signed + throttled) |
+| GET | `/{tenant?}/portal/{patient}/book` | Livewire `BookAppointment` |
+| GET | `/{tenant?}/portal/budgets/{budget}` | Ver presupuesto |
+| POST | `/{tenant?}/portal/budgets/{budget}/accept` | Aceptar presupuesto |
+| POST | `/{tenant?}/portal/budgets/{budget}/reject` | Rechazar presupuesto |
+| POST | `/app/clinic-settings/save` | Guardar config clínica |
+
+### Tenant (`routes/tenant.php`)
+- `GET /{tenant}/` → respuesta texto con tenant ID
 
 ---
 
-## Testing (175 tests, 359 aserciones)
+## Testing (22 Feature + 1 Unit = 189 tests)
 
-### Suites de Tests
-- `SecurityTenantIsolationTest` - 9 tests de aislamiento
-- `OdontogramFunctionalTest` - 10 tests del odontograma
-- `PatientAndAppointmentsTest` - 10 tests de pacientes
-- `AuthorizationRbacTest` - 8 tests de autorización
-- `SystemReadinessTest` - 6 tests de sistema
-- `HttpApiTest` - 20 tests HTTP/API
-- `BudgetGeneratorTest` - 7 tests de generación automática de presupuestos
-- `CalendarWidgetValidationTest` - 6 tests de validación de calendario
-- 34 tests redundantes eliminados
-- 39 aserciones débiles reemplazadas por fuertes
+### Archivos de Test (22 Feature)
 
-### Ejecución
-```bash
-php artisan test
-php artisan test --filter=SecurityTenantIsolationTest
-php artisan test --filter=BudgetGeneratorTest
-php artisan test --filter=CalendarWidgetValidationTest
-```
+| Archivo | Tipo |
+|---|---|
+| `SecurityTenantIsolationTest` | Aislamiento multi-tenant (9 tests) |
+| `OdontogramFunctionalTest` | Funcionalidad odontograma (10 tests) |
+| `PatientAndAppointmentsTest` | Pacientes + citas |
+| `AuthorizationRbacTest` | RBAC y autorización |
+| `AuthorizationPolicyTest` | Polícies de autorización |
+| `HttpApiTest` | HTTP/API endpoints (20 tests) |
+| `BudgetGeneratorTest` | Generación automática de presupuestos (8 tests) |
+| `CalendarWidgetValidationTest` | Validación de calendario (6 tests) |
+| `AuthenticationTest` | Autenticación |
+| `PatientPortalTest` | Portal del paciente |
+| `SystemReadinessTest` | Salud del sistema |
+| `DoctorTest` | Funcionalidad rol doctor |
+| `AssistantTest` | Funcionalidad rol asistente |
+| `SuperAdminTest` | Funcionalidad super admin |
+| `AdminClinicTest` | Funcionalidad admin clínica |
+| `ValidationTest` | Validaciones |
+| `EdgeCasesTest` | Casos borde |
+| `ErrorHandlingTest` | Manejo de errores |
+| `ExampleTest` | Test de ejemplo (Feature) |
+| `Models/PaymentTest` | Tests de modelo Payment |
+| `Models/TreatmentTest` | Tests de modelo Treatment |
+| `Services/TenantServiceTest` | Tests de TenantService |
 
----
-
-## Correcciones de Seguridad (2026-04-21)
-
-### Vulnerabilidades Corregidas
-| # | Vulnerabilidad | Severidad | Ubicación |
-|---|-------------|----------|----------|
-| 1 | IDOR Patient Portal Dashboard | 🔴 CRÍTICA | PatientPortalController.php |
-| 2 | IDOR Budget Acceptance | 🔴 CRÍTICA | PatientPortalController.php |
-| 3 | Authorization Bypass | 🔴 CRÍTICA | OdontogramsRelationManager.php |
-| 4 | Missing Tenant Scope | 🟠 ALTA | Odontogram.php |
-| 5 | Portal Routes Sin Middleware | 🟠 ALTA | routes/web.php |
-| 6 | Soft Deletes Sin Verificación | 🟡 MEDIA | OdontogramsRelationManager.php |
-
-## Actualizaciones Recientes (2026-04-28)
-
-### Validaciones y Restricciones
-- Validación de fechas pasadas en `Appointment.php`
-- Validación de solapamiento de horarios en `Appointment.php`
-- RUT único por clínica (migración `2026_04_27_195120`)
-- Validación en `CalendarWidget::updateAppointment()` (drag-and-drop)
-
-### Presupuesto Automático
-- `BudgetGenerator` service genera presupuestos desde odontogramas completados
-- `OdontogramObserver` dispara generación al cambiar status a `completed`
-- Botón "Generate Budget" manual en `OdontogramsRelationManager`
-- `ProcedurePrice` con `diagnosis_code` para mapeo automático
-- `Budget` con `odontogram_id` y campo `notes`
-- `BudgetResource` UI mejorada con link a odontograma y colores por estado
-
-### Testing y Seguridad
-- `.env.testing` creado y añadido a `.gitignore`
-- 34 tests redundantes eliminados
-- 39 aserciones débiles reemplazadas por fuertes
-- 20 nuevos tests HTTP/API (`HttpApiTest.php`)
-- 7 tests de generación automática (`BudgetGeneratorTest.php`)
-- 6 tests de validación de calendario (`CalendarWidgetValidationTest.php`)
-- Health check `/up` configurado en `bootstrap/app.php`
-- `require-dev` correctamente aislado en `composer.json`
-- Rate limiting en portal (30 req/min por IP)
-
-### Producción
-- CI/CD: `.github/workflows/ci.yml` (tests, code quality, security scan)
-- Docker: `Dockerfile` (PHP 8.3-fpm, production-ready)
-- Guía de despliegue: `DEPLOY.md` (manual, Docker Compose, Forge/Vapor, Nginx, rollback)
-- **Emails transaccionales**: Presupuesto enviado, recordatorio de citas, reset de contraseña
-- **Legal**: Términos de Servicio (`/terms`) y Política de Privacidad (`/privacy`)
-
-### Code Quality
-- `ActivityLogger` añadido a `Odontogram` y `Treatment`
-- Eliminadas clases Schema vacías (`PatientForm`, `AppointmentForm`, `BudgetForm`)
-- Añadida relación `User::appointments()`
-- Creada `BudgetItemFactory` con `clinic_id` automático
-- Actualizada `ProcedurePriceFactory` con `diagnosis_code` y `duration` integer
-- Creado `ProcedurePriceSeeder` con 6 mapeos diagnosis→procedimiento
-
-## Actualizaciones Recientes (2026-04-29)
-
-### Odontograma Dinámico
-- **Procedimientos desde CRUD**: El odontograma ahora lee `procedure_prices` en lugar de opciones hardcodeadas
-- **Migración `procedure_price_id`**: Nueva columna en `clinical_records` para vincular al procedimiento exacto
-- **40+ colores**: `$statusColors` expandido para todos los procedimientos del catálogo
-- **Fallback seguro**: `tooth.blade.php` usa `$getColor()` con fallback gris para evitar errores
-
-### Seeders con Datos Reales
-- **`ProcedurePriceSeeder`**: 47 procedimientos organizados por especialidad (general, endodoncia, periodoncia, cirugía, implantes, ortodoncia, prótesis, estética, pediatría, radiología)
-- **`InventorySeeder`**: 95 items de inventario real (anestesia, restauración, endodoncia, impresión, ortodoncia, bioseguridad, instrumental, farmacia, radiología, blanqueamiento, prótesis, pedodoncia)
-- **Demo odontogramas**: 5 pacientes con odontogramas y 8 registros clínicos demo cada uno
-- **Contexto de tenancy**: `TenantSeeder` inicializa `tenancy()->initialize()` antes de llamar seeders
-
-### Presupuesto Automático Mejorado
-- **`BudgetGenerator`**: Ahora prioriza `procedure_price_id` del registro clínico antes de buscar por `diagnosis_code`
-- **`OdontogramObserver`**: Envía notificación toast con el monto del presupuesto generado
-- **`ViewOdontogram`**: Panel de presupuesto generado (estado, total, items), botón "Ver Presupuesto" o "Generar Presupuesto"
-
-### Bug Fixes
-- **Permisos de Odontogram**: Agregados 7 permisos CRUD (`ViewAny`, `View`, `Create`, `Update`, `Delete`, `Restore`, `ForceDelete`)
-- **Tenant context en seeders**: `ProcedurePriceSeeder` e `InventorySeeder` usan `Clinic::first()` como fallback
-- **`ViewOdontogram`**: Eliminado `->color('success')` inexistente en Filament 4 Section
+### Base TestCase
+- `Tests\TestCase` extiende `Illuminate\Foundation\Testing\TestCase`
+- `setUpTenants()`: crea `clinic-a` + `clinic-b`, usuarios, roles, permisos, pacientes
+- `switchTenant($id)`: `Tenancy::initialize($id)`
+- `actingAsDoctor()`, `actingAsAdmin()`, `actingAsAssistant()`, `actingAsSuperAdmin()`
+- Factory helpers: `createOdontogram()`, `createClinicalRecord()`, `createBudget()`, `createBudgetWithItems()`, `createAppointment()`, `createPayment()`, `createProcedurePrice()`, `createInventoryItem()`
+- `RefreshDatabase` (truncate, no transacciones por PostgreSQL)
+- Portal routes requieren `signed` URLs
 
 ---
 
-## Estado del Sistema (2026-04-29)
+## CI/CD (`.github/workflows/ci.yml`)
 
-### Salud
-```
-✅ Base de datos: OK
-✅ Clínicas: 2 activas (clinic1, clinic2)
-✅ Usuarios: Dr. House (clinic1), Dr. Strange (clinic2)
-```
+3 jobs en paralelo:
 
-### Datos Demo
-```
-✅ Procedimientos: 47 por clínica (catálogo completo)
-✅ Inventario: 95 items por clínica (datos reales)
-✅ Odontogramas: 5 con registros demo (clinic1)
-✅ Registros Clínicos: 40 demo (caries, restauraciones, endodoncias, coronas)
-```
+1. **tests** (PostgreSQL 15 service container):
+   - `composer install` → `npm ci` → `npm run build` → `cp .env.example .env` → `key:generate` → `migrate --force` → `php artisan test`
+2. **code-quality** (non-blocking):
+   - `vendor/bin/phpstan analyse --error-format=github || true`
+   - `vendor/bin/phpstan analyse app --level=5 --error-format=github || true`
+3. **security-scan** (non-blocking):
+   - `composer audit`
 
-### Features
-```
-✅ Onboarding: OK
-✅ Patient Portal: 18 slots
-✅ BI Dashboard: 3 KPIs
-✅ Tenant Isolation: OK
-✅ Odontogram: OK (procedimientos dinámicos desde CRUD)
-✅ Presupuesto automático: OK (con notificación toast)
-✅ Rate limiting portal: OK
-✅ Permisos Odontogram: OK (7 permisos CRUD)
-```
-✅ Odontogram: OK
-✅ RUT único por clínica: OK
-✅ Validación de citas: OK
-✅ Presupuesto automático: OK
-✅ Rate limiting portal: OK
-```
+Triggers: push a `main`/`master`/`develop`, PR a `main`/`master`
 
-### Benchmark (Promedio: 35-40ms)
-```
-🚀 Excelente rendimiento
-```
+---
 
-### Tests
-```
-Tests: 175 passed, 359 assertions ✅
-Duration: ~35s
-```
+## Assets
+
+### Vite (4 entry points)
+- `resources/css/app.css`
+- `resources/js/app.js`
+- `resources/css/filament/app/theme.css`
+- `resources/css/filament/admin/theme.css`
+
+### Vistas Blade (27 archivos)
+- `welcome.blade.php` — Landing page
+- `auth/register-success.blade.php` — Éxito de registro
+- `components/odontogram/tooth.blade.php` — Renderizado SVG de diente individual
+- `emails/` — 3 plantillas de email (budget-sent, appointment-reminder, welcome-clinic)
+- `filament/` — 10 vistas para páginas y componentes Filament
+- `legal/` — Términos y privacidad
+- `livewire/` — 4 vistas Livewire (odontogram, odontogram-v2, register-tenant, book-appointment)
+- `patient-portal/` — 2 vistas (dashboard, budget-detail)
+
+---
+
+## Seguridad
+
+### Vulnerabilidades corregidas (Abril 2026)
+- 6 vulnerabilidades (3 críticas, 2 altas, 1 media): IDOR, Authorization Bypass, Missing Tenant Scope, Portal sin middleware, Soft Deletes sin verificación — Ver `SECURITY_AUDIT.md`
+
+### Hardening activo
+- Rate limiting portal: 30 req/min por IP
+- `.env.testing` gitignored
+- `require-dev` aislado en `composer.json`
+- CI security scan (`composer audit`)
+- Signed URLs para rutas de portal
 
 ---
 
 ## Variables de Entorno Clave
 
 ```env
-DB_CONNECTION=pgsql
+DB_CONNECTION=pgsql          # Obligatorio (default .env.example es sqlite)
 DB_HOST=127.0.0.1
 DB_PORT=5432
 DB_DATABASE=dentalflowsaas
 DB_USERNAME=tu_usuario
 DB_PASSWORD=tu_contraseña
 
-TENANCY_AUTO_CREATE_TENANT_DOMAIN=false
-TENANCY_DATABASE_PREFIX_ENABLED=false
+TENANCY_CENTRAL_DOMAINS=localhost  # Cambiar en producción
 ```
