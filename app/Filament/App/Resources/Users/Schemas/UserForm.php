@@ -35,7 +35,13 @@ class UserForm
                     ->multiple()
                     ->relationship('roles', 'name', function ($query) {
                         $clinicId = tenant('id') ?? auth()->user()?->clinic_id;
-                        return $query->where('roles.clinic_id', $clinicId);
+                        if ($clinicId) {
+                            $query->where(function ($q) use ($clinicId) {
+                                $q->where('roles.clinic_id', $clinicId)
+                                    ->orWhereNull('roles.clinic_id');
+                            });
+                        }
+                        return $query;
                     })
                     ->saveRelationshipsUsing(function ($record, $state) {
                         $clinicId = tenant('id') ?? auth()->user()?->clinic_id;
