@@ -21,20 +21,6 @@ class PatientResource extends Resource
 
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationLabel = 'Pacientes';
-
-    protected static string|\UnitEnum|null $navigationGroup = 'Gestión Clínica';
-
-    public static function getPluralModelLabel(): string
-    {
-        return 'Pacientes';
-    }
-
-    public static function getModelLabel(): string
-    {
-        return 'Paciente';
-    }
-
     public static function shouldRegisterNavigation(): bool
     {
         return true;
@@ -45,30 +31,21 @@ class PatientResource extends Resource
         return $schema
             ->components([
                 Forms\Components\TextInput::make('name')
-                    ->label('Nombre Completo')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
-                    ->label('Correo Electrónico')
                     ->email()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('phone')
-                    ->label('Teléfono')
                     ->tel()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('rut')
                     ->label('RUT / DNI')
                     ->maxLength(20),
-                Forms\Components\DatePicker::make('birth_date')
-                    ->label('Fecha de Nacimiento'),
-                Forms\Components\Select::make('doctor_id')
-                    ->relationship('doctor', 'name')
-                    ->label('Doctor Asignado')
-                    ->searchable(),
+                Forms\Components\DatePicker::make('birth_date'),
                 Forms\Components\KeyValue::make('allergies')
-                    ->label('Alergias')
-                    ->keyLabel('Alergia')
-                    ->valueLabel('Severidad')
+                    ->keyLabel('Allergy')
+                    ->valueLabel('Severity')
                     ->reorderable(),
             ]);
     }
@@ -78,51 +55,30 @@ class PatientResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Nombre')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
-                    ->label('Correo')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone')
-                    ->label('Teléfono')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('rut')
-                    ->label('RUT / DNI')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Fecha de Registro')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('doctor')
-                    ->relationship('doctor', 'name')
-                    ->label('Doctor Asignado')
-                    ->searchable()
-                    ->preload(),
-                Tables\Filters\Filter::make('created_at')
-                    ->form([
-                        Forms\Components\DatePicker::make('created_from')
-                            ->label('Desde'),
-                        Forms\Components\DatePicker::make('created_until')
-                            ->label('Hasta'),
-                    ])
-                    ->query(function ($query, array $data) {
-                        return $query
-                            ->when($data['created_from'] ?? null, fn($q) => $q->whereDate('created_at', '>=', $data['created_from']))
-                            ->when($data['created_until'] ?? null, fn($q) => $q->whereDate('created_at', '<=', $data['created_until']));
-                    }),
+                //
             ])
             ->actions([
                 EditAction::make(),
                 Action::make('health_progress')
-                    ->label('Historial Salud')
+                    ->label('Progreso de Salud')
                     ->icon('heroicon-o-chart-bar')
                     ->url(fn(Patient $record): string => Pages\HealthProgress::getUrl(['record' => $record]))
                     ->color('info'),
                 Action::make('portal_link')
-                    ->label('Portal Paciente')
+                    ->label('Portal')
                     ->icon('heroicon-o-link')
                     ->url(function (Patient $record) {
                         try {

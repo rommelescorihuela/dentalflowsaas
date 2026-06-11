@@ -24,7 +24,7 @@ class SystemTools extends Page
 
     public static function getNavigationGroup(): ?string
     {
-        return 'System';
+        return 'Sistema';
     }
 
     public function getTitle(): string
@@ -374,6 +374,56 @@ class SystemTools extends Page
                         }
                     }),
             ])->label('Mantenimiento')->icon('heroicon-m-cog-6-tooth')->color('success')->button(),
+
+            ActionGroup::make([
+                Action::make('optimize')
+                    ->label('Optimizar Sistema')
+                    ->icon('heroicon-m-bolt')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('¿Optimizar Sistema?')
+                    ->modalDescription('Ejecuta php artisan optimize. Genera caché de config, rutas y vistas para mejor rendimiento.')
+                    ->action(function () {
+                        try {
+                            Artisan::call('optimize');
+                            Notification::make()
+                                ->title('Sistema optimizado')
+                                ->body('Caché de configuración, rutas y vistas generada.')
+                                ->success()
+                                ->send();
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('Error al optimizar')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    }),
+
+                Action::make('clearCache')
+                    ->label('Limpiar Caché')
+                    ->icon('heroicon-m-trash')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('¿Limpiar Caché?')
+                    ->modalDescription('Ejecuta php artisan optimize:clear. Limpia toda la caché del sistema (config, rutas, vistas, etc.).')
+                    ->action(function () {
+                        try {
+                            Artisan::call('optimize:clear');
+                            Notification::make()
+                                ->title('Caché limpiada')
+                                ->body('Toda la caché del sistema fue eliminada.')
+                                ->success()
+                                ->send();
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('Error al limpiar caché')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    }),
+            ])->label('Rendimiento')->icon('heroicon-m-bolt')->color('warning')->button(),
 
             Action::make('hardReset')
                 ->label('HARD RESET (Peligro)')

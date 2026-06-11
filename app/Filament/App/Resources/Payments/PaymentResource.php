@@ -11,8 +11,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 
@@ -22,19 +20,7 @@ class PaymentResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-banknotes';
 
-    protected static ?string $navigationLabel = 'Pagos';
-
-    protected static string|\UnitEnum|null $navigationGroup = 'Finanzas';
-
-    public static function getPluralModelLabel(): string
-    {
-        return 'Pagos';
-    }
-
-    public static function getModelLabel(): string
-    {
-        return 'Pago';
-    }
+    protected static ?string $navigationLabel = 'Pagos de Pacientes';
 
     public static function getNavigationGroup(): ?string
     {
@@ -46,36 +32,30 @@ class PaymentResource extends Resource
         return $schema
             ->components([
                 Select::make('patient_id')
-                    ->label('Paciente')
                     ->relationship('patient', 'name')
                     ->searchable()
                     ->required(),
                 Select::make('appointment_id')
-                    ->label('Cita')
-                    ->relationship('appointment', 'id')
+                    ->relationship('appointment', 'id') // Ideally should show date/type
                     ->searchable()
-                    ->placeholder('Seleccionar Cita (Opcional)'),
+                    ->placeholder('Select Appointment (Optional)'),
                 Select::make('budget_id')
-                    ->label('Presupuesto')
-                    ->relationship('budget', 'id')
+                    ->relationship('budget', 'id') // Ideally should show total/date
                     ->searchable()
-                    ->placeholder('Seleccionar Presupuesto (Opcional)'),
+                    ->placeholder('Select Budget (Optional)'),
                 TextInput::make('amount')
-                    ->label('Monto')
                     ->numeric()
                     ->prefix('$')
                     ->required(),
                 Select::make('method')
-                    ->label('Método de Pago')
                     ->options([
                         'cash' => 'Efectivo',
                         'card' => 'Tarjeta',
-                        'transfer' => 'Transferencia Bancaria',
+                        'transfer' => 'Transferencia',
                         'insurance' => 'Seguro',
                     ])
                     ->required(),
                 Select::make('status')
-                    ->label('Estado')
                     ->options([
                         'pending' => 'Pendiente',
                         'paid' => 'Pagado',
@@ -87,7 +67,6 @@ class PaymentResource extends Resource
                     ->label('ID de Referencia')
                     ->maxLength(255),
                 DateTimePicker::make('paid_at')
-                    ->label('Fecha de Pago')
                     ->default(now()),
             ]);
     }
@@ -96,85 +75,28 @@ class PaymentResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('patient.name')
-                    ->label('Paciente')
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('amount')
-                    ->label('Monto')
-                    ->money('USD')
-                    ->sortable(),
-                TextColumn::make('method')
-                    ->label('Método')
-                    ->badge()
-                    ->formatStateUsing(fn(string $state): string => match($state) {
-                        'cash' => 'Efectivo',
-                        'card' => 'Tarjeta',
-                        'transfer' => 'Transferencia',
-                        'insurance' => 'Seguro',
-                        default => $state,
-                    }),
+                TextColumn::make('patient.name')->searchable()->sortable(),
+                TextColumn::make('amount')->money('USD')->sortable(),
+                TextColumn::make('method')->badge(),
                 TextColumn::make('status')
-                    ->label('Estado')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'paid' => 'success',
                         'pending' => 'warning',
                         'refunded' => 'danger',
                         default => 'gray',
-                    })
-                    ->formatStateUsing(fn(string $state): string => match($state) {
-                        'paid' => 'Pagado',
-                        'pending' => 'Pendiente',
-                        'refunded' => 'Reembolsado',
-                        default => ucfirst($state),
                     }),
-                TextColumn::make('paid_at')
-                    ->label('Fecha de Pago')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('created_at')
-                    ->label('Fecha de Creación')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('paid_at')->dateTime()->sortable(),
+                TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('status')
-                    ->options([
-                        'pending' => 'Pendiente',
-                        'paid' => 'Pagado',
-                        'refunded' => 'Reembolsado',
-                    ])
-                    ->label('Estado'),
-                SelectFilter::make('method')
-                    ->options([
-                        'cash' => 'Efectivo',
-                        'card' => 'Tarjeta',
-                        'transfer' => 'Transferencia',
-                        'insurance' => 'Seguro',
-                    ])
-                    ->label('Método'),
-                Filter::make('paid_at')
-                    ->form([
-                        DatePicker::make('paid_from')
-                            ->label('Desde'),
-                        DatePicker::make('paid_until')
-                            ->label('Hasta'),
-                    ])
-                    ->query(function ($query, array $data) {
-                        return $query
-                            ->when($data['paid_from'] ?? null, fn($q) => $q->whereDate('paid_at', '>=', $data['paid_from']))
-                            ->when($data['paid_until'] ?? null, fn($q) => $q->whereDate('paid_at', '<=', $data['paid_until']));
-                    }),
+                //
             ])
             ->actions([
-                \Filament\Actions\EditAction::make(),
+                //
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
-                ]),
+                //
             ]);
     }
 

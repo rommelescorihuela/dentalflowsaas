@@ -18,36 +18,19 @@ class BudgetResource extends Resource
 
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-currency-dollar';
 
-    protected static ?string $navigationLabel = 'Presupuestos';
-
-    protected static string|\UnitEnum|null $navigationGroup = 'Finanzas';
-
-    public static function getPluralModelLabel(): string
-    {
-        return 'Presupuestos';
-    }
-
-    public static function getModelLabel(): string
-    {
-        return 'Presupuesto';
-    }
-
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Forms\Components\Select::make('patient_id')
                     ->relationship('patient', 'name')
-                    ->label('Paciente')
                     ->required()
                     ->searchable(),
                 Forms\Components\TextInput::make('total')
-                    ->label('Total')
                     ->numeric()
                     ->prefix('$')
                     ->required(),
                 Forms\Components\Select::make('status')
-                    ->label('Estado')
                     ->options([
                         'draft' => 'Borrador',
                         'sent' => 'Enviado',
@@ -55,26 +38,26 @@ class BudgetResource extends Resource
                         'rejected' => 'Rechazado',
                     ])
                     ->required(),
-                Forms\Components\DatePicker::make('expires_at')
-                    ->label('Fecha de Vencimiento'),
+                Forms\Components\DatePicker::make('expires_at'),
                 Forms\Components\Placeholder::make('odontogram_link')
-                    ->label('Odontograma de Origen')
+                    ->label('Odontograma Origen')
                     ->visible(fn(?Budget $record) => $record?->odontogram !== null)
                     ->content(fn(Budget $record) => view('filament.components.odontogram-link', ['odontogram' => $record->odontogram])),
                 Forms\Components\Textarea::make('notes')
-                    ->label('Notas')
                     ->columnSpanFull()
                     ->rows(3)
-                    ->placeholder('Notas adicionales para el paciente...'),
+                    ->placeholder('Additional notes for the patient...'),
                 Forms\Components\Repeater::make('items')
-                    ->label('Ítems del Presupuesto')
                     ->relationship()
                     ->schema([
                         Forms\Components\Select::make('procedure_price_id')
                             ->label('Procedimiento')
-                            ->options(\App\Models\ProcedurePrice::pluck('procedure_name', 'id')->toArray())
+                            ->options(function () {
+                                return \App\Models\ProcedurePrice::where('clinic_id', tenant('id'))
+                                    ->pluck('procedure_name', 'id')
+                                    ->toArray();
+                            })
                             ->searchable()
-                            ->preload()
                             ->live()
                             ->afterStateUpdated(function ($state, callable $set) {
                                 if ($state) {
@@ -88,7 +71,6 @@ class BudgetResource extends Resource
                             ->required(),
                         Forms\Components\Hidden::make('treatment_name'),
                         Forms\Components\TextInput::make('quantity')
-                            ->label('Cantidad')
                             ->numeric()
                             ->default(1)
                             ->live()
@@ -99,7 +81,6 @@ class BudgetResource extends Resource
                             })
                             ->required(),
                         Forms\Components\TextInput::make('cost')
-                            ->label('Costo Unitario')
                             ->numeric()
                             ->prefix('$')
                             ->live()
@@ -127,15 +108,12 @@ class BudgetResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('patient.name')
-                    ->label('Paciente')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('total')
-                    ->label('Total')
                     ->money('USD')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
-                    ->label('Estado')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'draft' => 'gray',
@@ -143,28 +121,18 @@ class BudgetResource extends Resource
                         'accepted' => 'success',
                         'rejected' => 'danger',
                         default => 'gray',
-                    })
-                    ->formatStateUsing(fn(string $state): string => match($state) {
-                        'draft' => 'Borrador',
-                        'sent' => 'Enviado',
-                        'accepted' => 'Aceptado',
-                        'rejected' => 'Rechazado',
-                        default => ucfirst($state),
                     }),
                 Tables\Columns\TextColumn::make('odontogram.name')
-                    ->label('Odontograma')
+                    ->label('Origen')
                     ->placeholder('Manual')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('notes')
-                    ->label('Notas')
                     ->limit(50)
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('expires_at')
-                    ->label('Vencimiento')
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Fecha de Creación')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -176,34 +144,7 @@ class BudgetResource extends Resource
                         'sent' => 'Enviado',
                         'accepted' => 'Aceptado',
                         'rejected' => 'Rechazado',
-                    ])
-                    ->label('Estado'),
-                Tables\Filters\Filter::make('expires_at')
-                    ->form([
-                        Forms\Components\DatePicker::make('expires_from')
-                            ->label('Vence desde'),
-                        Forms\Components\DatePicker::make('expires_until')
-                            ->label('Vence hasta'),
-                    ])
-                    ->query(function ($query, array $data) {
-                        return $query
-                            ->when($data['expires_from'] ?? null, fn($q) => $q->whereDate('expires_at', '>=', $data['expires_from']))
-                            ->when($data['expires_until'] ?? null, fn($q) => $q->whereDate('expires_at', '<=', $data['expires_until']));
-                    }),
-                Tables\Filters\Filter::make('total')
-                    ->form([
-                        Forms\Components\TextInput::make('min_total')
-                            ->label('Monto mínimo')
-                            ->numeric(),
-                        Forms\Components\TextInput::make('max_total')
-                            ->label('Monto máximo')
-                            ->numeric(),
-                    ])
-                    ->query(function ($query, array $data) {
-                        return $query
-                            ->when($data['min_total'] ?? null, fn($q) => $q->where('total', '>=', $data['min_total']))
-                            ->when($data['max_total'] ?? null, fn($q) => $q->where('total', '<=', $data['max_total']));
-                    }),
+                    ]),
             ])
             ->actions([
                 \Filament\Actions\EditAction::make(),

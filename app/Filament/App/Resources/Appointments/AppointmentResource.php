@@ -17,27 +17,12 @@ class AppointmentResource extends Resource
 
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-calendar';
 
-    protected static ?string $navigationLabel = 'Citas';
-
-    protected static string|\UnitEnum|null $navigationGroup = 'Gestión Clínica';
-
-    public static function getPluralModelLabel(): string
-    {
-        return 'Citas';
-    }
-
-    public static function getModelLabel(): string
-    {
-        return 'Cita';
-    }
-
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
             Forms\Components\Select::make('patient_id')
             ->relationship('patient', 'name')
-            ->label('Paciente')
             ->required()
             ->searchable(),
             Forms\Components\Select::make('procedure_price_id')
@@ -47,10 +32,8 @@ class AppointmentResource extends Resource
             ->label('Procedimiento')
             ->required(),
             Forms\Components\DateTimePicker::make('start_time')
-            ->label('Fecha y Hora de Inicio')
             ->required(),
             Forms\Components\DateTimePicker::make('end_time')
-            ->label('Fecha y Hora de Fin')
             ->required(),
             Forms\Components\Select::make('status')
             ->options([
@@ -63,13 +46,12 @@ class AppointmentResource extends Resource
             Forms\Components\Select::make('type')
             ->options([
                 'control' => 'Control',
-                'urgent' => 'Urgente',
+                'urgent' => 'Urgencia',
                 'cleaning' => 'Limpieza',
                 'surgery' => 'Cirugía',
             ])
             ->required(),
             Forms\Components\Textarea::make('notes')
-            ->label('Notas')
             ->columnSpanFull(),
         ]);
     }
@@ -79,15 +61,12 @@ class AppointmentResource extends Resource
         return $table
             ->columns([
             Tables\Columns\TextColumn::make('patient.name')
-            ->label('Paciente')
             ->searchable()
             ->sortable(),
             Tables\Columns\TextColumn::make('start_time')
-            ->label('Inicio')
             ->dateTime()
             ->sortable(),
             Tables\Columns\TextColumn::make('status')
-            ->label('Estado')
             ->badge()
             ->color(fn(string $state): string => match ($state) {
             'scheduled' => 'gray',
@@ -96,51 +75,11 @@ class AppointmentResource extends Resource
             'cancelled' => 'danger',
             default => 'gray',
         }),
-            Tables\Columns\TextColumn::make('type')
-            ->label('Tipo')
-            ->formatStateUsing(fn(string $state): string => match($state) {
-                'control' => 'Control',
-                'urgent' => 'Urgente',
-                'cleaning' => 'Limpieza',
-                'surgery' => 'Cirugía',
-                default => ucfirst($state),
-            }),
+            Tables\Columns\TextColumn::make('type'),
         ])
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        'scheduled' => 'Programada',
-                        'confirmed' => 'Confirmada',
-                        'completed' => 'Completada',
-                        'cancelled' => 'Cancelada',
-                    ])
-                    ->label('Estado'),
-                Tables\Filters\SelectFilter::make('type')
-                    ->options([
-                        'control' => 'Control',
-                        'urgent' => 'Urgente',
-                        'cleaning' => 'Limpieza',
-                        'surgery' => 'Cirugía',
-                    ])
-                    ->label('Tipo'),
-                Tables\Filters\SelectFilter::make('patient.doctor')
-                    ->relationship('patient.doctor', 'name')
-                    ->label('Doctor del Paciente')
-                    ->searchable()
-                    ->preload(),
-                Tables\Filters\Filter::make('start_time')
-                    ->form([
-                        Forms\Components\DatePicker::make('date_from')
-                            ->label('Desde'),
-                        Forms\Components\DatePicker::make('date_until')
-                            ->label('Hasta'),
-                    ])
-                    ->query(function ($query, array $data) {
-                        return $query
-                            ->when($data['date_from'] ?? null, fn($q) => $q->whereDate('start_time', '>=', $data['date_from']))
-                            ->when($data['date_until'] ?? null, fn($q) => $q->whereDate('start_time', '<=', $data['date_until']));
-                    }),
-            ])
+            //
+        ])
             ->actions([
             \Filament\Actions\EditAction::make(),
         ])

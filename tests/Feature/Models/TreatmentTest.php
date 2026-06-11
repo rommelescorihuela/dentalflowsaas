@@ -32,7 +32,8 @@ class TreatmentTest extends TestCase
         $treatment = Treatment::create([
             'clinic_id' => 'clinic-a',
             'appointment_id' => $appointment->id,
-            'name' => 'Root canal treatment',
+            'name' => 'Root Canal',
+            'code' => 'D3310',
         ]);
 
         $this->assertEquals($appointment->id, $treatment->appointment->id);
@@ -51,6 +52,7 @@ class TreatmentTest extends TestCase
             'clinic_id' => 'clinic-a',
             'appointment_id' => $appointment->id,
             'name' => 'Test treatment',
+            'code' => 'T001',
         ]);
 
         $this->assertEquals(1, Treatment::count());

@@ -50,7 +50,7 @@ class ViewOdontogram extends Page implements HasForms
     {
         return $form
             ->components([
-                \Filament\Schemas\Components\Section::make('Odontogram Details')
+                \Filament\Schemas\Components\Section::make('Detalles del Odontograma')
                     ->columns(2)
                     ->schema([
                         \Filament\Forms\Components\TextInput::make('name')
@@ -60,8 +60,8 @@ class ViewOdontogram extends Page implements HasForms
                             ->required(),
                         \Filament\Forms\Components\Select::make('status')
                             ->options([
-                                'in_progress' => 'In Progress',
-                                'completed' => 'Completed',
+                                'in_progress' => 'En Progreso',
+                                'completed' => 'Completado',
                             ])
                             ->required()
                             ->hint('Change to "Completed" to auto-generate a budget'),
@@ -69,7 +69,7 @@ class ViewOdontogram extends Page implements HasForms
                             ->rows(3)
                             ->columnSpanFull(),
                     ]),
-                \Filament\Schemas\Components\Section::make('Odontogram')
+                \Filament\Schemas\Components\Section::make('Odontograma')
                     ->schema([
                         \Filament\Schemas\Components\View::make('filament.app.resources.patients.pages.components.odontogram-embed')
                             ->viewData([
@@ -112,12 +112,12 @@ class ViewOdontogram extends Page implements HasForms
     {
         $actions = [
             \Filament\Actions\Action::make('back')
-                ->label('Back to Patient')
+                ->label('Volver al Paciente')
                 ->icon('heroicon-o-arrow-left')
                 ->url(fn() => PatientResource::getUrl('edit', ['record' => $this->odontogram->patient_id]))
                 ->color('gray'),
             Action::make('save')
-                ->label('Save Changes')
+                ->label('Guardar Cambios')
                 ->action('save')
                 ->color('primary'),
         ];

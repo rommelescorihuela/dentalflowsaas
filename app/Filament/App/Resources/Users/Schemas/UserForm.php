@@ -16,7 +16,7 @@ class UserForm
                     ->required()
                     ->maxLength(255),
                 TextInput::make('email')
-                    ->label('Email address')
+                    ->label('Correo Electrónico')
                     ->email()
                     ->required()
                     ->maxLength(255)
@@ -33,15 +33,32 @@ class UserForm
                 \Filament\Forms\Components\Select::make('roles')
                     ->label('Roles')
                     ->multiple()
-                    ->relationship('roles', 'name', function ($query) {
-                        return $query->where('roles.clinic_id', tenant('id'));
+                    ->options(function () {
+                        $clinicId = tenant('id') ?? auth()->user()?->clinic_id;
+                        return \App\Models\Role::where('clinic_id', $clinicId)
+                            ->pluck('name', 'id');
                     })
                     ->saveRelationshipsUsing(function ($record, $state) {
-                        $tenantId = tenant('id');
-                        $record->roles()->wherePivot('clinic_id', $tenantId)->detach();
-                        foreach ($state as $roleId) {
-                            $record->roles()->attach($roleId, ['clinic_id' => $tenantId]);
+                        $clinicId = tenant('id') ?? auth()->user()?->clinic_id;
+                        if ($clinicId) {
+                            $record->roles()->wherePivot('clinic_id', $clinicId)->detach();
+                            foreach ($state as $roleId) {
+                                $record->roles()->attach($roleId, ['clinic_id' => $clinicId]);
+                            }
                         }
+                    })
+                    ->loadStateFromRelationshipsUsing(function ($component, $record) {
+                        if (!$record?->exists) {
+                            return $component->state([]);
+                        }
+                        $clinicId = tenant('id') ?? auth()->user()?->clinic_id;
+                        $roleIds = \Illuminate\Support\Facades\DB::table('model_has_roles')
+                            ->where('model_id', $record->id)
+                            ->where('model_type', get_class($record))
+                            ->where('clinic_id', $clinicId)
+                            ->pluck('role_id')
+                            ->toArray();
+                        return $component->state($roleIds);
                     })
                     ->preload()
                     ->searchable(),

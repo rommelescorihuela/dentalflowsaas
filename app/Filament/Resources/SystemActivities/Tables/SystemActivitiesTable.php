@@ -15,7 +15,7 @@ class SystemActivitiesTable
         return $table
             ->columns([
                 \Filament\Tables\Columns\TextColumn::make('user.name')
-                    ->label('User')
+                    ->label('Usuario')
                     ->sortable()
                     ->searchable(),
                 \Filament\Tables\Columns\TextColumn::make('action')
@@ -23,7 +23,7 @@ class SystemActivitiesTable
                     ->sortable()
                     ->searchable(),
                 \Filament\Tables\Columns\TextColumn::make('subject_type')
-                    ->label('Subject')
+                    ->label('Asunto')
                     ->formatStateUsing(fn($state) => class_basename($state))
                     ->searchable(),
                 \Filament\Tables\Columns\TextColumn::make('description')
@@ -39,10 +39,10 @@ class SystemActivitiesTable
             ->filters([
                 \Filament\Tables\Filters\SelectFilter::make('action')
                     ->options([
-                        'create' => 'Create',
-                        'update' => 'Update',
-                        'delete' => 'Delete',
-                        'login' => 'Login',
+                        'create' => 'Crear',
+                        'update' => 'Actualizar',
+                        'delete' => 'Eliminar',
+                        'login' => 'Iniciar Sesión',
                     ]),
             ])
             ->actions([

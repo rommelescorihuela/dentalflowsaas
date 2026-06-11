@@ -20,21 +20,9 @@ class ProcedurePriceResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedCurrencyDollar;
 
-    protected static ?string $navigationLabel = 'Procedimientos';
-
     public static function getNavigationGroup(): ?string
     {
         return 'Gestión de Clínica';
-    }
-
-    public static function getPluralModelLabel(): string
-    {
-        return 'Procedimientos';
-    }
-
-    public static function getModelLabel(): string
-    {
-        return 'Procedimiento';
     }
 
     public static function form(Schema $schema): Schema
@@ -46,17 +34,15 @@ class ProcedurePriceResource extends Resource
                     ->required()
                     ->maxLength(255),
                 TextInput::make('price')
-                    ->label('Precio')
                     ->numeric()
                     ->prefix('$')
                     ->required(),
                 TextInput::make('duration')
                     ->label('Duración')
-                    ->placeholder('ej. 30 minutos')
+                    ->placeholder('e.g. 30 minutes')
                     ->required()
                     ->maxLength(255),
                 Textarea::make('description')
-                    ->label('Descripción')
                     ->columnSpanFull(),
                 FileUpload::make('image_path')
                     ->label('Imagen')
@@ -75,12 +61,12 @@ class ProcedurePriceResource extends Resource
                         TextInput::make('quantity_used')
                             ->numeric()
                             ->required()
-                            ->label('Cantidad a Descontar')
+                            ->label('Cantidad a Deducir')
                             ->default(1),
                     ])
                     ->columns(2)
                     ->columnSpanFull()
-                    ->label('Ítems de Inventario Vinculados'),
+                    ->label('Items de Inventario Vinculados'),
             ]);
     }
 
@@ -92,15 +78,12 @@ class ProcedurePriceResource extends Resource
                     ->label('Imagen')
                     ->circular(),
                 TextColumn::make('procedure_name')
-                    ->label('Procedimiento')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('price')
-                    ->label('Precio')
                     ->money('USD')
                     ->sortable(),
-                TextColumn::make('duration')
-                    ->label('Duración'),
+                TextColumn::make('duration'),
             ])
             ->filters([
                 //

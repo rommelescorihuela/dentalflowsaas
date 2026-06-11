@@ -17,7 +17,7 @@ class Treatment extends Model
         'clinic_id',
         'appointment_id',
         'name',
-        'notes',
+        'description',
         'price',
         'code',
     ];

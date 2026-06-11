@@ -25,7 +25,7 @@ class SystemActivityResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = 'Sistema';
 
-    protected static ?string $navigationLabel = 'Registro de Actividad';
+    protected static ?string $navigationLabel = 'Registro de Actividades';
 
     public static function form(Schema $schema): Schema
     {

@@ -22,8 +22,8 @@ class RolesTable
                     ->sortable(),
 
                 TextColumn::make('clinic.name')
-                    ->label('Clínica (Tenant)')
-                    ->placeholder('Rol Global')
+                    ->label('Clínica')
+                    ->placeholder('Global Role')
                     ->searchable()
                     ->sortable(),
 
@@ -44,13 +44,11 @@ class RolesTable
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')
-                    ->label('Fecha de Creación')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('updated_at')
-                    ->label('Fecha de Actualización')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -59,7 +57,7 @@ class RolesTable
                 SelectFilter::make('clinic_id')
                     ->label('Filtrar por Clínica')
                     ->options(Clinic::all()->pluck('name', 'id'))
-                    ->placeholder('Todos los Roles'),
+                    ->placeholder('All Roles'),
             ])
             ->recordActions([
                 EditAction::make(),

@@ -1,32 +1,34 @@
-# DentalFlow SaaS - Deployment Guide
+# DentalFlow SaaS — Guía de Despliegue
 
-## Prerequisites
+---
+
+## Requisitos Previos
 
 - PHP 8.3+
 - PostgreSQL 14+
 - Node.js 20+
 - Composer 2.0+
-- Redis (optional, for caching/queues)
+- Redis (opcional, para caché/colas)
 
-## Manual Deployment
+---
 
-### 1. Clone and Setup
+## Despliegue Manual
+
+### 1. Clonar e Instalar
 
 ```bash
 git clone https://github.com/rommelescorihuela/dentalflowsaas.git
 cd dentalflowsaas
 
-# Install dependencies (production mode)
+# Dependencias (modo producción)
 composer install --no-dev --optimize-autoloader
 
-# Setup environment
+# Entorno
 cp .env.example .env
 php artisan key:generate
 ```
 
-### 2. Configure Environment
-
-Edit `.env` with your production values:
+### 2. Configurar .env
 
 ```env
 APP_NAME=DentalFlow
@@ -45,57 +47,48 @@ CACHE_DRIVER=redis
 QUEUE_CONNECTION=redis
 SESSION_DRIVER=redis
 
+# Dominios centrales para tenancy
 TENANCY_CENTRAL_DOMAINS=yourdomain.com,www.yourdomain.com
 ```
 
-### 3. Database Setup
+### 3. Base de Datos
 
 ```bash
-# Create database
 createdb dentalflow_prod
-
-# Run migrations
 php artisan migrate --force
 
-# Seed initial data (optional)
+# Datos iniciales (opcional)
 php artisan db:seed --class=TenantSeeder
+php artisan db:seed --class=ProcedurePriceSeeder
 ```
 
-### 4. Build Assets
+### 4. Assets
 
 ```bash
 npm ci
 npm run build
 ```
 
-### 5. Final Setup
+### 5. Finalizar
 
 ```bash
-# Create admin user
-php artisan make:filament-user
-
-# Optimize application
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-
-# Set permissions
+php artisan make:filament-user                                      # Usuario admin
+php artisan config:cache && php artisan route:cache && php artisan view:cache
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R 755 storage bootstrap/cache
 ```
 
-### 6. Queue Worker
+### 6. Colas
 
 ```bash
-# Start queue worker (supervisor recommended)
-php artisan queue:work --tries=3
+php artisan queue:work --tries=3   # Recomendado: usar supervisor
 ```
 
-### 7. Nginx Configuration (with Wildcard Subdomain Support)
+---
 
-**Important:** DentalFlow uses subdomain-based tenant identification in production. Each clinic accesses the app via `{clinic}.yourdomain.com`.
+## Nginx (Wildcard Subdomain)
 
-#### Option A: Wildcard Subdomain (Recommended)
+DentalFlow usa subdominios para identificar tenants en producción (`{clinic}.yourdomain.com`).
 
 ```nginx
 server {
@@ -107,7 +100,6 @@ server {
     add_header X-Content-Type-Options "nosniff";
 
     index index.php;
-
     charset utf-8;
 
     location / {
@@ -131,82 +123,55 @@ server {
 }
 ```
 
-#### Option B: Explicit Subdomains
-
-```nginx
-server {
-    listen 80;
-    server_name yourdomain.com www.yourdomain.com clinic1.yourdomain.com clinic2.yourdomain.com;
-    root /var/www/html/dentalflowsaas/public;
-
-    # ... rest of configuration same as above
-}
-```
-
-### 8. DNS Configuration
-
-You need to configure DNS to route subdomains to your server:
-
-#### Option A: Wildcard DNS Record (Recommended)
-
-Add a wildcard A record in your DNS provider:
+### DNS
 
 ```
 *.yourdomain.com    A    YOUR_SERVER_IP
 yourdomain.com      A    YOUR_SERVER_IP
 ```
 
-#### Option B: Individual DNS Records
-
-```
-yourdomain.com      A    YOUR_SERVER_IP
-clinic1.yourdomain.com    A    YOUR_SERVER_IP
-clinic2.yourdomain.com    A    YOUR_SERVER_IP
-```
-
-### 9. SSL Certificate (Let's Encrypt with Wildcard)
+### SSL (Let's Encrypt Wildcard)
 
 ```bash
-# Install certbot
 sudo apt install certbot python3-certbot-nginx
-
-# Get wildcard certificate (requires DNS challenge)
-sudo certbot certonly --manual --preferred-challenges dns \
-    -d "yourdomain.com" -d "*.yourdomain.com"
-
-# Update Nginx to use SSL
+sudo certbot certonly --manual --preferred-challenges dns -d "yourdomain.com" -d "*.yourdomain.com"
 ```
 
-Add to your Nginx server block:
+Agregar al bloque Nginx:
 ```nginx
 listen 443 ssl http2;
 ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
 ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
 ```
 
-### 10. Register Tenant Domains (si no usas cPanel auto-creación)
+---
 
-After deploying, you need to register the production subdomains in the `domains` table:
+## Registrar Dominios de Tenant
+
+Después del despliegue, registrar los subdominios en la tabla `domains`:
 
 ```bash
-# Option 1: Re-run TenantSeeder (will add production domains automatically)
-php artisan db:seed --class=TenantSeeder
-
-# Option 2: Manually add domains via tinker
 php artisan tinker
 >>> $clinic = \App\Models\Clinic::find('clinic1');
 >>> $clinic->domains()->create(['domain' => 'clinic1.yourdomain.com']);
 ```
 
-## Docker Deployment
+O re-ejecutar el TenantSeeder (agrega dominios de producción automáticamente):
+```bash
+php artisan db:seed --class=TenantSeeder
+```
 
-### Build Image
+---
+
+## Docker
+
+### Build
 
 ```bash
 docker build -t dentalflow:latest .
 ```
 
-### Run Container
+### Run
 
 ```bash
 docker run -d \
@@ -223,8 +188,6 @@ docker run -d \
 ### Docker Compose
 
 ```yaml
-version: '3.8'
-
 services:
   app:
     build: .
@@ -256,24 +219,14 @@ volumes:
   pgdata:
 ```
 
-## CI/CD Deployment
+---
 
-### GitHub Actions
-
-The project includes `.github/workflows/ci.yml` which runs on every push/PR:
-
-1. **Tests**: Runs full test suite against PostgreSQL
-2. **Code Quality**: PHPStan/Larastan analysis
-3. **Security**: Composer security audit
-
-### Forge/Vapor Deployment
-
-Set `COMPOSER_FLAGS=--no-dev` in your deployment script:
+## CI/CD (Forge / Vapor)
 
 ```bash
 cd /home/forge/dentalflowsaas
 git pull origin main
-composer install $COMPOSER_FLAGS --optimize-autoloader
+composer install $COMPOSER_FLAGS --optimize-autoloader   # COMPOSER_FLAGS=--no-dev
 npm ci
 npm run build
 php artisan migrate --force
@@ -282,50 +235,47 @@ php artisan route:cache
 php artisan view:cache
 ```
 
-## Post-Deployment Checklist
+---
 
-- [ ] Health check returns 200: `curl https://yourdomain.com/up`
-- [ ] Admin panel accessible: `https://yourdomain.com/admin`
-- [ ] Clinic panel accessible: `https://clinic1.yourdomain.com/app/login`
-- [ ] Wildcard DNS configured: `*.yourdomain.com` → server IP
-- [ ] Nginx configured with wildcard subdomain (`*.yourdomain.com`)
-- [ ] Tenant domains registered in `domains` table
-- [ ] Queue worker running
-- [ ] SSL certificate configured (wildcard recommended)
-- [ ] Database backups scheduled
-- [ ] Error monitoring configured (Sentry, etc.)
-- [ ] Run `php artisan diagnostic:all --skip-tests`
+## Checklist Post-Deploy
 
-## Rollback Procedure
+- [ ] Health check: `curl https://yourdomain.com/up`
+- [ ] Admin panel: `https://yourdomain.com/admin`
+- [ ] Clinic panel: `https://clinic1.yourdomain.com/app/login`
+- [ ] Wildcard DNS configurado
+- [ ] Nginx configurado con wildcard subdomain
+- [ ] Tenant domains registrados en tabla `domains`
+- [ ] Queue worker corriendo (supervisor)
+- [ ] SSL wildcard configurado
+- [ ] Backups de base de datos programados
+- [ ] `php artisan diagnostic:all --skip-tests` sin errores
+
+---
+
+## Rollback
 
 ```bash
-# Rollback last migration
 php artisan migrate:rollback --force
-
-# Restore previous code version
 git checkout <previous-commit>
 composer install --no-dev --optimize-autoloader
 npm ci && npm run build
 php artisan config:cache
 ```
 
-## Monitoring
+---
 
-### Logs
+## Monitoreo
+
 ```bash
-# View application logs
+# Logs
 tail -f storage/logs/laravel.log
 
-# View queue logs
+# Colas
 php artisan queue:work --verbose
-```
 
-### Health Check
-```bash
+# Health check
 curl -f https://yourdomain.com/up
-```
 
-### Diagnostics
-```bash
+# Diagnóstico
 php artisan diagnostic:all --skip-tests
 ```

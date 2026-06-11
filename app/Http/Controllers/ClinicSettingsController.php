@@ -13,6 +13,17 @@ class ClinicSettingsController extends Controller
         $tenant = tenant();
 
         if (!$tenant) {
+            $user = auth()->user();
+            if ($user && $user->clinic_id) {
+                $tenantModel = config('tenancy.tenant_model');
+                $tenant = $tenantModel::find($user->clinic_id);
+                if ($tenant) {
+                    tenancy()->initialize($tenant);
+                }
+            }
+        }
+
+        if (!$tenant) {
             return back()->withErrors(['tenant' => 'No se pudo identificar la clínica.']);
         }
 

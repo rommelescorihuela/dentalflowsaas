@@ -69,11 +69,30 @@ class PermissionSeeder extends Seeder
         // Create Roles
         $superAdminRole = Role::firstOrCreate(['name' => 'super-admin']);
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $doctorRole = Role::firstOrCreate(['name' => 'doctor']);
+        $assistantRole = Role::firstOrCreate(['name' => 'assistant']);
 
         // Assign permissions to roles
         $superAdminRole->syncPermissions($permissions); // Super admin gets all permissions (globally)
+        $adminRole->syncPermissions($permissions);      // Admin gets all permissions per clinic
 
-        $adminRole->syncPermissions($permissions); // Admin gets all permissions (will be checked against tenant usually)
+        // Doctor: full CRUD on clinical resources
+        $doctorResources = ['Patient', 'Appointment', 'Odontogram', 'ClinicalRecord', 'Budget', 'Payment'];
+        $doctorPermissions = collect($permissions)->filter(function ($p) use ($doctorResources) {
+            $parts = explode(':', $p->name);
+            return in_array($parts[0], ['ViewAny', 'View', 'Create', 'Update', 'Delete'])
+                && in_array($parts[1], $doctorResources);
+        });
+        $doctorRole->syncPermissions($doctorPermissions);
+
+        // Assistant: limited access (no delete, limited resources)
+        $assistantResources = ['Patient', 'Appointment', 'Budget'];
+        $assistantPermissions = collect($permissions)->filter(function ($p) use ($assistantResources) {
+            $parts = explode(':', $p->name);
+            return in_array($parts[0], ['ViewAny', 'View', 'Create', 'Update'])
+                && in_array($parts[1], $assistantResources);
+        });
+        $assistantRole->syncPermissions($assistantPermissions);
 
         /*
         // Find the user and assign permissions directly with their team
