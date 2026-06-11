@@ -51,7 +51,7 @@ class ClinicSettingsController extends Controller
                     'timezone' => $data['timezone'],
                     'schedule_start' => $data['schedule_start'],
                     'schedule_end' => $data['schedule_end'],
-                    'primary_color' => $data['primary_color'] ?? '#2563eb',
+                    'primary_color' => $data['primary_color'] ?? '#0891b2',
                     'onboarding_step' => 4,
                 ]))
             ]);

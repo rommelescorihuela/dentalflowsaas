@@ -193,7 +193,7 @@
                                         {{ ucfirst($surface) }}
                                     </td>
                                     <td class="odonto-td">
-                                        <span style="display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; background-color: #dbeafe; color: #1e40af; text-transform: capitalize;" class="dark:bg-blue-900 dark:text-blue-200">
+                                        <span style="display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; background-color: #cffafe; color: #155e75; text-transform: capitalize;" class="dark:bg-primary-900 dark:text-primary-200">
                                             {{ str_replace('_', ' ', $status) }}
                                         </span>
                                     </td>

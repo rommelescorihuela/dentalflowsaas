@@ -17,16 +17,16 @@
                 Your dental clinic <strong>{{ $clinic->name }}</strong> is ready.
             </p>
 
-            <div class="bg-blue-50 p-4 rounded-lg mb-8 text-left">
-                <p class="text-sm text-blue-800 font-semibold mb-1">Access URL:</p>
-                <a href="{{ $url }}" class="text-blue-600 underline break-all font-mono">{{ $url }}</a>
+            <div class="bg-primary-50 p-4 rounded-lg mb-8 text-left">
+                <p class="text-sm text-primary-800 font-semibold mb-1">Access URL:</p>
+                <a href="{{ $url }}" class="text-primary-600 underline break-all font-mono">{{ $url }}</a>
 
-                <p class="text-sm text-blue-800 font-semibold mb-1 mt-4">Username:</p>
+                <p class="text-sm text-primary-800 font-semibold mb-1 mt-4">Username:</p>
                 <span class="font-mono text-gray-700">See your email</span>
             </div>
 
             <a href="{{ $url }}"
-                class="w-full inline-block px-4 py-3 bg-blue-600 border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md">
+                class="w-full inline-block px-4 py-3 bg-primary-600 border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-primary-700 focus:bg-primary-700 active:bg-primary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md">
                 Go to My Clinic
             </a>
         </div>

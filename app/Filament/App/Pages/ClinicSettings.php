@@ -39,7 +39,7 @@ class ClinicSettings extends Page implements HasForms
             $this->form->fill([
                 'name' => $tenant->name,
                 'logo' => $tenantData['logo'] ?? null,
-                'primary_color' => $tenantData['primary_color'] ?? '#2563eb',
+                'primary_color' => $tenantData['primary_color'] ?? '#0891b2',
                 'currency' => $tenantData['currency'] ?? 'USD',
                 'timezone' => $tenantData['timezone'] ?? 'America/New_York',
                 'schedule_start' => $tenantData['schedule_start'] ?? '09:00',
@@ -67,7 +67,7 @@ class ClinicSettings extends Page implements HasForms
                             ->visibility('public'),
                         TextInput::make('primary_color')
                             ->label('Color Primario (Hex)')
-                            ->default('#2563eb'),
+                            ->default('#0891b2'),
                     ])->columns(2),
 
                 Section::make('Configuración Regional')

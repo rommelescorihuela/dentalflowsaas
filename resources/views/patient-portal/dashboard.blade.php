@@ -8,15 +8,15 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-gradient-to-br from-blue-50 via-white to-cyan-50 font-sans antialiased min-h-screen">
+<body class="bg-gradient-to-br from-cyan-50 via-white to-primary-50/50 font-sans antialiased min-h-screen">
     <!-- Decorative background elements -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
         <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
     </div>
 
     <!-- Skip link for accessibility -->
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary-600 text-white px-4 py-2 rounded-md z-50">
         Saltar al contenido principal
     </a>
     
@@ -25,7 +25,7 @@
         <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100">
             <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-blue-200">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-primary-500/20">
                         {{ strtoupper(substr($patient->name, 0, 1)) }}
                     </div>
                     <div>
@@ -35,7 +35,7 @@
                         <p class="text-sm text-gray-500">Bienvenido a tu portal de paciente</p>
                     </div>
                 </div>
-                <span class="hidden sm:inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-full text-sm font-medium shadow-lg shadow-blue-200">
+                <span class="hidden sm:inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-full text-sm font-medium shadow-lg shadow-primary-500/20">
                     <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                     </svg>
@@ -63,12 +63,12 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-500">Próximas Citas</p>
-                            <p class="text-3xl font-bold text-blue-600 mt-1">
+                            <p class="text-3xl font-bold text-primary-600 mt-1">
                                 {{ $patient->appointments()->where('start_time', '>=', now())->count() }}
                             </p>
                         </div>
-                        <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-12 h-12 rounded-xl bg-primary-100 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
                         </div>
@@ -109,7 +109,7 @@
             <!-- Action Button -->
             <div class="mb-8 flex justify-end">
                 <a href="{{ URL::signedRoute('portal.book', ['patient' => $patient]) }}"
-                    class="inline-flex items-center px-6 py-3 border border-transparent rounded-xl shadow-lg text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105">
+                    class="inline-flex items-center px-6 py-3 border border-transparent rounded-xl shadow-lg text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 transform hover:scale-105">
                     <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                     </svg>
@@ -119,9 +119,9 @@
 
             <!-- Patient Profile Card -->
             <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 mb-8 overflow-hidden">
-                <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
+                <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-primary-50 to-primary-50/50">
                     <h3 class="text-lg font-bold text-gray-900 flex items-center">
-                        <span class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-2 rounded-lg mr-3 shadow-lg shadow-blue-200">
+                        <span class="bg-gradient-to-r from-primary-600 to-primary-700 text-white p-2 rounded-lg mr-3 shadow-lg shadow-primary-500/20">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                             </svg>
@@ -194,10 +194,10 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Próximas Citas Section -->
                 <div class="bg-white/80 backdrop-blur-md overflow-hidden shadow-xl shadow-gray-200/50 sm:rounded-2xl border border-gray-100 hover:shadow-2xl transition-all duration-300">
-                    <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
+                    <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-primary-50 to-primary-50/50">
                         <div class="flex justify-between items-center">
                             <h3 class="text-xl font-bold text-gray-900 flex items-center">
-                                <span class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-2.5 rounded-xl mr-3 shadow-lg shadow-blue-200">
+                                <span class="bg-gradient-to-r from-primary-600 to-primary-700 text-white p-2.5 rounded-xl mr-3 shadow-lg shadow-primary-500/20">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                     </svg>
@@ -210,15 +210,15 @@
                     <div class="p-6 bg-gradient-to-b from-gray-50/50 to-white">
                         <div class="space-y-4">
                             @forelse($patient->appointments()->where('start_time', '>=', now())->orderBy('start_time')->get() as $appointment)
-                            <div class="bg-white border border-gray-100 rounded-2xl shadow-lg shadow-gray-100/50 hover:shadow-xl hover:shadow-blue-100/50 transition-all duration-300 p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center group cursor-pointer transform hover:-translate-y-1">
+                            <div class="bg-white border border-gray-100 rounded-2xl shadow-lg shadow-gray-100/50 hover:shadow-xl hover:shadow-primary-100/30 transition-all duration-300 p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center group cursor-pointer transform hover:-translate-y-1">
                                 <div class="flex items-start space-x-4">
-                                    <div class="flex-shrink-0 bg-gradient-to-br from-blue-500 to-cyan-500 text-white rounded-2xl p-3 group-hover:from-blue-600 group-hover:to-cyan-600 transition-all duration-300 shadow-lg shadow-blue-200">
+                                    <div class="flex-shrink-0 bg-gradient-to-br from-primary-500 to-primary-600 text-white rounded-2xl p-3 group-hover:from-primary-600 group-hover:to-primary-700 transition-all duration-300 shadow-lg shadow-primary-500/20">
                                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
                                         </svg>
                                     </div>
                                     <div>
-                                        <p class="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                                        <p class="text-lg font-bold text-gray-900 group-hover:text-primary-600 transition-colors">
                                             {{ $appointment->procedurePrice->procedure_name ?? 'Consulta General' }}
                                         </p>
                                         <p class="text-sm text-gray-500 mt-1 flex items-center">
@@ -237,13 +237,13 @@
                                 </div>
                                 <div class="mt-4 sm:mt-0">
                                     <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium
-                                        @if($appointment->status === 'scheduled') bg-blue-100 text-blue-700
+                                        @if($appointment->status === 'scheduled') bg-primary-100 text-primary-700
                                         @elseif($appointment->status === 'confirmed') bg-green-100 text-green-700
                                         @elseif($appointment->status === 'completed') bg-gray-100 text-gray-700
                                         @elseif($appointment->status === 'cancelled') bg-red-100 text-red-700
                                         @else bg-gray-100 text-gray-700 @endif">
                                         <span class="w-2 h-2 rounded-full mr-2
-                                            @if($appointment->status === 'scheduled') bg-blue-500 animate-pulse
+                                            @if($appointment->status === 'scheduled') bg-primary-500 animate-pulse
                                             @elseif($appointment->status === 'confirmed') bg-green-500
                                             @elseif($appointment->status === 'completed') bg-gray-500
                                             @elseif($appointment->status === 'cancelled') bg-red-500
@@ -329,7 +329,7 @@
                                                 @default {{ ucfirst($budget->status) }}
                                             @endswitch
                                         </span>
-                                        <svg class="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-5 h-5 text-gray-400 group-hover:text-primary-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                         </svg>
                                     </div>

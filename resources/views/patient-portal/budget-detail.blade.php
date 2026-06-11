@@ -8,10 +8,10 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-gradient-to-br from-blue-50 via-white to-cyan-50 font-sans antialiased min-h-screen">
+<body class="bg-gradient-to-br from-cyan-50 via-white to-primary-50/50 font-sans antialiased min-h-screen">
     <!-- Decorative background elements -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
         <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
     </div>
 
@@ -21,7 +21,7 @@
             <div class="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                 <div>
                     <a href="{{ URL::signedRoute('portal.dashboard', ['patient' => $budget->patient]) }}"
-                        class="inline-flex items-center text-sm text-gray-500 hover:text-blue-600 transition-colors mb-2">
+                        class="inline-flex items-center text-sm text-gray-500 hover:text-primary-600 transition-colors mb-2">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
@@ -48,7 +48,7 @@
         <main class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <!-- Budget Info -->
             <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden mb-6">
-                <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
+                <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-primary-50 to-primary-50/50">
                     <h3 class="text-lg font-bold text-gray-900">Información del Presupuesto</h3>
                 </div>
                 <div class="p-6">
@@ -76,7 +76,7 @@
                         </div>
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Total</dt>
-                            <dd class="mt-1 text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                            <dd class="mt-1 text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
                                 ${{ number_format($budget->total, 0, ',', '.') }}
                             </dd>
                         </div>
@@ -129,7 +129,7 @@
                         <tfoot class="bg-gray-50">
                             <tr>
                                 <td colspan="3" class="px-6 py-4 text-right text-sm font-bold text-gray-900">Total:</td>
-                                <td class="px-6 py-4 text-right text-lg font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                                <td class="px-6 py-4 text-right text-lg font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
                                     ${{ number_format($budget->total, 0, ',', '.') }}
                                 </td>
                             </tr>

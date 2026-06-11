@@ -36,7 +36,7 @@ class CalendarWidget extends Widget
                 'backgroundColor' => match ($appointment->status) {
                     'confirmed' => '#10b981', // green
                     'cancelled' => '#ef4444', // red
-                    'completed' => '#3b82f6', // blue
+                    'completed' => '#0891b2', // medical cyan
                     default => '#6b7280', // gray
                 },
                 'borderColor' => 'transparent',
