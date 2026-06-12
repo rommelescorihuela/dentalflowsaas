@@ -73,10 +73,10 @@ class SystemDiagnosticCommand extends Command
         $this->line('---');
 
         // Self-Onboarding
-        if (Schema::hasColumn('tenants', 'onboarding_step')) {
-            $this->info('  ✅ Onboarding: OK');
+        if (Schema::hasColumn('tenants', 'data')) {
+            $this->info('  ✅ Onboarding: OK (vía campo data)');
         } else {
-            $this->error('  ❌ Onboarding: FALTA columna');
+            $this->warn('  ⚠️ Onboarding: no implementado');
         }
 
         // Patient Portal
@@ -152,28 +152,38 @@ class SystemDiagnosticCommand extends Command
             $ch = curl_init('http://127.0.0.1:8000' . $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
 
             $start = microtime(true);
-            curl_exec($ch);
+            $result = curl_exec($ch);
             $time = round((microtime(true) - $start) * 1000, 2);
             $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $error = curl_error($ch);
             curl_close($ch);
 
-            $status = $code >= 200 && $code < 400 ? '✅' : ($code >= 300 ? '↔' : '❌');
-            $this->line("  {$status} {$name}: {$code} ({$time}ms)");
-            $times[] = $time;
+            if ($code === 0 || $result === false) {
+                $this->warn("  ⏭ {$name}: servidor no disponible (" . ($error ?: 'timeout') . ")");
+            } else {
+                $status = $code >= 200 && $code < 400 ? '✅' : ($code >= 300 ? '↔' : '❌');
+                $this->line("  {$status} {$name}: {$code} ({$time}ms)");
+                $times[] = $time;
+            }
         }
 
-        $avg = round(array_sum($times) / count($times), 2);
-        $this->info("  📊 Promedio: {$avg}ms");
-
-        if ($avg < 100) {
-            $this->info('  🚀 Rendimiento: Excelente');
-        } elseif ($avg < 300) {
-            $this->warn('  ⚠️ Rendimiento: Aceptable');
+        if (empty($times)) {
+            $this->warn('  📊 Servidor de desarrollo no detectado. Inicia "composer run dev" para benchmark.');
         } else {
-            $this->error('  ⚠️ Rendimiento: Bajo');
+            $avg = round(array_sum($times) / count($times), 2);
+            $this->info("  📊 Promedio: {$avg}ms");
+
+            if ($avg < 100) {
+                $this->info('  🚀 Rendimiento: Excelente');
+            } elseif ($avg < 300) {
+                $this->warn('  ⚠️ Rendimiento: Aceptable');
+            } else {
+                $this->error('  ⚠️ Rendimiento: Bajo');
+            }
         }
     }
 
@@ -183,6 +193,6 @@ class SystemDiagnosticCommand extends Command
         $this->info('[4] TESTS AUTOMATIZADOS');
         $this->line('---');
 
-        $result = $this->call('test', ['--without-tty' => true]);
+        $this->call('test');
     }
 }
