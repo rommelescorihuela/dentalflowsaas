@@ -16,7 +16,13 @@ class BudgetResource extends Resource
 {
     protected static ?string $model = Budget::class;
 
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-currency-dollar';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-document-currency-dollar';
+
+    protected static ?string $navigationLabel = 'Presupuestos';
+
+    protected static ?string $modelLabel = 'Presupuesto';
+
+    protected static ?string $pluralModelLabel = 'Presupuestos';
 
     public static function form(Schema $schema): Schema
     {
@@ -46,7 +52,7 @@ class BudgetResource extends Resource
                 Forms\Components\Textarea::make('notes')
                     ->columnSpanFull()
                     ->rows(3)
-                    ->placeholder('Additional notes for the patient...'),
+                    ->placeholder('Notas adicionales para el paciente...'),
                 Forms\Components\Repeater::make('items')
                     ->relationship()
                     ->schema([

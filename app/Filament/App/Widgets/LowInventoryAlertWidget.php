@@ -13,15 +13,19 @@ use Illuminate\Database\Eloquent\Builder;
 
 class LowInventoryAlertWidget extends TableWidget
 {
-    protected static ?int $sort = 5;
+    protected static ?int $sort = 4;
+
+    protected int|string|array $columnSpan = '1/2';
+
+    protected static ?string $heading = 'Alertas de Inventario';
 
     public function table(Table $table): Table
     {
         return $table
             ->query(
                 Inventory::query()
-                    ->whereColumn('current_stock', '<=', 'min_stock')
-                    ->orderByRaw('(current_stock * 1.0 / NULLIF(min_stock, 0)) ASC')
+                    ->whereColumn('quantity', '<=', 'low_stock_threshold')
+                    ->orderByRaw('(quantity * 1.0 / NULLIF(low_stock_threshold, 0)) ASC')
                     ->limit(10)
             )
             ->columns([
@@ -33,18 +37,18 @@ class LowInventoryAlertWidget extends TableWidget
                     ->label('Categoría')
                     ->badge()
                     ->color('gray'),
-                TextColumn::make('current_stock')
+                TextColumn::make('quantity')
                     ->label('Stock')
                     ->sortable()
                     ->alignCenter(),
-                TextColumn::make('min_stock')
+                TextColumn::make('low_stock_threshold')
                     ->label('Mínimo')
                     ->alignCenter(),
                 IconColumn::make('critical')
                     ->label('')
-                    ->icon(fn($record) => $record->current_stock == 0 ? 'heroicon-o-exclamation-triangle' : 'heroicon-o-exclamation-circle')
-                    ->color(fn($record) => $record->current_stock == 0 ? 'danger' : 'warning')
-                    ->tooltip(fn($record) => $record->current_stock == 0 ? '¡Sin stock!' : 'Stock bajo'),
+                    ->icon(fn($record) => $record->quantity == 0 ? 'heroicon-o-exclamation-triangle' : 'heroicon-o-exclamation-circle')
+                    ->color(fn($record) => $record->quantity == 0 ? 'danger' : 'warning')
+                    ->tooltip(fn($record) => $record->quantity == 0 ? '¡Sin stock!' : 'Stock bajo'),
             ])
             ->paginated(false)
             ->emptyStateHeading('Todo el inventario está bien')

@@ -119,6 +119,10 @@ class TenantSeeder extends Seeder
 
         // Appointments, budgets and payments for clinic2
         $this->seedAppointmentsAndBudgets($clinic2, $patientsC2, $doctor2, $proceduresC2);
+
+        // Reset tenancy and team context to avoid leaking state to other seeders
+        tenancy()->end();
+        setPermissionsTeamId(null);
     }
 
     /**
@@ -201,20 +205,20 @@ class TenantSeeder extends Seeder
 
             // Budgets & Payments
             if (rand(0, 1)) {
-                $budgetAmount = rand(100000, 1000000);
                 $accepted = (bool) rand(0, 1);
+
+                // Select 2-3 real procedures for budget items
+                $selectedProcs = $procedures->random(min(rand(2, 3), $procedures->count()));
 
                 $budget = \App\Models\Budget::create([
                     'clinic_id' => $clinic->id,
                     'patient_id' => $patient->id,
-                    'total' => $budgetAmount,
-                    'status' => $accepted ? 'accepted' : 'pending',
+                    'total' => $selectedProcs->sum('price'),
+                    'status' => $accepted ? 'accepted' : 'sent',
                     'notes' => 'Presupuesto demo',
                     'expires_at' => now()->addDays(30),
                 ]);
 
-                // Add 2-3 budget items linked to real procedures
-                $selectedProcs = $procedures->random(min(rand(2, 3), $procedures->count()));
                 foreach ($selectedProcs as $proc) {
                     \App\Models\BudgetItem::create([
                         'clinic_id' => $clinic->id,
@@ -231,7 +235,10 @@ class TenantSeeder extends Seeder
                         'clinic_id' => $clinic->id,
                         'budget_id' => $budget->id,
                         'patient_id' => $patient->id,
-                        'amount' => rand($budgetAmount / 2, $budgetAmount),
+                        'amount' => rand(
+                            (int) ($budget->total * 0.4),
+                            (int) $budget->total
+                        ),
                         'method' => ['cash', 'card', 'transfer'][rand(0, 2)],
                         'paid_at' => now()->subMonths(rand(0, 11)),
                     ]);

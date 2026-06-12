@@ -15,6 +15,8 @@ class CalendarWidget extends Widget
 
     protected int|string|array $columnSpan = 'full';
 
+    protected ?string $heading = 'Calendario de Citas';
+
     public function getEvents(): array
     {
         return Appointment::query()

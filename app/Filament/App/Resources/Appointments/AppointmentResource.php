@@ -17,11 +17,18 @@ class AppointmentResource extends Resource
 
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-calendar';
 
+    protected static ?string $navigationLabel = 'Citas';
+
+    protected static ?string $modelLabel = 'Cita';
+
+    protected static ?string $pluralModelLabel = 'Citas';
+
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
             Forms\Components\Select::make('patient_id')
+            ->label('Paciente')
             ->relationship('patient', 'name')
             ->required()
             ->searchable(),
@@ -32,10 +39,13 @@ class AppointmentResource extends Resource
             ->label('Procedimiento')
             ->required(),
             Forms\Components\DateTimePicker::make('start_time')
+            ->label('Inicio')
             ->required(),
             Forms\Components\DateTimePicker::make('end_time')
+            ->label('Fin')
             ->required(),
             Forms\Components\Select::make('status')
+            ->label('Estado')
             ->options([
                 'scheduled' => 'Programada',
                 'confirmed' => 'Confirmada',
@@ -44,14 +54,16 @@ class AppointmentResource extends Resource
             ])
             ->required(),
             Forms\Components\Select::make('type')
+            ->label('Tipo')
             ->options([
                 'control' => 'Control',
                 'urgent' => 'Urgencia',
                 'cleaning' => 'Limpieza',
-                'surgery' => 'Cirugía',
+                'surgery' => 'Cirugia',
             ])
             ->required(),
             Forms\Components\Textarea::make('notes')
+            ->label('Notas')
             ->columnSpanFull(),
         ]);
     }

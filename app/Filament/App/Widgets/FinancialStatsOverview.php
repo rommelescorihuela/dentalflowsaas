@@ -9,6 +9,8 @@ class FinancialStatsOverview extends StatsOverviewWidget
 {
     protected static ?int $sort = 1;
 
+    protected ?string $heading = 'Resumen Financiero';
+
     protected function getStats(): array
     {
         // 1. Revenue This Month
@@ -40,17 +42,20 @@ class FinancialStatsOverview extends StatsOverviewWidget
             Stat::make('Ingresos (Mes)', '$' . number_format($revenueThisMonth, 2))
                 ->description(number_format(abs($revenueTrend), 1) . '% ' . ($revenueTrend >= 0 ? 'subida' : 'bajada'))
                 ->descriptionIcon($revenueTrend >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
+                ->icon($revenueTrend >= 0 ? 'heroicon-o-arrow-trending-up' : 'heroicon-o-arrow-trending-down')
                 ->chart([$revenueLastMonth, $revenueThisMonth])
                 ->color($revenueTrend >= 0 ? 'success' : 'danger'),
 
             Stat::make('Por Cobrar', '$' . number_format($outstanding, 2))
                 ->description('Total deuda de pacientes')
-                ->descriptionIcon('heroicon-m-currency-dollar')
+                ->descriptionIcon('heroicon-m-banknotes')
+                ->icon('heroicon-o-banknotes')
                 ->color('warning'),
 
             Stat::make('Tasa de Aceptación', number_format($acceptanceRate, 1) . '%')
                 ->description('Presupuestos aceptados')
                 ->descriptionIcon('heroicon-m-check-badge')
+                ->icon('heroicon-o-check-badge')
                 ->color('primary'),
         ];
     }

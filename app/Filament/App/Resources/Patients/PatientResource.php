@@ -21,6 +21,12 @@ class PatientResource extends Resource
 
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-users';
 
+    protected static ?string $navigationLabel = 'Pacientes';
+
+    protected static ?string $modelLabel = 'Paciente';
+
+    protected static ?string $pluralModelLabel = 'Pacientes';
+
     public static function shouldRegisterNavigation(): bool
     {
         return true;
@@ -31,21 +37,25 @@ class PatientResource extends Resource
         return $schema
             ->components([
                 Forms\Components\TextInput::make('name')
+                    ->label('Nombre')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
+                    ->label('Email')
                     ->email()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('phone')
+                    ->label('Telefono')
                     ->tel()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('rut')
                     ->label('RUT / DNI')
                     ->maxLength(20),
-                Forms\Components\DatePicker::make('birth_date'),
+                Forms\Components\DatePicker::make('birth_date')
+                    ->label('Fecha de Nacimiento'),
                 Forms\Components\KeyValue::make('allergies')
-                    ->keyLabel('Allergy')
-                    ->valueLabel('Severity')
+                    ->keyLabel('Alergia')
+                    ->valueLabel('Gravedad')
                     ->reorderable(),
             ]);
     }

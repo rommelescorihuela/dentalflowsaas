@@ -23,7 +23,7 @@ class RolesTable
 
                 TextColumn::make('clinic.name')
                     ->label('Clínica')
-                    ->placeholder('Global Role')
+                    ->placeholder('Rol Global')
                     ->searchable()
                     ->sortable(),
 
@@ -57,7 +57,7 @@ class RolesTable
                 SelectFilter::make('clinic_id')
                     ->label('Filtrar por Clínica')
                     ->options(Clinic::all()->pluck('name', 'id'))
-                    ->placeholder('All Roles'),
+                    ->placeholder('Todos los Roles'),
             ])
             ->recordActions([
                 EditAction::make(),

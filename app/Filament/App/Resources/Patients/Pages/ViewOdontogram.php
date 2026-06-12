@@ -64,7 +64,7 @@ class ViewOdontogram extends Page implements HasForms
                                 'completed' => 'Completado',
                             ])
                             ->required()
-                            ->hint('Change to "Completed" to auto-generate a budget'),
+                            ->hint('Cambia a "Completado" para generar un presupuesto automaticamente'),
                         \Filament\Forms\Components\Textarea::make('notes')
                             ->rows(3)
                             ->columnSpanFull(),
@@ -92,7 +92,7 @@ class ViewOdontogram extends Page implements HasForms
 
         Notification::make()
             ->success()
-            ->title('Odontogram saved')
+            ->title('Odontograma guardado')
             ->send();
 
         $this->js('window.location.reload()');
@@ -105,7 +105,7 @@ class ViewOdontogram extends Page implements HasForms
 
     public function getSubheading(): string
     {
-        return $this->odontogram->date->format('F j, Y');
+        return \Carbon\Carbon::parse($this->odontogram->date)->locale('es')->isoFormat('D [de] MMMM, Y');
     }
 
     protected function getHeaderActions(): array

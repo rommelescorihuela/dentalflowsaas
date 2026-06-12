@@ -27,6 +27,10 @@ class SystemActivityResource extends Resource
 
     protected static ?string $navigationLabel = 'Registro de Actividades';
 
+    protected static ?string $modelLabel = 'Actividad';
+
+    protected static ?string $pluralModelLabel = 'Registro de Actividades';
+
     public static function form(Schema $schema): Schema
     {
         return SystemActivityForm::configure($schema);

@@ -214,14 +214,14 @@ class Odontogram extends Widget implements HasForms
         return $schema
             ->components([
                 Forms\Components\CheckboxList::make('surfaces')
-                    ->label('Selected Surfaces')
+                    ->label('Superficies Seleccionadas')
                     ->options([
-                        'top' => 'Top (Vestibular)',
-                        'bottom' => 'Bottom (Lingual)',
-                        'left' => 'Left (Mesial)',
-                        'right' => 'Right (Distal)',
-                        'center' => 'Center (Occlusal)',
-                        'root' => 'Root (Apical)',
+                        'top' => 'Superior (Vestibular)',
+                        'bottom' => 'Inferior (Lingual)',
+                        'left' => 'Izquierda (Mesial)',
+                        'right' => 'Derecha (Distal)',
+                        'center' => 'Centro (Oclusal)',
+                        'root' => 'Raíz (Apical)',
                     ])
                     ->columns(3)
                     ->required()
@@ -230,15 +230,15 @@ class Odontogram extends Widget implements HasForms
                         $this->selectedSurfaces = $state;
                     }),
                 Forms\Components\Select::make('procedure_price_id')
-                    ->label('Procedure / Diagnosis')
+                    ->label('Procedimiento / Diagnóstico')
                     ->options($options)
                     ->required()
                     ->live(),
                 Forms\Components\Select::make('treatment_status')
                     ->options([
-                        'planned' => 'Planned',
-                        'completed' => 'Completed',
-                        'existing' => 'Existing',
+                        'planned' => 'Planificado',
+                        'completed' => 'Completado',
+                        'existing' => 'Existente',
                     ])
                     ->required()
                     ->default('planned'),
@@ -307,7 +307,7 @@ class Odontogram extends Widget implements HasForms
         $this->dispatch('record-saved');
 
         \Filament\Notifications\Notification::make()
-            ->title('Record Saved')
+            ->title('Registro Guardado')
             ->success()
             ->send();
 

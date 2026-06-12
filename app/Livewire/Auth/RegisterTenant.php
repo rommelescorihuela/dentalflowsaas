@@ -56,7 +56,7 @@ class RegisterTenant extends Component
         } catch (ValidationException $e) {
             throw $e;
         } catch (\Exception $e) {
-            $this->addError('base', 'An error occurred during registration: ' . $e->getMessage());
+            $this->addError('base', 'Ocurrio un error durante el registro: ' . $e->getMessage());
         }
     }
 

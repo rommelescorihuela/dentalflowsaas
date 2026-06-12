@@ -67,8 +67,8 @@ class AppointmentObserver
                 // Check low stock
                 if ($inventory->quantity <= $inventory->low_stock_threshold) {
                     Notification::make()
-                        ->title('Low Stock Alert')
-                        ->body("Inventory item '{$inventory->name}' is running low ({$inventory->quantity} left).")
+                        ->title('Alerta de Stock Bajo')
+                        ->body("El artículo '{$inventory->name}' tiene stock bajo ({$inventory->quantity} restante).")
                         ->warning()
                         ->sendToDatabase($appointment->user); // Notify the doctor/user
                 }

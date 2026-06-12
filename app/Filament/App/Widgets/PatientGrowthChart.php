@@ -6,7 +6,9 @@ use Filament\Widgets\ChartWidget;
 
 class PatientGrowthChart extends ChartWidget
 {
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 2;
+
+    protected int|string|array $columnSpan = '1/2';
 
     protected ?string $heading = 'Nuevos Pacientes por Mes';
 

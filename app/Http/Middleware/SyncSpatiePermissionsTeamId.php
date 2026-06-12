@@ -33,6 +33,14 @@ class SyncSpatiePermissionsTeamId
                 $user->unsetRelation('permissions');
                 $user->forgetCachedPermissions();
             }
+        } else {
+            setPermissionsTeamId(null);
+
+            if ($user = \Illuminate\Support\Facades\Auth::user()) {
+                $user->unsetRelation('roles');
+                $user->unsetRelation('permissions');
+                $user->forgetCachedPermissions();
+            }
         }
 
         return $next($request);

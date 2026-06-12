@@ -10,6 +10,9 @@ class PermissionSeeder extends Seeder
 {
     public function run(): void
     {
+        // Reset team context to null for central permissions/roles
+        setPermissionsTeamId(null);
+
         // Create permissions for each model
         // Automatically discover models from Filament Resources
         $modelNames = [];
@@ -66,11 +69,27 @@ class PermissionSeeder extends Seeder
             $permissions[] = Permission::firstOrCreate(['name' => "ForceDelete:{$model}"]);
         }
 
-        // Create Roles
-        $superAdminRole = Role::firstOrCreate(['name' => 'super-admin']);
-        $adminRole = Role::firstOrCreate(['name' => 'admin']);
-        $doctorRole = Role::firstOrCreate(['name' => 'doctor']);
-        $assistantRole = Role::firstOrCreate(['name' => 'assistant']);
+        // Create Roles (always global: clinic_id = null)
+        // Roles are global definitions; tenant scoping happens at the user-role pivot level
+        foreach (['super-admin', 'admin', 'doctor', 'assistant'] as $roleName) {
+            $existing = Role::where('name', $roleName)->get();
+
+            if ($existing->count() > 1) {
+                // Clean up duplicates: keep one, delete rest, force global
+                $keep = $existing->whereNull('clinic_id')->first() ?? $existing->first();
+                Role::where('name', $roleName)->where('id', '!=', $keep->id)->delete();
+                $keep->update(['clinic_id' => null, 'guard_name' => 'web']);
+            } elseif ($existing->count() === 1) {
+                $existing->first()->update(['clinic_id' => null, 'guard_name' => 'web']);
+            } else {
+                Role::create(['name' => $roleName, 'clinic_id' => null, 'guard_name' => 'web']);
+            }
+        }
+
+        $superAdminRole = Role::where('name', 'super-admin')->first();
+        $adminRole = Role::where('name', 'admin')->first();
+        $doctorRole = Role::where('name', 'doctor')->first();
+        $assistantRole = Role::where('name', 'assistant')->first();
 
         // Assign permissions to roles
         $superAdminRole->syncPermissions($permissions); // Super admin gets all permissions (globally)

@@ -20,6 +20,10 @@ class RoleResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShieldCheck;
 
+    protected static ?string $modelLabel = 'Rol';
+
+    protected static ?string $pluralModelLabel = 'Roles';
+
     public static function getNavigationGroup(): ?string
     {
         return 'Gestión de Usuarios';

@@ -21,7 +21,7 @@ class RoleForm
                             ->label('Nombre del Rol')
                             ->required()
                             ->unique(ignoreRecord: true)
-                            ->helperText('e.g., super_admin, global_manager'),
+                            ->helperText('ej: super_admin, gestor_global'),
 
                         Select::make('clinic_id')
                             ->label('Clínica (Vacío = rol global)')
@@ -29,7 +29,7 @@ class RoleForm
                             ->searchable()
                             ->preload()
                             ->nullable()
-                            ->helperText('Leave empty to create a global role'),
+                            ->helperText('Dejar vacio para crear un rol global'),
 
                         TextInput::make('guard_name')
                             ->label('Guard')
@@ -49,7 +49,7 @@ class RoleForm
                             ->columns(3)
                             ->searchable()
                             ->bulkToggleable()
-                            ->helperText('Select the permissions for this role'),
+                            ->helperText('Seleccionar los permisos para este rol'),
                     ]),
             ]);
     }

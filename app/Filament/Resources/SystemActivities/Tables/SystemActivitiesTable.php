@@ -19,6 +19,7 @@ class SystemActivitiesTable
                     ->sortable()
                     ->searchable(),
                 \Filament\Tables\Columns\TextColumn::make('action')
+                    ->label('Accion')
                     ->badge()
                     ->sortable()
                     ->searchable(),
@@ -27,12 +28,14 @@ class SystemActivitiesTable
                     ->formatStateUsing(fn($state) => class_basename($state))
                     ->searchable(),
                 \Filament\Tables\Columns\TextColumn::make('description')
+                    ->label('Descripcion')
                     ->limit(50)
                     ->searchable(),
                 \Filament\Tables\Columns\TextColumn::make('ip_address')
                     ->label('IP')
                     ->toggleable(isToggledHiddenByDefault: true),
                 \Filament\Tables\Columns\TextColumn::make('created_at')
+                    ->label('Fecha')
                     ->dateTime()
                     ->sortable(),
             ])

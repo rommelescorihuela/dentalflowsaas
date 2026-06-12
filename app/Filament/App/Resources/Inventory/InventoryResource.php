@@ -18,7 +18,13 @@ class InventoryResource extends Resource
 {
     protected static ?string $model = Inventory::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedArchiveBox;
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
+
+    protected static ?string $navigationLabel = 'Inventario';
+
+    protected static ?string $modelLabel = 'Producto';
+
+    protected static ?string $pluralModelLabel = 'Inventario';
 
     public static function getNavigationGroup(): ?string
     {
@@ -30,9 +36,11 @@ class InventoryResource extends Resource
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label('Nombre')
                     ->required()
                     ->maxLength(255),
                 Select::make('category')
+                    ->label('Categoria')
                     ->options([
                         'Consumables' => 'Consumibles',
                         'Instruments' => 'Instrumentos',
@@ -41,27 +49,34 @@ class InventoryResource extends Resource
                     ])
                     ->required(),
                 TextInput::make('supplier')
+                    ->label('Proveedor')
                     ->required()
                     ->maxLength(255),
                 TextInput::make('price')
+                    ->label('Precio')
                     ->numeric()
                     ->prefix('$')
                     ->required(),
                 TextInput::make('quantity')
+                    ->label('Cantidad')
                     ->numeric()
                     ->required(),
                 TextInput::make('low_stock_threshold')
+                    ->label('Stock Minimo')
                     ->numeric()
                     ->default(10)
                     ->required(),
                 TextInput::make('unit')
-                    ->default('pieces')
+                    ->label('Unidad')
+                    ->default('piezas')
                     ->required(),
                 TextInput::make('items_per_unit')
+                    ->label('Items por Unidad')
                     ->numeric()
                     ->default(1)
                     ->required(),
                 Select::make('expiration_type')
+                    ->label('Tipo de Caducidad')
                     ->options([
                         'Expirable' => 'Caducable',
                         'Inexpirable' => 'No Caducable',

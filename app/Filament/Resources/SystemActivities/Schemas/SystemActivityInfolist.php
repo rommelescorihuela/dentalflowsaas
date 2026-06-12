@@ -23,10 +23,10 @@ class SystemActivityInfolist
                     ->collapsed()
                     ->columns(2)
                     ->schema([
-                        \Filament\Infolists\Components\TextEntry::make('ip_address')->label('Dirección IP'),
-                        \Filament\Infolists\Components\TextEntry::make('method'),
-                        \Filament\Infolists\Components\TextEntry::make('url')->columnSpanFull()->copyable(),
-                        \Filament\Infolists\Components\TextEntry::make('user_agent')->columnSpanFull(),
+                        \Filament\Infolists\Components\TextEntry::make('ip_address')->label('Direccion IP'),
+                        \Filament\Infolists\Components\TextEntry::make('method')->label('Metodo'),
+                        \Filament\Infolists\Components\TextEntry::make('url')->label('URL')->columnSpanFull()->copyable(),
+                        \Filament\Infolists\Components\TextEntry::make('user_agent')->label('Navegador')->columnSpanFull(),
                     ]),
                 \Filament\Schemas\Components\Section::make('Cambios de Datos')
                     ->schema([

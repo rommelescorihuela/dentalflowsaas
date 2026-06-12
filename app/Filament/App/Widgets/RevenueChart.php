@@ -11,6 +11,8 @@ class RevenueChart extends ChartWidget
 {
     protected static ?int $sort = 2;
 
+    protected int|string|array $columnSpan = '1/2';
+
     protected ?string $heading = 'Ingresos Mensuales';
 
     protected ?string $description = 'Últimos 12 meses';

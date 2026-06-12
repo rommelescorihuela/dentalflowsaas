@@ -18,7 +18,13 @@ class ProcedurePriceResource extends Resource
 {
     protected static ?string $model = ProcedurePrice::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedCurrencyDollar;
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
+
+    protected static ?string $navigationLabel = 'Precios de Procedimientos';
+
+    protected static ?string $modelLabel = 'Precio de Procedimiento';
+
+    protected static ?string $pluralModelLabel = 'Precios de Procedimientos';
 
     public static function getNavigationGroup(): ?string
     {
@@ -39,7 +45,7 @@ class ProcedurePriceResource extends Resource
                     ->required(),
                 TextInput::make('duration')
                     ->label('Duración')
-                    ->placeholder('e.g. 30 minutes')
+                    ->placeholder('ej: 30 minutos')
                     ->required()
                     ->maxLength(255),
                 Textarea::make('description')

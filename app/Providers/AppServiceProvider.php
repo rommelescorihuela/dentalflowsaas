@@ -48,6 +48,19 @@ class AppServiceProvider extends ServiceProvider
             ->setPermissionClass(Permission::class)
             ->setRoleClass(Role::class);
 
+        // Superadmin bypass: grant all permissions unconditionally
+        \Illuminate\Support\Facades\Gate::before(function ($user) {
+            if ($user === null) {
+                return null;
+            }
+
+            if (method_exists($user, 'hasRole') && $user->hasRole('super-admin')) {
+                return true;
+            }
+
+            return null;
+        });
+
         // Register Policies
         \Illuminate\Support\Facades\Gate::policy(\App\Models\Role::class, \App\Policies\RolePolicy::class);
         \Illuminate\Support\Facades\Gate::policy(\App\Models\Clinic::class, \App\Policies\ClinicPolicy::class);

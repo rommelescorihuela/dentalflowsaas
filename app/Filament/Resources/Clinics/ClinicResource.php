@@ -19,7 +19,13 @@ class ClinicResource extends Resource
 {
     protected static ?string $model = Clinic::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice2;
+
+    protected static ?string $navigationLabel = 'Clinicas';
+
+    protected static ?string $modelLabel = 'Clinica';
+
+    protected static ?string $pluralModelLabel = 'Clinicas';
 
     public static function form(Schema $schema): Schema
     {

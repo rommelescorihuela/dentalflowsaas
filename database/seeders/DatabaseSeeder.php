@@ -25,6 +25,9 @@ class DatabaseSeeder extends Seeder
         // Assign super-admin role if it exists (PermissionSeeder should be run first)
         // We defer role assignment to after PermissionSeeder if needed, but assuming PermissionSeeder creates it:
 
+        // Ensure central context before creating permissions and roles
+        setPermissionsTeamId(null);
+
         $this->call([
             PermissionSeeder::class,
             TenantSeeder::class,

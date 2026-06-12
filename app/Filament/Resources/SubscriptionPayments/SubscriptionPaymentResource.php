@@ -20,13 +20,17 @@ class SubscriptionPaymentResource extends Resource
 {
     protected static ?string $model = SubscriptionPayment::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCreditCard;
 
     protected static ?string $recordTitleAttribute = 'transaction_id';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Finanzas';
 
-    protected static ?string $navigationLabel = 'Pagos de Suscripción';
+    protected static ?string $navigationLabel = 'Pagos de Suscripcion';
+
+    protected static ?string $modelLabel = 'Pago de Suscripcion';
+
+    protected static ?string $pluralModelLabel = 'Pagos de Suscripcion';
 
     public static function form(Schema $schema): Schema
     {

@@ -16,19 +16,23 @@ class UserForm
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label('Nombre')
                     ->required(),
                 TextInput::make('email')
-                    ->label('Correo Electrónico')
+                    ->label('Correo Electronico')
                     ->email()
                     ->required()
                     ->unique(ignoreRecord: true),
-                DateTimePicker::make('email_verified_at'),
+                DateTimePicker::make('email_verified_at')
+                    ->label('Verificado'),
                 TextInput::make('password')
+                    ->label('Contrasena')
                     ->password()
                     ->confirmed()
                     ->dehydrated(fn($state) => filled($state))
                     ->required(fn(string $operation): bool => $operation === 'create'),
                 TextInput::make('password_confirmation')
+                    ->label('Confirmar Contrasena')
                     ->password()
                     ->required(fn(string $operation): bool => $operation === 'create')
                     ->visible(fn(string $operation, $get): bool => $operation === 'create' || filled($get('password'))),

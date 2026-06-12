@@ -23,14 +23,14 @@ class RoleForm
                             ->unique(ignoreRecord: true, modifyRuleUsing: function ($rule) {
                                 return $rule->where('clinic_id', \Filament\Facades\Filament::getTenant()?->id);
                             })
-                            ->helperText('e.g., doctor, receptionist, assistant'),
+                            ->helperText('ej: doctor, recepcionista, asistente'),
 
                         TextInput::make('clinic_id')
                             ->label('Clínica')
                             ->default(fn() => \Filament\Facades\Filament::getTenant()?->id)
                             ->disabled()
                             ->dehydrated()
-                            ->helperText('Automatically set to current clinic'),
+                            ->helperText('Asignado automaticamente a la clinica actual'),
 
                         TextInput::make('guard_name')
                             ->label('Guard')
@@ -50,7 +50,7 @@ class RoleForm
                             ->columns(3)
                             ->searchable()
                             ->bulkToggleable()
-                            ->helperText('Select the permissions for this role'),
+                            ->helperText('Seleccionar los permisos para este rol'),
                     ]),
             ]);
     }

@@ -18,9 +18,13 @@ class PaymentResource extends Resource
 {
     protected static ?string $model = Payment::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-banknotes';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-credit-card';
 
     protected static ?string $navigationLabel = 'Pagos de Pacientes';
+
+    protected static ?string $modelLabel = 'Pago';
+
+    protected static ?string $pluralModelLabel = 'Pagos';
 
     public static function getNavigationGroup(): ?string
     {
@@ -38,11 +42,11 @@ class PaymentResource extends Resource
                 Select::make('appointment_id')
                     ->relationship('appointment', 'id') // Ideally should show date/type
                     ->searchable()
-                    ->placeholder('Select Appointment (Optional)'),
+                    ->placeholder('Seleccionar Cita (Opcional)'),
                 Select::make('budget_id')
-                    ->relationship('budget', 'id') // Ideally should show total/date
+                    ->relationship('budget', 'id')
                     ->searchable()
-                    ->placeholder('Select Budget (Optional)'),
+                    ->placeholder('Seleccionar Presupuesto (Opcional)'),
                 TextInput::make('amount')
                     ->numeric()
                     ->prefix('$')
