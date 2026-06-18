@@ -12,8 +12,8 @@
 
     <p>
         <a href="{{ $url }}"
-            style="background-color: #2563EB; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-            Acceder a {{ $clinic->name }}
+            style="background-color: #0891B2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px;">
+            Access {{ $clinic->name }}
         </a>
     </p>
 

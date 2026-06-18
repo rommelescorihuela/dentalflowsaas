@@ -18,18 +18,22 @@
     </style>
 </head>
 
-<body class="antialiased min-h-screen">
+<body class="bg-gradient-to-br from-cyan-50 via-white to-primary-50/50 font-sans antialiased min-h-screen">
+    <!-- Decorative background elements -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-teal-400/10 rounded-full blur-3xl animate-float"></div>
-        <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-amber-200/30 rounded-full blur-3xl animate-float" style="animation-delay:3s"></div>
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
     </div>
 
     <div class="relative min-h-screen">
         <header class="sticky top-0 z-40 bg-[#FFFBF5]/80 backdrop-blur-xl border-b border-teal-500/10">
             <div class="max-w-4xl mx-auto py-5 px-6 lg:px-12 flex justify-between items-center">
                 <div>
-                    <a href="{{ URL::signedRoute('portal.dashboard', ['patient' => $budget->patient]) }}" class="inline-flex items-center text-sm text-stone-500 hover:text-teal-600 transition-colors mb-1.5">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    <a href="{{ URL::signedRoute('portal.dashboard', ['patient' => $budget->patient]) }}"
+                        class="inline-flex items-center text-sm text-gray-500 hover:text-primary-600 transition-colors mb-2">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
                         Volver al portal
                     </a>
                     <h1 class="text-xl font-display font-bold text-stone-800">Detalle del Presupuesto</h1>
@@ -47,12 +51,9 @@
 
         <main class="max-w-4xl mx-auto py-8 px-6 lg:px-12">
             <!-- Budget Info -->
-            <div class="bg-white rounded-[2rem] border border-teal-500/10 shadow-lg overflow-hidden mb-8">
-                <div class="px-8 py-5 border-b border-stone-100 bg-gradient-to-r from-teal-50 to-transparent">
-                    <h3 class="text-xl font-display font-bold text-stone-800 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        Informacion del Presupuesto
-                    </h3>
+            <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden mb-6">
+                <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-primary-50 to-primary-50/50">
+                    <h3 class="text-lg font-bold text-gray-900">Información del Presupuesto</h3>
                 </div>
                 <div class="p-8">
                     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -65,8 +66,11 @@
                                 @else Sin fecha de vencimiento @endif
                             </dd>
                         </div>
-                        <div><dt class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Total</dt>
-                            <dd class="mt-1 text-3xl font-display font-bold text-teal-700">${{ number_format($budget->total, 0, ',', '.') }}</dd>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Total</dt>
+                            <dd class="mt-1 text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                                ${{ number_format($budget->total, 0, ',', '.') }}
+                            </dd>
                         </div>
                     </dl>
                     @if($budget->notes)
@@ -110,8 +114,10 @@
                         </tbody>
                         <tfoot class="bg-[#FFFBF5]/80">
                             <tr>
-                                <td colspan="3" class="px-6 py-4 text-right text-sm font-display font-bold text-stone-800">Total:</td>
-                                <td class="px-6 py-4 text-right text-xl font-display font-bold text-teal-700">${{ number_format($budget->total, 0, ',', '.') }}</td>
+                                <td colspan="3" class="px-6 py-4 text-right text-sm font-bold text-gray-900">Total:</td>
+                                <td class="px-6 py-4 text-right text-lg font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                                    ${{ number_format($budget->total, 0, ',', '.') }}
+                                </td>
                             </tr>
                         </tfoot>
                     </table>
@@ -127,8 +133,11 @@
                 <div class="p-8 flex flex-col sm:flex-row gap-4 justify-center">
                     <form action="{{ URL::signedRoute('portal.budgets.accept', ['budget' => $budget]) }}" method="POST">
                         @csrf
-                        <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-xl text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-600/20 hover:shadow-teal-600/30 transition-all duration-200 hover:-translate-y-0.5">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        <button type="submit"
+                            class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 border border-transparent rounded-xl shadow-lg text-sm font-medium text-white bg-gradient-to-r from-success-600 to-success-700 hover:from-emerald-700 hover:to-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 transform hover:scale-105">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
                             Aceptar Presupuesto
                         </button>
                     </form>

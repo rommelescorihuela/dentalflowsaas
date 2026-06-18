@@ -1,12 +1,17 @@
 <?php
- 
+
 namespace App\Policies;
- 
+
 use App\Models\Patient;
 use App\Models\User;
- 
+use App\Services\PlanLimits;
+
 class PatientPolicy
 {
+    public function __construct(
+        protected PlanLimits $planLimits
+    ) {}
+
     public function viewAny(User $user): bool
     {
         return true;
@@ -19,7 +24,17 @@ class PatientPolicy
 
     public function create(User $user): bool
     {
-        return true;
+        if ($user->hasRole('super-admin')) {
+            return true;
+        }
+
+        $clinic = $user->tenant;
+
+        if (! $clinic) {
+            return true;
+        }
+
+        return $this->planLimits->canCreatePatient($clinic);
     }
 
     public function update(User $user, Patient $patient): bool
@@ -28,7 +43,6 @@ class PatientPolicy
             return true;
         }
 
-        // If no doctor is assigned, anyone can edit (to assign the patient)
         if (is_null($patient->doctor_id)) {
             return true;
         }

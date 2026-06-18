@@ -2,7 +2,10 @@
 
 namespace App\Filament\Resources\SubscriptionPayments\Schemas;
 
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
@@ -12,42 +15,66 @@ class SubscriptionPaymentForm
     {
         return $schema
             ->components([
-                \Filament\Forms\Components\Select::make('clinic_id')
-                    ->label('Clinica')
+                Select::make('clinic_id')
+                    ->label('Clínica')
                     ->relationship('clinic', 'name')
                     ->searchable()
                     ->preload()
                     ->required(),
+                Select::make('subscription_id')
+                    ->label('Suscripción')
+                    ->relationship('subscription', 'plan')
+                    ->searchable()
+                    ->preload(),
                 TextInput::make('amount')
                     ->label('Monto')
                     ->required()
                     ->numeric()
                     ->prefix('$'),
-                TextInput::make('currency')
+                Select::make('currency')
                     ->label('Moneda')
+                    ->options([
+                        'USD' => 'USD',
+                        'Bs' => 'Bolívares (Bs)',
+                        'USDT' => 'USDT',
+                    ])
                     ->required()
                     ->default('USD'),
-                \Filament\Forms\Components\Select::make('method')
-                    ->label('Metodo')
+                Select::make('method')
+                    ->label('Método')
                     ->options([
-                        'stripe' => 'Stripe',
-                        'paypal' => 'PayPal',
-                        'transfer' => 'Transferencia',
+                        'bank_transfer_bs' => 'Transferencia bancaria (Bs)',
+                        'pago_movil_bs' => 'Pago móvil (Bs)',
+                        'zelle_usd' => 'Zelle (USD)',
+                        'binance_usdt' => 'Binance / USDT',
                     ])
                     ->required(),
-                \Filament\Forms\Components\Select::make('status')
+                Select::make('status')
                     ->label('Estado')
                     ->options([
                         'pending' => 'Pendiente',
-                        'paid' => 'Pagado',
-                        'failed' => 'Fallido',
+                        'approved' => 'Aprobado',
+                        'rejected' => 'Rechazado',
                     ])
                     ->default('pending')
                     ->required(),
+                TextInput::make('reference')
+                    ->label('Referencia / # operación'),
                 TextInput::make('transaction_id')
-                    ->label('ID Transaccion'),
+                    ->label('ID Transacción'),
+                DatePicker::make('period_start')
+                    ->label('Inicio del período'),
+                DatePicker::make('period_end')
+                    ->label('Fin del período'),
+                FileUpload::make('proof_path')
+                    ->label('Comprobante')
+                    ->disk('local')
+                    ->directory('payments')
+                    ->acceptedFileTypes(['image/*', 'application/pdf']),
                 DateTimePicker::make('paid_at')
                     ->label('Pagado el'),
+                DateTimePicker::make('verified_at')
+                    ->label('Verificado el'),
             ]);
     }
 }

@@ -22,7 +22,7 @@
             <!-- Root (Background) -->
             <path d="M12 20 L15 55 L20 45 L25 55 L28 20 Z"
                 fill="{{ $getColor($rootStatus) }}"
-                stroke="{{ in_array('root', $activeSurfaces ?? []) ? '#0891b2' : '#9ca3af' }}"
+                stroke="{{ in_array('root', $activeSurfaces ?? []) ? '#0891b2' : '#94a3b8' }}"
                 stroke-width="{{ in_array('root', $activeSurfaces ?? []) ? '2.5' : '1' }}"
                 wire:click="selectSurface({{ $number }}, 'root')" class="hover:opacity-80 transition-opacity" />
 

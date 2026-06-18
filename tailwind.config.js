@@ -17,7 +17,8 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Instrument Sans', ...defaultTheme.fontFamily.sans],
+                sans: ['Noto Sans', ...defaultTheme.fontFamily.sans],
+                heading: ['Figtree', 'Noto Sans', ...defaultTheme.fontFamily.sans],
             },
         },
     },

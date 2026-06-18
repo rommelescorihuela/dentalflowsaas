@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\Plan;
+use App\Enums\SubscriptionStatus;
 use App\Models\Clinic;
+use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Stancl\Tenancy\Facades\Tenancy;
 
 class TenantService
 {
@@ -18,11 +22,8 @@ class TenantService
     public function createTenant(array $data): Clinic
     {
         return DB::transaction(function () use ($data) {
-            // 1. Create the Tenant (Clinic)
-            // Use the subdomain as the Tenant ID for simplicity in this architecture
             $tenantId = $data['subdomain'];
 
-            // Check if tenant exists
             if (Clinic::find($tenantId)) {
                 throw ValidationException::withMessages([
                     'subdomain' => 'This subdomain is already taken.',
@@ -32,27 +33,29 @@ class TenantService
             $clinic = Clinic::create([
                 'id' => $tenantId,
                 'name' => $data['company_name'],
-                'plan' => 'free_trial', // Default plan
+                'plan' => 'free_trial',
+                'subscription_status' => SubscriptionStatus::Trialing->value,
+                'trial_ends_at' => now()->addDays(14),
             ]);
 
-            // 2. Create the Domain (Conditional: only for non-localhost/IP central domains)
+            Subscription::create([
+                'clinic_id' => $clinic->id,
+                'plan' => Plan::FreeTrial->value,
+                'status' => SubscriptionStatus::Trialing->value,
+                'trial_ends_at' => now()->addDays(14),
+            ]);
+
             $centralDomain = config('tenancy.central_domains')[0] ?? 'localhost';
             $isLocal = in_array($centralDomain, ['localhost', '127.0.0.1', '::1']);
 
-            if (!$isLocal) {
-                $clinic->domains()->create([
-                    'domain' => $data['subdomain'] . '.' . $centralDomain,
+            if (! $isLocal) {
+                $clinic->domains()->firstOrCreate([
+                    'domain' => $data['subdomain'].'.'.$centralDomain,
                 ]);
             }
 
-            // 3. Create the Admin User for this Tenant
-            // We switch context to the new tenant to create the user inside it?
-            // Actually, in Stancl/Tenancy, users are often global or tenant-specific depending on config.
-            // Based on User model having 'clinic_id' (BelongsToClinic), it seems Users are stored in the central DB 
-            // but scoped to a clinic. Let's verify this assumption. 
-            // *Wait*, standard Tenancy usually puts users in tenant DB. 
-            // But 'BelongsToClinic' trait suggests Single Database Multi-Tenancy or Central User Table.
-            // Let's assume Central User Table for SaaS Management based on previous context (User::find(2) worked globally).
+            Tenancy::initialize($clinic);
+            setPermissionsTeamId($clinic->id);
 
             $user = User::create([
                 'name' => $data['name'],
@@ -61,8 +64,10 @@ class TenantService
                 'clinic_id' => $clinic->id,
             ]);
 
-            // Assign Role (if Spatie permission is used centrally)
-            // $user->assignRole('admin'); 
+            $user->assignRole('admin');
+
+            Tenancy::end();
+            setPermissionsTeamId(null);
 
             return $clinic;
         });

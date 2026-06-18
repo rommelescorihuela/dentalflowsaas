@@ -4,7 +4,6 @@ namespace App\Mail;
 
 use App\Models\Clinic;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -15,6 +14,7 @@ class WelcomeClinic extends Mailable
     use Queueable, SerializesModels;
 
     public $clinic;
+
     public $url;
 
     /**
@@ -24,11 +24,11 @@ class WelcomeClinic extends Mailable
     {
         $this->clinic = $clinic;
 
-        $domain = $clinic->domains->first()->domain;
+        $domain = $clinic->domains->first()?->domain ?? $clinic->id.'.localhost';
         $protocol = request()->secure() ? 'https://' : 'http://';
-        $port = in_array(request()->getPort(), [80, 443]) ? '' : ':' . request()->getPort();
+        $port = in_array(request()->getPort(), [80, 443]) ? '' : ':'.request()->getPort();
 
-        $this->url = $protocol . $domain . $port;
+        $this->url = $protocol.$domain.$port.'/app';
     }
 
     /**

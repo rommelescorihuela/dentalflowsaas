@@ -3,16 +3,22 @@
 namespace App\Livewire\Auth;
 
 use App\Services\TenantService;
-use Livewire\Component;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Livewire\Component;
 
 class RegisterTenant extends Component
 {
     public $company_name = '';
+
     public $subdomain = '';
+
     public $name = '';
+
     public $email = '';
+
     public $password = '';
+
     public $password_confirmation = '';
 
     protected $rules = [
@@ -45,18 +51,26 @@ class RegisterTenant extends Component
             try {
                 \Illuminate\Support\Facades\Mail::to($this->email)->send(new \App\Mail\WelcomeClinic($clinic));
             } catch (\Exception $e) {
-                // Log error but don't fail the registration
-                \Illuminate\Support\Facades\Log::error('Failed to send welcome email: ' . $e->getMessage());
+                \Illuminate\Support\Facades\Log::error('Failed to send welcome email: '.$e->getMessage());
             }
 
-            // Redirect to a success page or the new tenant domain
-            // For now, let's redirect to a success route
+            $host = request()->getHost();
+            $isLocal = in_array($host, ['localhost', '127.0.0.1', '::1']);
+
+            if ($isLocal) {
+                Auth::loginUsingId(
+                    \App\Models\User::where('email', $this->email)->firstOrFail()->id
+                );
+
+                return redirect('/app');
+            }
+
             return redirect()->route('register.success', ['tenant_id' => $clinic->id]);
 
         } catch (ValidationException $e) {
             throw $e;
         } catch (\Exception $e) {
-            $this->addError('base', 'Ocurrio un error durante el registro: ' . $e->getMessage());
+            $this->addError('base', 'Ocurrio un error durante el registro: '.$e->getMessage());
         }
     }
 

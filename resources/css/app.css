@@ -7,11 +7,21 @@
 @source '../**/*.js';
 
 @theme {
+<<<<<<< Updated upstream
     --font-sans: 'Open Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     --font-display: 'Outfit', 'Open Sans', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* ========== AURORA ANIMATIONS ========== */
+=======
+    --font-sans: 'Noto Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-heading: 'Figtree', 'Noto Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* Custom Animations — respecting reduced motion */
+>>>>>>> Stashed changes
 @keyframes blob {
     0%, 100% { transform: translate(0, 0) scale(1); }
     33% { transform: translate(30px, -50px) scale(1.1); }
@@ -44,6 +54,7 @@
     }
 }
 
+<<<<<<< Updated upstream
 @keyframes pulseGlow {
     0%, 100% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); }
     50% { box-shadow: 0 0 40px rgba(6, 182, 212, 0.5); }
@@ -57,10 +68,32 @@
 @keyframes scaleIn {
     from { opacity: 0; transform: scale(0.92); }
     to { opacity: 1; transform: scale(1); }
+=======
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+>>>>>>> Stashed changes
 }
 
 .animate-blob {
-    animation: blob 10s infinite;
+    animation: blob 20s infinite;
 }
 
 .animate-float {
@@ -73,15 +106,29 @@
     background-size: 1000px 100%;
 }
 
+<<<<<<< Updated upstream
 .animate-gradient {
     background-size: 200% 200%;
     animation: gradientShift 4s ease infinite;
+=======
+.animate-fade-in-up {
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.animate-scale-in {
+    animation: scaleIn 0.3s ease-out forwards;
+}
+
+.animation-delay-2000 {
+    animation-delay: 2s;
+>>>>>>> Stashed changes
 }
 
 .animate-fade-in-up {
     animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
+<<<<<<< Updated upstream
 .animate-pulse-glow {
     animation: pulseGlow 2s ease-in-out infinite;
 }
@@ -178,22 +225,54 @@
 }
 
 /* ========== CUSTOM SCROLLBAR ========== */
+=======
+.animation-delay-200 {
+    animation-delay: 0.2s;
+}
+
+.animation-delay-400 {
+    animation-delay: 0.4s;
+}
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .animate-blob,
+    .animate-float,
+    .animate-shimmer,
+    .animate-fade-in-up,
+    .animate-scale-in {
+        animation: none;
+    }
+
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Custom Scrollbar — cyan gradient */
+>>>>>>> Stashed changes
 ::-webkit-scrollbar {
     width: 7px;
     height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background: #ecfeff;
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
+<<<<<<< Updated upstream
     background: linear-gradient(180deg, #06b6d4, #0891b2);
+=======
+    background: linear-gradient(to bottom, #0891b2, #06b6d4);
+>>>>>>> Stashed changes
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
+<<<<<<< Updated upstream
     background: linear-gradient(180deg, #0891b2, #0e7490);
 }
 
@@ -265,4 +344,52 @@
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
+=======
+    background: linear-gradient(to bottom, #0e7490, #0891b2);
+}
+
+/* Glass morphism effect — healthcare clean */
+.glass {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(8, 145, 178, 0.1);
+}
+
+/* Gradient text — cyan medical */
+.gradient-text {
+    background: linear-gradient(135deg, #0891b2, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Card hover effects — subtle lift */
+.card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -8px rgba(8, 145, 178, 0.12), 0 4px 8px -4px rgba(8, 145, 178, 0.06);
+}
+
+/* Stat card accent border */
+.stat-card {
+    border-left: 3px solid #0891b2;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    border-left-color: #06b6d4;
+    box-shadow: 0 4px 12px -4px rgba(8, 145, 178, 0.08);
+}
+
+/* Skeleton loader */
+.skeleton {
+    background: linear-gradient(90deg, #ecfeff 25%, #cffafe 50%, #ecfeff 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+    border-radius: 8px;
+>>>>>>> Stashed changes
 }

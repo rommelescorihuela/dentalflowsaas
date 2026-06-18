@@ -2,35 +2,48 @@
 
 namespace Tests;
 
-use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-use App\Models\Clinic;
-use App\Models\User;
-use App\Models\Patient;
-use App\Models\Odontogram;
-use App\Models\ClinicalRecord;
-use App\Models\Budget;
+use App\Enums\Plan;
+use App\Enums\SubscriptionStatus;
 use App\Models\Appointment;
+use App\Models\Budget;
 use App\Models\BudgetItem;
+use App\Models\Clinic;
+use App\Models\ClinicalRecord;
+use App\Models\Inventory;
+use App\Models\Odontogram;
+use App\Models\Patient;
 use App\Models\Payment;
 use App\Models\ProcedurePrice;
-use App\Models\Inventory;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-use Stancl\Tenancy\Facades\Tenancy;
+use App\Models\Subscription;
+use App\Models\User;
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Stancl\Tenancy\Facades\Tenancy;
 
 abstract class TestCase extends BaseTestCase
 {
     protected ?Clinic $clinicA = null;
+
     protected ?Clinic $clinicB = null;
+
     protected ?User $superAdmin = null;
+
     protected ?User $adminA = null;
+
     protected ?User $doctorA = null;
+
     protected ?User $assistantA = null;
+
     protected ?User $doctorB = null;
+
     protected ?User $assistantB = null;
+
     protected ?Patient $patientA = null;
+
     protected ?Patient $patientB = null;
+
     protected array $permissions = [];
 
     protected function setUpTenants(): void
@@ -38,11 +51,32 @@ abstract class TestCase extends BaseTestCase
         $this->clinicA = Clinic::create(['id' => 'clinic-a', 'name' => 'Clínica Dental Sonrisas']);
         $this->clinicB = Clinic::create(['id' => 'clinic-b', 'name' => 'Ortodoncia Pérez']);
 
+        // Create active Pro subscriptions for test clinics
+        Subscription::create([
+            'clinic_id' => 'clinic-a',
+            'plan' => Plan::Pro->value,
+            'status' => SubscriptionStatus::Active->value,
+            'current_period_start' => now(),
+            'current_period_end' => now()->addMonth(),
+            'seats_limit' => 15,
+            'patients_limit' => null,
+        ]);
+
+        Subscription::create([
+            'clinic_id' => 'clinic-b',
+            'plan' => Plan::Pro->value,
+            'status' => SubscriptionStatus::Active->value,
+            'current_period_start' => now(),
+            'current_period_end' => now()->addMonth(),
+            'seats_limit' => 15,
+            'patients_limit' => null,
+        ]);
+
         $this->createRolesAndPermissions();
 
         Tenancy::initialize('clinic-a');
         setPermissionsTeamId('clinic-a');
-        
+
         $this->adminA = User::create([
             'name' => 'Admin Clínica A',
             'email' => 'admin@clinic-a.test',
@@ -77,7 +111,7 @@ abstract class TestCase extends BaseTestCase
 
         Tenancy::initialize('clinic-b');
         setPermissionsTeamId('clinic-b');
-        
+
         $this->doctorB = User::create([
             'name' => 'Dr. Carlos López',
             'email' => 'doctor@clinic-b.test',
@@ -140,13 +174,13 @@ abstract class TestCase extends BaseTestCase
         $admin->syncPermissions($this->permissions);
 
         $doctor = Role::findByName('doctor');
-        $doctor->syncPermissions(array_filter($this->permissions, function($p) {
+        $doctor->syncPermissions(array_filter($this->permissions, function ($p) {
             return in_array(explode(':', $p)[0], ['ViewAny', 'View', 'Create', 'Update', 'Delete'], true)
                 && in_array(explode(':', $p)[1], ['Patient', 'Appointment', 'Odontogram', 'ClinicalRecord', 'Budget', 'Payment']);
         }));
 
         $assistant = Role::findByName('assistant');
-        $assistant->syncPermissions(array_filter($this->permissions, function($p) {
+        $assistant->syncPermissions(array_filter($this->permissions, function ($p) {
             return in_array(explode(':', $p)[0], ['ViewAny', 'View', 'Create', 'Update'], true)
                 && in_array(explode(':', $p)[1], ['Patient', 'Appointment', 'Budget']);
         }));
@@ -163,6 +197,7 @@ abstract class TestCase extends BaseTestCase
             ]
         );
         $this->superAdmin->assignRole('super-admin');
+
         return $this->superAdmin;
     }
 
@@ -177,6 +212,7 @@ abstract class TestCase extends BaseTestCase
             $this->switchTenant($doctor->clinic_id);
             Auth::login($doctor);
         }
+
         return $this;
     }
 
@@ -222,6 +258,7 @@ abstract class TestCase extends BaseTestCase
     protected function createAppointment(Patient $patient, ?User $doctor = null): Appointment
     {
         $randomMinutes = random_int(1, 500);
+
         return Appointment::create([
             'clinic_id' => $patient->clinic_id,
             'patient_id' => $patient->id,
@@ -257,7 +294,7 @@ abstract class TestCase extends BaseTestCase
             ]);
         }
 
-        $budget->total = $budget->items->sum(fn($i) => $i->cost * $i->quantity);
+        $budget->total = $budget->items->sum(fn ($i) => $i->cost * $i->quantity);
         $budget->save();
 
         return $budget;
@@ -303,6 +340,7 @@ abstract class TestCase extends BaseTestCase
     protected function actingAsSuperAdmin(): self
     {
         Auth::login($this->createSuperAdmin());
+
         return $this;
     }
 
@@ -310,6 +348,7 @@ abstract class TestCase extends BaseTestCase
     {
         $this->switchTenant($admin?->clinic_id ?? 'clinic-a');
         Auth::login($admin ?? $this->adminA);
+
         return $this;
     }
 
@@ -317,6 +356,7 @@ abstract class TestCase extends BaseTestCase
     {
         $this->switchTenant($assistant?->clinic_id ?? 'clinic-a');
         Auth::login($assistant ?? $this->assistantA);
+
         return $this;
     }
 }

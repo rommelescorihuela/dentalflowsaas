@@ -120,6 +120,65 @@ class TenantSeeder extends Seeder
         // Appointments, budgets and payments for clinic2
         $this->seedAppointmentsAndBudgets($clinic2, $patientsC2, $doctor2, $proceduresC2);
 
+        // ============================================================
+        // CLINIC 3 — Dental Trial (en trial de 14 días)
+        // ============================================================
+        $clinic3 = Clinic::firstOrCreate(['id' => 'clinic3'], [
+            'name' => 'Dental Trial',
+            'data' => ['plan' => 'free_trial'],
+            'subscription_status' => \App\Enums\SubscriptionStatus::Trialing->value,
+            'trial_ends_at' => now()->addDays(10),
+        ]);
+
+        $clinic3->domains()->firstOrCreate(['domain' => 'clinic3.localhost']);
+        $clinic3->domains()->firstOrCreate(['domain' => "clinic3.{$centralDomain}"]);
+
+        tenancy()->initialize($clinic3);
+        setPermissionsTeamId($clinic3->id);
+
+        $admin3 = User::firstOrCreate(['email' => 'admin@clinic3.com'], [
+            'name' => 'Admin Trial',
+            'password' => Hash::make('password'),
+            'clinic_id' => $clinic3->id,
+        ]);
+        $admin3->assignRole('admin');
+
+        $this->call(ProcedurePriceSeeder::class);
+        $this->call(InventorySeeder::class);
+        $this->call(ProcedureInventorySeeder::class);
+
+        tenancy()->end();
+        setPermissionsTeamId(null);
+
+        // ============================================================
+        // CLINIC 4 — Dental Suspendida (suspendida por mora)
+        // ============================================================
+        $clinic4 = Clinic::firstOrCreate(['id' => 'clinic4'], [
+            'name' => 'Dental Suspendida',
+            'data' => ['plan' => 'basic'],
+            'subscription_status' => \App\Enums\SubscriptionStatus::Suspended->value,
+            'trial_ends_at' => now()->subDays(30),
+        ]);
+
+        $clinic4->domains()->firstOrCreate(['domain' => 'clinic4.localhost']);
+        $clinic4->domains()->firstOrCreate(['domain' => "clinic4.{$centralDomain}"]);
+
+        tenancy()->initialize($clinic4);
+        setPermissionsTeamId($clinic4->id);
+
+        $admin4 = User::firstOrCreate(['email' => 'admin@clinic4.com'], [
+            'name' => 'Admin Suspendido',
+            'password' => Hash::make('password'),
+            'clinic_id' => $clinic4->id,
+        ]);
+        $admin4->assignRole('admin');
+
+        $this->call(ProcedurePriceSeeder::class);
+        $this->call(InventorySeeder::class);
+
+        tenancy()->end();
+        setPermissionsTeamId(null);
+
         // Reset tenancy and team context to avoid leaking state to other seeders
         tenancy()->end();
         setPermissionsTeamId(null);
@@ -134,8 +193,8 @@ class TenantSeeder extends Seeder
             ['tooth' => 16, 'surface' => 'center', 'diagnosis' => 'caries',    'status' => 'planned'],
             ['tooth' => 16, 'surface' => 'top',    'diagnosis' => 'caries',    'status' => 'planned'],
             ['tooth' => 24, 'surface' => 'center', 'diagnosis' => 'filled',    'status' => 'completed'],
-            ['tooth' => 36, 'surface' => 'center', 'diagnosis' => 'endodontic','status' => 'completed'],
-            ['tooth' => 36, 'surface' => 'root',   'diagnosis' => 'endodontic','status' => 'completed'],
+            ['tooth' => 36, 'surface' => 'center', 'diagnosis' => 'endodontic', 'status' => 'completed'],
+            ['tooth' => 36, 'surface' => 'root',   'diagnosis' => 'endodontic', 'status' => 'completed'],
             ['tooth' => 46, 'surface' => 'center', 'diagnosis' => 'crown',     'status' => 'completed'],
             ['tooth' => 11, 'surface' => 'center', 'diagnosis' => 'missing',   'status' => 'completed'],
             ['tooth' => 21, 'surface' => 'center', 'diagnosis' => 'filled',    'status' => 'existing'],

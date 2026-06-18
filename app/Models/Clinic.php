@@ -4,18 +4,34 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
-use Stancl\Tenancy\Database\Concerns\HasDomains;
 use App\Traits\ActivityLogger;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Stancl\Tenancy\Database\Concerns\HasDomains;
+use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 
 class Clinic extends BaseTenant
 {
-    use HasDomains, ActivityLogger;
+    use ActivityLogger, HasDomains;
 
     public function domains(): HasMany
     {
         return $this->hasMany(config('tenancy.domain_model'), 'clinic_id');
+    }
+
+    public function subscription(): HasOne
+    {
+        return $this->hasOne(Subscription::class);
+    }
+
+    public function patients(): HasMany
+    {
+        return $this->hasMany(Patient::class);
+    }
+
+    public function users(): HasMany
+    {
+        return $this->hasMany(User::class);
     }
 
     public function getOnboardingStepAttribute()

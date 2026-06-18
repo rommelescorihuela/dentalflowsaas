@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             PermissionSeeder::class,
             TenantSeeder::class,
+            SubscriptionSeeder::class,
         ]);
 
         setPermissionsTeamId(null);
