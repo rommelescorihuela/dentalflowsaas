@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Budget;
 use App\Models\Patient;
+use App\Services\PlanLimits;
 
 class PatientPortalController extends Controller
 {
     public function dashboard($patient)
     {
+        $this->ensurePortalFeature();
+
         if (! ($patient instanceof Patient)) {
             $patient = Patient::where('id', $patient)
                 ->where('clinic_id', tenant('id'))
@@ -28,6 +31,8 @@ class PatientPortalController extends Controller
 
     public function viewBudget(Patient $patient, Budget $budget)
     {
+        $this->ensurePortalFeature();
+
         if ($budget->clinic_id !== tenant('id')) {
             abort(403, 'No tienes acceso a este presupuesto.');
         }
@@ -45,6 +50,8 @@ class PatientPortalController extends Controller
 
     public function acceptBudget(Patient $patient, Budget $budget)
     {
+        $this->ensurePortalFeature();
+
         if ($budget->clinic_id !== tenant('id')) {
             abort(403, 'No tienes acceso a este presupuesto.');
         }
@@ -62,6 +69,8 @@ class PatientPortalController extends Controller
 
     public function rejectBudget(Patient $patient, Budget $budget)
     {
+        $this->ensurePortalFeature();
+
         if ($budget->clinic_id !== tenant('id')) {
             abort(403, 'No tienes acceso a este presupuesto.');
         }
@@ -75,5 +84,18 @@ class PatientPortalController extends Controller
         ]);
 
         return back()->with('success', 'Presupuesto rechazado.');
+    }
+
+    protected function ensurePortalFeature(): void
+    {
+        $tenant = tenant();
+
+        if (! $tenant) {
+            abort(403);
+        }
+
+        if (! app(PlanLimits::class)->hasFeature($tenant, 'portal')) {
+            abort(403, 'El portal del paciente no está disponible en tu plan.');
+        }
     }
 }

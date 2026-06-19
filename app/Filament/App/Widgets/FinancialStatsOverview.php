@@ -11,17 +11,28 @@ class FinancialStatsOverview extends StatsOverviewWidget
 
     protected ?string $heading = 'Resumen Financiero';
 
+    public static function canView(): bool
+    {
+        $tenant = tenant() ?? (\App\Models\Clinic::find(auth()->user()?->clinic_id));
+
+        if (! $tenant) {
+            return false;
+        }
+
+        return app(\App\Services\PlanLimits::class)->hasFeature($tenant, 'bi_reports');
+    }
+
     protected function getStats(): array
     {
         // 1. Revenue This Month
         $revenueThisMonth = \App\Models\Payment::whereBetween('paid_at', [
             now()->startOfMonth(),
-            now()->endOfMonth()
+            now()->endOfMonth(),
         ])->sum('amount');
 
         $revenueLastMonth = \App\Models\Payment::whereBetween('paid_at', [
             now()->subMonth()->startOfMonth(),
-            now()->subMonth()->endOfMonth()
+            now()->subMonth()->endOfMonth(),
         ])->sum('amount');
 
         $revenueTrend = $revenueLastMonth > 0
@@ -39,20 +50,20 @@ class FinancialStatsOverview extends StatsOverviewWidget
         $acceptanceRate = $totalSent > 0 ? ($totalAccepted / $totalSent) * 100 : 0;
 
         return [
-            Stat::make('Ingresos (Mes)', '$' . number_format($revenueThisMonth, 2))
-                ->description(number_format(abs($revenueTrend), 1) . '% ' . ($revenueTrend >= 0 ? 'subida' : 'bajada'))
+            Stat::make('Ingresos (Mes)', '$'.number_format($revenueThisMonth, 2))
+                ->description(number_format(abs($revenueTrend), 1).'% '.($revenueTrend >= 0 ? 'subida' : 'bajada'))
                 ->descriptionIcon($revenueTrend >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->icon($revenueTrend >= 0 ? 'heroicon-o-arrow-trending-up' : 'heroicon-o-arrow-trending-down')
                 ->chart([$revenueLastMonth, $revenueThisMonth])
                 ->color($revenueTrend >= 0 ? 'success' : 'danger'),
 
-            Stat::make('Por Cobrar', '$' . number_format($outstanding, 2))
+            Stat::make('Por Cobrar', '$'.number_format($outstanding, 2))
                 ->description('Total deuda de pacientes')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->icon('heroicon-o-banknotes')
                 ->color('warning'),
 
-            Stat::make('Tasa de Aceptación', number_format($acceptanceRate, 1) . '%')
+            Stat::make('Tasa de Aceptación', number_format($acceptanceRate, 1).'%')
                 ->description('Presupuestos aceptados')
                 ->descriptionIcon('heroicon-m-check-badge')
                 ->icon('heroicon-o-check-badge')

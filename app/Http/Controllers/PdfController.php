@@ -8,6 +8,7 @@ use App\Models\Budget;
 use App\Models\Odontogram;
 use App\Models\Patient;
 use App\Services\PdfService;
+use App\Services\PlanLimits;
 use Illuminate\Http\Request;
 
 class PdfController extends Controller
@@ -22,6 +23,8 @@ class PdfController extends Controller
             abort(403);
         }
 
+        $this->ensurePdfFeature();
+
         return $this->pdfService->generateBudgetPdf($budget);
     }
 
@@ -30,6 +33,8 @@ class PdfController extends Controller
         if ($odontogram->clinic_id !== tenant('id')) {
             abort(403);
         }
+
+        $this->ensurePdfFeature();
 
         return $this->pdfService->generateOdontogramPdf($odontogram);
     }
@@ -45,5 +50,18 @@ class PdfController extends Controller
         }
 
         return $this->pdfService->generateBudgetPdf($budget);
+    }
+
+    protected function ensurePdfFeature(): void
+    {
+        $tenant = tenant();
+
+        if (! $tenant) {
+            abort(403);
+        }
+
+        if (! app(PlanLimits::class)->hasFeature($tenant, 'pdf')) {
+            abort(403, 'La generación de PDF no está disponible en tu plan.');
+        }
     }
 }

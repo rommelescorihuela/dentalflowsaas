@@ -2,14 +2,11 @@
 
 namespace App\Filament\App\Widgets;
 
-use Filament\Tables;
+use App\Models\Inventory;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
-use App\Models\Inventory;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Columns\IconColumn;
-use Illuminate\Database\Eloquent\Builder;
 
 class LowInventoryAlertWidget extends TableWidget
 {
@@ -18,6 +15,17 @@ class LowInventoryAlertWidget extends TableWidget
     protected int|string|array $columnSpan = '1/2';
 
     protected static ?string $heading = 'Alertas de Inventario';
+
+    public static function canView(): bool
+    {
+        $tenant = tenant() ?? (\App\Models\Clinic::find(auth()->user()?->clinic_id));
+
+        if (! $tenant) {
+            return false;
+        }
+
+        return app(\App\Services\PlanLimits::class)->hasFeature($tenant, 'low_inventory_alert');
+    }
 
     public function table(Table $table): Table
     {
@@ -46,9 +54,9 @@ class LowInventoryAlertWidget extends TableWidget
                     ->alignCenter(),
                 IconColumn::make('critical')
                     ->label('')
-                    ->icon(fn($record) => $record->quantity == 0 ? 'heroicon-o-exclamation-triangle' : 'heroicon-o-exclamation-circle')
-                    ->color(fn($record) => $record->quantity == 0 ? 'danger' : 'warning')
-                    ->tooltip(fn($record) => $record->quantity == 0 ? '¡Sin stock!' : 'Stock bajo'),
+                    ->icon(fn ($record) => $record->quantity == 0 ? 'heroicon-o-exclamation-triangle' : 'heroicon-o-exclamation-circle')
+                    ->color(fn ($record) => $record->quantity == 0 ? 'danger' : 'warning')
+                    ->tooltip(fn ($record) => $record->quantity == 0 ? '¡Sin stock!' : 'Stock bajo'),
             ])
             ->paginated(false)
             ->emptyStateHeading('Todo el inventario está bien')

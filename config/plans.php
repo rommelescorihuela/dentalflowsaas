@@ -2,12 +2,12 @@
 
 return [
     'free_trial' => [
-        'label' => 'Trial',
+        'label' => 'Trial Pro',
         'price_usd' => 0,
         'trial_days' => 14,
-        'seats' => 3,
-        'patients' => 25,
-        'features' => ['odontogram', 'budgets', 'appointments', 'inventory'],
+        'seats' => null,
+        'patients' => null,
+        'features' => ['*'],
     ],
     'basic' => [
         'label' => 'Starter',
@@ -21,7 +21,7 @@ return [
         'price_usd' => 89,
         'seats' => 15,
         'patients' => null,
-        'features' => ['*'],
+        'features' => ['odontogram', 'budgets', 'appointments', 'inventory', 'payments', 'portal', 'pdf', 'bi_reports', 'low_inventory_alert'],
     ],
     'enterprise' => [
         'label' => 'Enterprise',

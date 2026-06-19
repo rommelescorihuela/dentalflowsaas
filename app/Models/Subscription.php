@@ -52,6 +52,9 @@ class Subscription extends Model
 
     public function effectivePlan(): Plan
     {
+        // During trial, the clinic gets Pro access (all features, no limits).
+        // This matches config('plans.free_trial') which mirrors Pro.
+        // To restrict trial access, just change the free_trial config.
         if ($this->status === SubscriptionStatus::Trialing) {
             return Plan::Pro;
         }

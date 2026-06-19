@@ -12,6 +12,17 @@ class PatientGrowthChart extends ChartWidget
 
     protected ?string $heading = 'Nuevos Pacientes por Mes';
 
+    public static function canView(): bool
+    {
+        $tenant = tenant() ?? (\App\Models\Clinic::find(auth()->user()?->clinic_id));
+
+        if (! $tenant) {
+            return false;
+        }
+
+        return app(\App\Services\PlanLimits::class)->hasFeature($tenant, 'bi_reports');
+    }
+
     protected function getData(): array
     {
         $data = \Flowframe\Trend\Trend::model(\App\Models\Patient::class)
@@ -26,7 +37,7 @@ class PatientGrowthChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Nuevos Pacientes',
-                    'data' => $data->map(fn(\Flowframe\Trend\TrendValue $value) => $value->aggregate),
+                    'data' => $data->map(fn (\Flowframe\Trend\TrendValue $value) => $value->aggregate),
                     'borderColor' => '#0891b2',
                     'backgroundColor' => 'rgba(8, 145, 178, 0.1)',
                     'fill' => 'start',
@@ -37,7 +48,7 @@ class PatientGrowthChart extends ChartWidget
                     'pointRadius' => 4,
                 ],
             ],
-            'labels' => $data->map(fn(\Flowframe\Trend\TrendValue $value) => $value->date),
+            'labels' => $data->map(fn (\Flowframe\Trend\TrendValue $value) => $value->date),
         ];
     }
 
