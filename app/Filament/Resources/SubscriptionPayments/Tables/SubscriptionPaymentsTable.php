@@ -116,7 +116,7 @@ class SubscriptionPaymentsTable
                     ->form([
                         Select::make('plan')
                             ->label('Plan a activar')
-                            ->options(collect(Plan::cases())->filter(fn (Plan $p) => $p !== Plan::FreeTrial)->mapWithKeys(fn (Plan $p) => [$p->value => $p->label()])->toArray())
+                            ->options(collect([Plan::Basic, Plan::Pro])->mapWithKeys(fn (Plan $p) => [$p->value => $p->label() . ' — $' . number_format($p->priceUsd(), 0) . '/mes'])->toArray())
                             ->required(),
                     ])
                     ->action(function ($record, array $data) {

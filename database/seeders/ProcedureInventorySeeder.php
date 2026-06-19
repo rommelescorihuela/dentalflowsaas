@@ -14,7 +14,7 @@ class ProcedureInventorySeeder extends Seeder
         $clinicId = tenant('id') ?? \App\Models\Clinic::first()?->id;
 
         if (!$clinicId) {
-            $this->command->warn('No tenant context for ProcedureInventorySeeder.');
+            $this->command?->warn('No tenant context for ProcedureInventorySeeder.');
             return;
         }
 
@@ -136,6 +136,6 @@ class ProcedureInventorySeeder extends Seeder
             }
         }
 
-        $this->command->info("✅ {$created} relaciones ProcedureInventory sembradas para: {$clinicId}");
+        $this->command?->info("✅ {$created} relaciones ProcedureInventory sembradas para: {$clinicId}");
     }
 }

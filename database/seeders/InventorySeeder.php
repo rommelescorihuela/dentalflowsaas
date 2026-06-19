@@ -1083,7 +1083,7 @@ class InventorySeeder extends Seeder
         $clinicId = tenant('id') ?? \App\Models\Clinic::first()?->id;
 
         if (!$clinicId) {
-            $this->command->error('No se encontró un tenant activo.');
+            $this->command?->error('No se encontró un tenant activo.');
             return;
         }
 
@@ -1097,6 +1097,6 @@ class InventorySeeder extends Seeder
             );
         }
 
-        $this->command->info('✅ ' . count($this->inventoryItems) . ' items de inventario sembrados para: ' . $clinicId);
+        $this->command?->info('✅ ' . count($this->inventoryItems) . ' items de inventario sembrados para: ' . $clinicId);
     }
 }

@@ -10,15 +10,15 @@ return [
         'features' => ['odontogram', 'budgets', 'appointments', 'inventory'],
     ],
     'basic' => [
-        'label' => 'Básico',
-        'price_usd' => null,
+        'label' => 'Starter',
+        'price_usd' => 39,
         'seats' => 5,
         'patients' => 500,
         'features' => ['odontogram', 'budgets', 'appointments', 'inventory', 'payments'],
     ],
     'pro' => [
         'label' => 'Pro',
-        'price_usd' => null,
+        'price_usd' => 89,
         'seats' => 15,
         'patients' => null,
         'features' => ['*'],

@@ -365,7 +365,7 @@ class ProcedurePriceSeeder extends Seeder
         $clinicId = tenant('id') ?? \App\Models\Clinic::first()?->id;
 
         if (!$clinicId) {
-            $this->command->error('No se encontró un tenant activo. Ejecuta este seeder dentro de un contexto de tenancy o asegúrate de tener al menos un tenant creado.');
+            $this->command?->error('No se encontró un tenant activo. Ejecuta este seeder dentro de un contexto de tenancy o asegúrate de tener al menos un tenant creado.');
             return;
         }
 
@@ -379,6 +379,6 @@ class ProcedurePriceSeeder extends Seeder
             );
         }
 
-        $this->command->info('✅ ' . count($this->procedures) . ' procedimientos sembrados para el tenant: ' . $clinicId);
+        $this->command?->info('✅ ' . count($this->procedures) . ' procedimientos sembrados para el tenant: ' . $clinicId);
     }
 }
