@@ -14,7 +14,7 @@ return [
         'price_usd' => 39,
         'seats' => 5,
         'patients' => 500,
-        'features' => ['odontogram', 'budgets', 'appointments', 'inventory', 'payments'],
+        'features' => ['odontogram', 'budgets', 'appointments', 'inventory', 'payments', 'pdf'],
     ],
     'pro' => [
         'label' => 'Pro',

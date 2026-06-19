@@ -57,7 +57,7 @@ class FeatureGatingTest extends TestCase
         $clinic = $clinic->fresh();
 
         $this->assertFalse($planLimits->hasFeature($clinic, 'portal'));
-        $this->assertFalse($planLimits->hasFeature($clinic, 'pdf'));
+        $this->assertTrue($planLimits->hasFeature($clinic, 'pdf'));
         $this->assertFalse($planLimits->hasFeature($clinic, 'bi_reports'));
         $this->assertFalse($planLimits->hasFeature($clinic, 'low_inventory_alert'));
         $this->assertTrue($planLimits->hasFeature($clinic, 'odontogram'));
@@ -101,7 +101,7 @@ class FeatureGatingTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_starter_clinic_pdf_returns_403(): void
+    public function test_starter_clinic_pdf_returns_200(): void
     {
         $service = app(SubscriptionService::class);
 
@@ -136,7 +136,7 @@ class FeatureGatingTest extends TestCase
 
         $response = $this->get("/app/budgets/{$budget->id}/pdf");
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
     }
 
     public function test_trial_clinic_has_all_features(): void
