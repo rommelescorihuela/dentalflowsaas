@@ -2,13 +2,11 @@
 
 namespace App\Filament\App\Resources\Budgets;
 
-use App\Filament\App\Resources\Budgets\Pages;
-use App\Filament\App\Resources\Patients\PatientResource;
 use App\Models\Budget;
 use BackedEnum;
 use Filament\Forms;
-use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 
@@ -47,8 +45,8 @@ class BudgetResource extends Resource
                 Forms\Components\DatePicker::make('expires_at'),
                 Forms\Components\Placeholder::make('odontogram_link')
                     ->label('Odontograma Origen')
-                    ->visible(fn(?Budget $record) => $record?->odontogram !== null)
-                    ->content(fn(Budget $record) => view('filament.components.odontogram-link', ['odontogram' => $record->odontogram])),
+                    ->visible(fn (?Budget $record) => $record?->odontogram !== null)
+                    ->content(fn (Budget $record) => view('filament.components.odontogram-link', ['odontogram' => $record->odontogram])),
                 Forms\Components\Textarea::make('notes')
                     ->columnSpanFull()
                     ->rows(3)
@@ -101,7 +99,8 @@ class BudgetResource extends Resource
                             ->content(function (callable $get) {
                                 $cost = $get('cost') ?? 0;
                                 $qty = $get('quantity') ?? 1;
-                                return '$' . number_format($cost * $qty, 0, ',', '.');
+
+                                return '$'.number_format($cost * $qty, 0, ',', '.');
                             }),
                     ])
                     ->columnSpanFull()
@@ -121,7 +120,7 @@ class BudgetResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'draft' => 'gray',
                         'sent' => 'warning',
                         'accepted' => 'success',
@@ -153,6 +152,12 @@ class BudgetResource extends Resource
                     ]),
             ])
             ->actions([
+                \Filament\Actions\Action::make('downloadPdf')
+                    ->label('PDF')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('primary')
+                    ->url(fn (Budget $record): string => route('budgets.pdf', $record))
+                    ->openUrlInNewTab(),
                 \Filament\Actions\EditAction::make(),
             ])
             ->bulkActions([

@@ -9,12 +9,12 @@ Route::get('/', function () {
 Route::get('/register', \App\Livewire\Auth\RegisterTenant::class)->name('register');
 
 Route::get('/register/success', function (\Illuminate\Http\Request $request) {
-    if (!$request->has('tenant_id')) {
+    if (! $request->has('tenant_id')) {
         return redirect('/');
     }
 
     $clinic = \App\Models\Clinic::with('domains')->find($request->tenant_id);
-    if (!$clinic) {
+    if (! $clinic) {
         return redirect('/');
     }
 
@@ -23,11 +23,11 @@ Route::get('/register/success', function (\Illuminate\Http\Request $request) {
     $host = request()->getHost();
     $isLocal = in_array($host, ['localhost', '127.0.0.1', '::1']);
 
-    if ($domain && !$isLocal) {
-        $url = (request()->secure() ? 'https://' : 'http://') . $domain->domain . '/app';
+    if ($domain && ! $isLocal) {
+        $url = (request()->secure() ? 'https://' : 'http://').$domain->domain.'/app';
     } else {
         // Fallback to path-based identification
-        $url = url('/' . $clinic->id . '/app');
+        $url = url('/'.$clinic->id.'/app');
     }
 
     return view('auth.register-success', ['clinic' => $clinic, 'url' => $url]);
@@ -43,6 +43,7 @@ Route::get('/lang/{locale}', function ($locale) {
     if (in_array($locale, ['en', 'es'])) {
         session(['locale' => $locale]);
     }
+
     return redirect()->back();
 })->name('lang.switch');
 
@@ -53,11 +54,12 @@ Route::middleware([
     'throttle:portal',
     \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class,
 ])->group(function () {
-    Route::get('/{tenant?}/portal/{patient}', [\App\Http\Controllers\PatientPortalController::class , 'dashboard'])->name('portal.dashboard');
+    Route::get('/{tenant?}/portal/{patient}', [\App\Http\Controllers\PatientPortalController::class, 'dashboard'])->name('portal.dashboard');
     Route::get('/{tenant?}/portal/{patient}/book', \App\Livewire\PatientPortal\BookAppointment::class)->name('portal.book');
-    Route::get('/{tenant?}/portal/budgets/{budget}', [\App\Http\Controllers\PatientPortalController::class , 'viewBudget'])->name('portal.budgets.view');
-    Route::post('/{tenant?}/portal/budgets/{budget}/accept', [\App\Http\Controllers\PatientPortalController::class , 'acceptBudget'])->name('portal.budgets.accept');
-    Route::post('/{tenant?}/portal/budgets/{budget}/reject', [\App\Http\Controllers\PatientPortalController::class , 'rejectBudget'])->name('portal.budgets.reject');
+    Route::get('/{tenant?}/portal/budgets/{budget}', [\App\Http\Controllers\PatientPortalController::class, 'viewBudget'])->name('portal.budgets.view');
+    Route::get('/{tenant?}/portal/budgets/{budget}/pdf', [\App\Http\Controllers\PdfController::class, 'downloadBudgetPortal'])->name('portal.budgets.pdf');
+    Route::post('/{tenant?}/portal/budgets/{budget}/accept', [\App\Http\Controllers\PatientPortalController::class, 'acceptBudget'])->name('portal.budgets.accept');
+    Route::post('/{tenant?}/portal/budgets/{budget}/reject', [\App\Http\Controllers\PatientPortalController::class, 'rejectBudget'])->name('portal.budgets.reject');
 });
 
 Route::middleware([
@@ -66,4 +68,6 @@ Route::middleware([
     \App\Http\Middleware\SetTenancyUrlDefaults::class,
 ])->group(function () {
     Route::post('/app/clinic-settings/save', [\App\Http\Controllers\ClinicSettingsController::class, 'save'])->name('clinic-settings.save');
+    Route::get('/app/budgets/{budget}/pdf', [\App\Http\Controllers\PdfController::class, 'downloadBudget'])->name('budgets.pdf');
+    Route::get('/app/odontograms/{odontogram}/pdf', [\App\Http\Controllers\PdfController::class, 'downloadOdontogram'])->name('odontograms.pdf');
 });

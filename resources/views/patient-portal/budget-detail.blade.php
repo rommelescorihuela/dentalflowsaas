@@ -125,6 +125,19 @@
             </div>
 
             <!-- Actions -->
+            <div class="bg-white rounded-[2rem] border border-teal-500/10 shadow-lg overflow-hidden">
+                <div class="p-6 flex justify-center">
+                    <a href="{{ URL::signedRoute('portal.budgets.pdf', ['budget' => $budget]) }}"
+                       target="_blank"
+                       class="inline-flex items-center justify-center px-8 py-3 rounded-xl text-sm font-semibold text-teal-700 bg-teal-50 border border-teal-200 hover:bg-teal-100 transition-all duration-200 shadow-sm">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Descargar PDF
+                    </a>
+                </div>
+            </div>
+
             @if($budget->status === 'sent')
             <div class="bg-white rounded-[2rem] border border-teal-500/10 shadow-lg overflow-hidden">
                 <div class="px-8 py-5 border-b border-stone-100 bg-gradient-to-r from-amber-50 to-transparent">

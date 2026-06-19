@@ -3,27 +3,13 @@
 namespace App\Filament\App\Resources\Patients\RelationManagers;
 
 use App\Filament\App\Resources\Patients\PatientResource;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Actions\AssociateAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\DissociateAction;
-use Filament\Actions\DissociateBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\RestoreBulkAction;
+use App\Models\Odontogram;
+use App\Services\BudgetGenerator;
 use Filament\Forms\Components\TextInput;
+use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-
-use App\Models\Odontogram;
-use App\Services\BudgetGenerator;
 
 class OdontogramsRelationManager extends RelationManager
 {
@@ -98,12 +84,12 @@ class OdontogramsRelationManager extends RelationManager
                 TextColumn::make('status')
                     ->label('Estado')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'in_progress' => 'warning',
                         'completed' => 'success',
                         default => 'gray',
                     })
-                    ->formatStateUsing(fn(string $state): string => match($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         'in_progress' => 'En Progreso',
                         'completed' => 'Completado',
                         default => ucfirst($state),
@@ -185,15 +171,21 @@ class OdontogramsRelationManager extends RelationManager
                     ->label('Ver')
                     ->icon('heroicon-o-eye')
                     ->color('gray')
-                    ->url(fn($record) => PatientResource::getUrl('odontograms.view', [
+                    ->url(fn ($record) => PatientResource::getUrl('odontograms.view', [
                         'patient' => $record->patient_id,
                         'odontogram' => $record->id,
                     ])),
+                \Filament\Actions\Action::make('downloadPdf')
+                    ->label('PDF')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('info')
+                    ->url(fn ($record): string => route('odontograms.pdf', $record))
+                    ->openUrlInNewTab(),
                 \Filament\Actions\Action::make('edit')
                     ->label('Editar')
                     ->icon('heroicon-o-pencil')
                     ->color('primary')
-                    ->url(fn($record) => PatientResource::getUrl('odontograms.view', [
+                    ->url(fn ($record) => PatientResource::getUrl('odontograms.view', [
                         'patient' => $record->patient_id,
                         'odontogram' => $record->id,
                     ])),
@@ -201,7 +193,7 @@ class OdontogramsRelationManager extends RelationManager
                     ->label('Generar Presupuesto')
                     ->icon('heroicon-o-document-currency-dollar')
                     ->color('success')
-                    ->visible(fn($record) => $record->status === 'completed')
+                    ->visible(fn ($record) => $record->status === 'completed')
                     ->requiresConfirmation()
                     ->modalHeading('Generar Presupuesto desde Odontograma')
                     ->modalDescription('Esto creará un presupuesto en borrador basado en los registros clínicos. Podrás editarlo antes de enviarlo al paciente.')
@@ -214,6 +206,7 @@ class OdontogramsRelationManager extends RelationManager
                                 ->body('Ya se generó un presupuesto para este odontograma. Puedes editarlo desde la sección de Presupuestos.')
                                 ->warning()
                                 ->send();
+
                             return;
                         }
 
@@ -221,7 +214,7 @@ class OdontogramsRelationManager extends RelationManager
 
                         \Filament\Notifications\Notification::make()
                             ->title('Presupuesto generado')
-                            ->body('Borrador de presupuesto #' . $budget->id . ' creado con total $' . number_format($budget->total, 0, ',', '.') . '. Ahora puedes editarlo.')
+                            ->body('Borrador de presupuesto #'.$budget->id.' creado con total $'.number_format($budget->total, 0, ',', '.').'. Ahora puedes editarlo.')
                             ->success()
                             ->send();
                     }),
@@ -237,6 +230,7 @@ class OdontogramsRelationManager extends RelationManager
                                 ->body('No tienes permiso para eliminar este odontograma.')
                                 ->danger()
                                 ->send();
+
                             return;
                         }
                         $record->delete();

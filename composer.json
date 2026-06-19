@@ -7,14 +7,15 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "barryvdh/laravel-dompdf": "^3.1",
         "filament/filament": "^4.0",
         "flowframe/laravel-trend": "^0.4.0",
         "laravel/cashier": "^16.2",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "phpseclib/bcmath_compat": "^2.0",
-        "stancl/tenancy": "^3.9",
-        "spatie/laravel-permission": "^6.0"
+        "spatie/laravel-permission": "^6.0",
+        "stancl/tenancy": "^3.9"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
