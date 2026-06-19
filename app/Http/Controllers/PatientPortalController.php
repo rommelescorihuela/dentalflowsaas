@@ -2,17 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use App\Models\Patient;
 use App\Models\Budget;
-
+use App\Models\Patient;
 
 class PatientPortalController extends Controller
 {
     public function dashboard($patient)
     {
-        if (!($patient instanceof Patient)) {
+        if (! ($patient instanceof Patient)) {
             $patient = Patient::where('id', $patient)
                 ->where('clinic_id', tenant('id'))
                 ->firstOrFail();
@@ -29,10 +26,14 @@ class PatientPortalController extends Controller
         ]);
     }
 
-    public function viewBudget(Budget $budget)
+    public function viewBudget(Patient $patient, Budget $budget)
     {
         if ($budget->clinic_id !== tenant('id')) {
             abort(403, 'No tienes acceso a este presupuesto.');
+        }
+
+        if ($budget->patient_id !== $patient->id) {
+            abort(403, 'Este presupuesto no pertenece al paciente.');
         }
 
         $budget->load(['items.procedurePrice', 'patient']);
@@ -42,10 +43,14 @@ class PatientPortalController extends Controller
         ]);
     }
 
-    public function acceptBudget(Budget $budget)
+    public function acceptBudget(Patient $patient, Budget $budget)
     {
         if ($budget->clinic_id !== tenant('id')) {
             abort(403, 'No tienes acceso a este presupuesto.');
+        }
+
+        if ($budget->patient_id !== $patient->id) {
+            abort(403, 'Este presupuesto no pertenece al paciente.');
         }
 
         $budget->update([
@@ -55,10 +60,14 @@ class PatientPortalController extends Controller
         return back()->with('success', '¡Presupuesto aceptado exitosamente!');
     }
 
-    public function rejectBudget(Budget $budget)
+    public function rejectBudget(Patient $patient, Budget $budget)
     {
         if ($budget->clinic_id !== tenant('id')) {
             abort(403, 'No tienes acceso a este presupuesto.');
+        }
+
+        if ($budget->patient_id !== $patient->id) {
+            abort(403, 'Este presupuesto no pertenece al paciente.');
         }
 
         $budget->update([

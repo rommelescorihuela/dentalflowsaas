@@ -127,7 +127,7 @@
             <!-- Actions -->
             <div class="bg-white rounded-[2rem] border border-teal-500/10 shadow-lg overflow-hidden">
                 <div class="p-6 flex justify-center">
-                    <a href="{{ URL::signedRoute('portal.budgets.pdf', ['budget' => $budget]) }}"
+                    <a href="{{ URL::signedRoute('portal.budgets.pdf', ['patient' => $budget->patient, 'budget' => $budget]) }}"
                        target="_blank"
                        class="inline-flex items-center justify-center px-8 py-3 rounded-xl text-sm font-semibold text-teal-700 bg-teal-50 border border-teal-200 hover:bg-teal-100 transition-all duration-200 shadow-sm">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -144,7 +144,7 @@
                     <h3 class="text-xl font-display font-bold text-stone-800">Que deseas hacer?</h3>
                 </div>
                 <div class="p-8 flex flex-col sm:flex-row gap-4 justify-center">
-                    <form action="{{ URL::signedRoute('portal.budgets.accept', ['budget' => $budget]) }}" method="POST">
+                    <form action="{{ URL::signedRoute('portal.budgets.accept', ['patient' => $budget->patient, 'budget' => $budget]) }}" method="POST">
                         @csrf
                         <button type="submit"
                             class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 border border-transparent rounded-xl shadow-lg text-sm font-medium text-white bg-gradient-to-r from-success-600 to-success-700 hover:from-emerald-700 hover:to-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 transform hover:scale-105">
@@ -154,7 +154,7 @@
                             Aceptar Presupuesto
                         </button>
                     </form>
-                    <form action="{{ URL::signedRoute('portal.budgets.reject', ['budget' => $budget]) }}" method="POST">
+                    <form action="{{ URL::signedRoute('portal.budgets.reject', ['patient' => $budget->patient, 'budget' => $budget]) }}" method="POST">
                         @csrf
                         <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-xl text-sm font-semibold text-rose-700 bg-white border border-rose-200 hover:bg-rose-50 transition-all duration-200 shadow-sm">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>

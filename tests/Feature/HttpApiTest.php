@@ -2,16 +2,9 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\Patient;
-use App\Models\Budget;
-use App\Models\Appointment;
-use App\Models\Odontogram;
-use App\Models\ClinicalRecord;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
+use Tests\TestCase;
 
 class HttpApiTest extends TestCase
 {
@@ -33,7 +26,7 @@ class HttpApiTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertViewIs('patient-portal.dashboard');
-        $response->assertViewHas('patient', fn($patient) => $patient->id === $this->patientA->id);
+        $response->assertViewHas('patient', fn ($patient) => $patient->id === $this->patientA->id);
     }
 
     public function test_patient_portal_dashboard_returns_403_for_unsigned_url(): void
@@ -62,7 +55,7 @@ class HttpApiTest extends TestCase
 
         $budget = $this->createBudgetWithItems($this->patientA, 'pending');
 
-        $url = URL::signedRoute('portal.budgets.accept', ['tenant' => 'clinic-a', 'budget' => $budget->id]);
+        $url = URL::signedRoute('portal.budgets.accept', ['tenant' => 'clinic-a', 'patient' => $this->patientA->id, 'budget' => $budget->id]);
 
         $response = $this->post($url);
 
@@ -79,7 +72,7 @@ class HttpApiTest extends TestCase
 
         $this->switchTenant('clinic-b');
 
-        $url = URL::signedRoute('portal.budgets.accept', ['tenant' => 'clinic-b', 'budget' => $budgetId]);
+        $url = URL::signedRoute('portal.budgets.accept', ['tenant' => 'clinic-b', 'patient' => $this->patientA->id, 'budget' => $budgetId]);
 
         $response = $this->post($url);
 
@@ -169,7 +162,7 @@ class HttpApiTest extends TestCase
         $response = $this->get($url);
 
         $response->assertStatus(200);
-        $response->assertViewHas('patient', fn($patient) => $patient->id === $this->patientB->id);
+        $response->assertViewHas('patient', fn ($patient) => $patient->id === $this->patientB->id);
     }
 
     public function test_budget_accept_changes_status_via_http(): void
@@ -179,7 +172,7 @@ class HttpApiTest extends TestCase
         $budget = $this->createBudgetWithItems($this->patientA, 'pending');
         $this->assertEquals('pending', $budget->status);
 
-        $url = URL::signedRoute('portal.budgets.accept', ['tenant' => 'clinic-a', 'budget' => $budget->id]);
+        $url = URL::signedRoute('portal.budgets.accept', ['tenant' => 'clinic-a', 'patient' => $this->patientA->id, 'budget' => $budget->id]);
         $this->post($url);
 
         $this->assertEquals('accepted', $budget->fresh()->status);
@@ -213,8 +206,8 @@ class HttpApiTest extends TestCase
         $budget1 = $this->createBudgetWithItems($this->patientA, 'pending');
         $budget2 = $this->createBudgetWithItems($this->patientA, 'pending');
 
-        $url1 = URL::signedRoute('portal.budgets.accept', ['tenant' => 'clinic-a', 'budget' => $budget1->id]);
-        $url2 = URL::signedRoute('portal.budgets.accept', ['tenant' => 'clinic-a', 'budget' => $budget2->id]);
+        $url1 = URL::signedRoute('portal.budgets.accept', ['tenant' => 'clinic-a', 'patient' => $this->patientA->id, 'budget' => $budget1->id]);
+        $url2 = URL::signedRoute('portal.budgets.accept', ['tenant' => 'clinic-a', 'patient' => $this->patientA->id, 'budget' => $budget2->id]);
 
         $this->post($url1);
         $this->post($url2);
@@ -239,7 +232,7 @@ class HttpApiTest extends TestCase
         $urlB = URL::signedRoute('portal.dashboard', ['tenant' => 'clinic-b', 'patient' => $this->patientB->id]);
         $responseB = $this->get($urlB);
         $responseB->assertStatus(200);
-        $responseB->assertViewHas('patient', fn($p) => $p->id === $this->patientB->id);
+        $responseB->assertViewHas('patient', fn ($p) => $p->id === $this->patientB->id);
     }
 
     public function test_register_success_redirects_without_tenant_id(): void

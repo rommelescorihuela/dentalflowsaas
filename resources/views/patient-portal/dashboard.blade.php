@@ -270,7 +270,7 @@
                     </div>
                     <div class="p-6 space-y-3">
                         @forelse($patient->budgets()->orderBy('created_at', 'desc')->get() as $budget)
-                        <a href="{{ URL::signedRoute('portal.budgets.view', ['budget' => $budget]) }}" class="block bg-[#FFFBF5] border border-stone-100 rounded-2xl p-5 hover:border-teal-200 hover:shadow-md transition-all duration-200 group">
+                        <a href="{{ URL::signedRoute('portal.budgets.view', ['patient' => $patient, 'budget' => $budget]) }}" class="block bg-[#FFFBF5] border border-stone-100 rounded-2xl p-5 hover:border-teal-200 hover:shadow-md transition-all duration-200 group">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-4">
                                     <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-200 transition-colors flex-shrink-0">

@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Budget;
 use App\Models\Odontogram;
+use App\Models\Patient;
 use App\Services\PdfService;
 use Illuminate\Http\Request;
 
@@ -33,9 +34,13 @@ class PdfController extends Controller
         return $this->pdfService->generateOdontogramPdf($odontogram);
     }
 
-    public function downloadBudgetPortal(Request $request, Budget $budget)
+    public function downloadBudgetPortal(Request $request, Patient $patient, Budget $budget)
     {
         if ($budget->clinic_id !== tenant('id')) {
+            abort(403);
+        }
+
+        if ($budget->patient_id !== $patient->id) {
             abort(403);
         }
 
