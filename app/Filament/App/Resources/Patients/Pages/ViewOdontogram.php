@@ -142,7 +142,7 @@ class ViewOdontogram extends Page implements HasForms
                             Notification::make()
                                 ->success()
                                 ->title('Presupuesto generado')
-                                ->body('Presupuesto #' . $budget->id . ' creado por $' . number_format($budget->total, 0, ',', '.'))
+                                ->body('Presupuesto #' . $budget->id . ' creado por ' . \App\Helpers\ClinicHelper::formatMoneyShort($budget->total))
                                 ->send();
                         }
                     });

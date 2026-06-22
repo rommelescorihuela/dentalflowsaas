@@ -2,14 +2,14 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Spatie\Permission\PermissionRegistrar;
+use App\Models\Clinic;
+use App\Models\Odontogram;
 use App\Models\Permission;
 use App\Models\Role;
-use App\Models\Odontogram;
-use App\Models\Clinic;
-use App\Observers\OdontogramObserver;
 use App\Observers\ClinicObserver;
+use App\Observers\OdontogramObserver;
+use Illuminate\Support\ServiceProvider;
+use Spatie\Permission\PermissionRegistrar;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
             ['localhost', '127.0.0.1'],
             array_filter(array_map('trim', explode(',', $envDomains)))
         ));
-        
+
         config(['tenancy.central_domains' => $centralDomains]);
     }
 
@@ -40,6 +40,9 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\RateLimiter::for('portal', function (\Illuminate\Http\Request $request) {
             return \Illuminate\Cache\RateLimiting\Limit::perMinute(30)->by($request->ip());
         });
+
+        // Set timezone dynamically per tenant
+        $this->setTenantTimezone();
 
         Odontogram::observe(OdontogramObserver::class);
         Clinic::observe(ClinicObserver::class);
@@ -76,7 +79,7 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Gate::policy(\App\Models\SystemActivity::class, \App\Policies\SystemActivityPolicy::class);
 
         // Set global URL default for tenant parameter if present in the path
-        if (!app()->runningInConsole()) {
+        if (! app()->runningInConsole()) {
             $tenantId = request()->segment(1);
 
             // Special case for Livewire updates which are central but need tenant context
@@ -85,10 +88,10 @@ class AppServiceProvider extends ServiceProvider
                 $pathSegments = explode('/', ltrim((string) $path, '/'));
                 $firstSegment = $pathSegments[0] ?? null;
 
-                if ($firstSegment && !in_array($firstSegment, ['admin', 'up', 'login', 'register'])) {
+                if ($firstSegment && ! in_array($firstSegment, ['admin', 'up', 'login', 'register'])) {
                     $tenantId = $firstSegment;
-                    
-                    if (!tenancy()->initialized) {
+
+                    if (! tenancy()->initialized) {
                         try {
                             tenancy()->initialize($tenantId);
                         } catch (\Exception $e) {
@@ -99,8 +102,25 @@ class AppServiceProvider extends ServiceProvider
             }
 
             // Set default if we found a valid tenant segment
-            if ($tenantId && !in_array($tenantId, ['admin', 'up', 'login', 'register', 'livewire'])) {
+            if ($tenantId && ! in_array($tenantId, ['admin', 'up', 'login', 'register', 'livewire'])) {
                 \Illuminate\Support\Facades\URL::defaults(['tenant' => $tenantId]);
+            }
+        }
+    }
+
+    /**
+     * Set the application timezone based on the current tenant's setting.
+     * This ensures dates/times are displayed in the clinic's local timezone.
+     */
+    protected function setTenantTimezone(): void
+    {
+        // Only apply on web requests after tenancy is initialized
+        if (! app()->runningInConsole() && tenancy()->initialized) {
+            $timezone = \App\Helpers\ClinicHelper::getTimezone();
+
+            if ($timezone && in_array($timezone, \DateTimeZone::listIdentifiers())) {
+                config(['app.timezone' => $timezone]);
+                date_default_timezone_set($timezone);
             }
         }
     }

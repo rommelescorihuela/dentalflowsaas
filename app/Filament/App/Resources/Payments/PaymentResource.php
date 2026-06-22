@@ -49,7 +49,7 @@ class PaymentResource extends Resource
                     ->placeholder('Seleccionar Presupuesto (Opcional)'),
                 TextInput::make('amount')
                     ->numeric()
-                    ->prefix('$')
+                    ->prefix(\App\Helpers\ClinicHelper::getCurrencySymbol())
                     ->required(),
                 Select::make('method')
                     ->options([
@@ -80,7 +80,7 @@ class PaymentResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('patient.name')->searchable()->sortable(),
-                TextColumn::make('amount')->money('USD')->sortable(),
+                TextColumn::make('amount')->formatStateUsing(fn ($state) => \App\Helpers\ClinicHelper::formatMoney((float) $state))->sortable(),
                 TextColumn::make('method')->badge(),
                 TextColumn::make('status')
                     ->badge()

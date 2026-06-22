@@ -50,14 +50,14 @@ class FinancialStatsOverview extends StatsOverviewWidget
         $acceptanceRate = $totalSent > 0 ? ($totalAccepted / $totalSent) * 100 : 0;
 
         return [
-            Stat::make('Ingresos (Mes)', '$'.number_format($revenueThisMonth, 2))
+            Stat::make('Ingresos (Mes)', \App\Helpers\ClinicHelper::formatMoney($revenueThisMonth))
                 ->description(number_format(abs($revenueTrend), 1).'% '.($revenueTrend >= 0 ? 'subida' : 'bajada'))
                 ->descriptionIcon($revenueTrend >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->icon($revenueTrend >= 0 ? 'heroicon-o-arrow-trending-up' : 'heroicon-o-arrow-trending-down')
                 ->chart([$revenueLastMonth, $revenueThisMonth])
                 ->color($revenueTrend >= 0 ? 'success' : 'danger'),
 
-            Stat::make('Por Cobrar', '$'.number_format($outstanding, 2))
+            Stat::make('Por Cobrar', \App\Helpers\ClinicHelper::formatMoney($outstanding))
                 ->description('Total deuda de pacientes')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->icon('heroicon-o-banknotes')

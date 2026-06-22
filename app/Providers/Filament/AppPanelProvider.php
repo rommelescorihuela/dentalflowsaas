@@ -28,7 +28,11 @@ class AppPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/app/theme.css')
             ->login()
             ->brandName('DentalFlow')
-            ->brandLogo(asset('images/logo.svg'))
+            ->brandLogo(function () {
+                $logo = \App\Helpers\ClinicHelper::getLogo();
+
+                return $logo ? asset('storage/'.$logo) : asset('images/logo.svg');
+            })
             ->brandLogoHeight('2.2rem')
             ->favicon(asset('images/favicon.svg'))
             ->font('Open Sans')

@@ -214,7 +214,7 @@ class OdontogramsRelationManager extends RelationManager
 
                         \Filament\Notifications\Notification::make()
                             ->title('Presupuesto generado')
-                            ->body('Borrador de presupuesto #'.$budget->id.' creado con total $'.number_format($budget->total, 0, ',', '.').'. Ahora puedes editarlo.')
+                            ->body('Borrador de presupuesto #'.$budget->id.' creado con total '.\App\Helpers\ClinicHelper::formatMoneyShort($budget->total).'. Ahora puedes editarlo.')
                             ->success()
                             ->send();
                     }),

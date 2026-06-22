@@ -113,12 +113,9 @@ class PdfService
     protected function currencySymbol(string $currency): string
     {
         return match ($currency) {
-            'USD' => '$',
+            'Bs' => 'Bs ',
             'EUR' => '€',
-            'MXN' => '$',
-            'COP' => '$',
-            'CLP' => '$',
-            'Bs' => 'Bs',
+            'USD' => '$',
             default => '$',
         };
     }

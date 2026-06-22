@@ -55,7 +55,7 @@ class InventoryResource extends Resource
                 TextInput::make('price')
                     ->label('Precio')
                     ->numeric()
-                    ->prefix('$')
+                    ->prefix(\App\Helpers\ClinicHelper::getCurrencySymbol())
                     ->required(),
                 TextInput::make('quantity')
                     ->label('Cantidad')
@@ -98,7 +98,7 @@ class InventoryResource extends Resource
                 TextColumn::make('supplier')->searchable(),
                 TextColumn::make('quantity')->sortable()
                     ->color(fn(Inventory $record) => $record->quantity <= $record->low_stock_threshold ? 'danger' : 'success'),
-                TextColumn::make('price')->money('USD'),
+                TextColumn::make('price')->formatStateUsing(fn ($state) => \App\Helpers\ClinicHelper::formatMoney((float) $state)),
                 TextColumn::make('expiration_date')->date(),
             ])
             ->filters([

@@ -41,7 +41,7 @@ class ProcedurePriceResource extends Resource
                     ->maxLength(255),
                 TextInput::make('price')
                     ->numeric()
-                    ->prefix('$')
+                    ->prefix(\App\Helpers\ClinicHelper::getCurrencySymbol())
                     ->required(),
                 TextInput::make('duration')
                     ->label('Duración')
@@ -87,7 +87,7 @@ class ProcedurePriceResource extends Resource
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('price')
-                    ->money('USD')
+                    ->formatStateUsing(fn ($state) => \App\Helpers\ClinicHelper::formatMoney((float) $state))
                     ->sortable(),
                 TextColumn::make('duration'),
             ])

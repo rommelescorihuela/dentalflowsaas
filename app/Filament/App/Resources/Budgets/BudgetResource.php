@@ -32,7 +32,7 @@ class BudgetResource extends Resource
                     ->searchable(),
                 Forms\Components\TextInput::make('total')
                     ->numeric()
-                    ->prefix('$')
+                    ->prefix(\App\Helpers\ClinicHelper::getCurrencySymbol())
                     ->required(),
                 Forms\Components\Select::make('status')
                     ->options([
@@ -86,7 +86,7 @@ class BudgetResource extends Resource
                             ->required(),
                         Forms\Components\TextInput::make('cost')
                             ->numeric()
-                            ->prefix('$')
+                            ->prefix(\App\Helpers\ClinicHelper::getCurrencySymbol())
                             ->live()
                             ->afterStateUpdated(function ($state, callable $get, callable $set) {
                                 $cost = $state ?? 0;
@@ -100,7 +100,7 @@ class BudgetResource extends Resource
                                 $cost = $get('cost') ?? 0;
                                 $qty = $get('quantity') ?? 1;
 
-                                return '$'.number_format($cost * $qty, 0, ',', '.');
+                                return \App\Helpers\ClinicHelper::formatMoneyShort($cost * $qty);
                             }),
                     ])
                     ->columnSpanFull()
@@ -116,7 +116,7 @@ class BudgetResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('total')
-                    ->money('USD')
+                    ->formatStateUsing(fn ($state) => \App\Helpers\ClinicHelper::formatMoney((float) $state))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
