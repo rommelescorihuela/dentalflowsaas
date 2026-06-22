@@ -12,8 +12,12 @@ return new class extends Migration
             $table->string('id')->primary();
             $table->string('name');
             $table->string('plan')->default('free');
+            $table->string('subscription_status')->nullable()->after('plan');
+            $table->timestamp('trial_ends_at')->nullable()->after('subscription_status');
             $table->json('data')->nullable();
             $table->timestamps();
+
+            $table->index('subscription_status');
         });
     }
 

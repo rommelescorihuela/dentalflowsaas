@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('patients', function (Blueprint $table) {
             $table->id();
             $table->string('clinic_id');
+            $table->unsignedBigInteger('doctor_id')->nullable()->after('clinic_id');
             $table->string('name');
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
@@ -21,6 +22,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('clinic_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('doctor_id')->references('id')->on('users')->nullOnDelete();
             $table->unique(['clinic_id', 'rut'], 'patients_clinic_id_rut_unique');
         });
     }

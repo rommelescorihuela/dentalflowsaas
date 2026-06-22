@@ -41,14 +41,9 @@ class Dashboard extends BaseDashboard
         }
 
         if ($tenant) {
-            $data = is_array($tenant->data)
-                ? $tenant->data
-                : json_decode($tenant->data ?? '{}', true);
-
-            $step = $data['onboarding_step'] ?? 1;
-
-            if ($step < 4) {
-                redirect()->to('/app/onboarding-wizard');
+            // Usar el accessor que tiene fallback a DB directa
+            if ($tenant->onboarding_step < 4) {
+                $this->redirect('/app/onboarding-wizard');
             }
         }
     }

@@ -38,7 +38,7 @@ class Clinic extends BaseTenant
     {
         $data = $this->data;
 
-        if (! is_array($data)) {
+        if (! is_array($data) || empty($data)) {
             $rawData = \Illuminate\Support\Facades\DB::table('tenants')
                 ->where('id', $this->id)
                 ->value('data');

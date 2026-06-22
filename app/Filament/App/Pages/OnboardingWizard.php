@@ -53,17 +53,13 @@ class OnboardingWizard extends Page implements HasForms
         $tenant = $this->resolveTenant();
 
         if ($tenant) {
-            $tenantData = is_array($tenant->data)
-                ? $tenant->data
-                : json_decode($tenant->data ?? '{}', true);
-
             $this->form->fill([
                 'clinic_name' => $tenant->name,
-                'logo' => $tenantData['logo'] ?? null,
-                'currency' => $tenantData['currency'] ?? 'USD',
-                'timezone' => $tenantData['timezone'] ?? 'America/Caracas',
-                'schedule_start' => $tenantData['schedule_start'] ?? '09:00',
-                'schedule_end' => $tenantData['schedule_end'] ?? '18:00',
+                'logo' => $tenant->logo,
+                'currency' => $tenant->currency ?: 'USD',
+                'timezone' => $tenant->timezone ?: 'America/Caracas',
+                'schedule_start' => $tenant->schedule_start ?: '09:00',
+                'schedule_end' => $tenant->schedule_end ?: '18:00',
                 'import_procedures' => true,
                 'import_inventory' => true,
                 'doctor_name' => '',
@@ -181,7 +177,6 @@ class OnboardingWizard extends Page implements HasForms
             return;
         }
 
-        // Usar el modelo Clinic (no DB::table) porque Stancl VirtualColumn maneja 'data' de forma especial
         $clinic = \App\Models\Clinic::withoutGlobalScope(\App\Scopes\ClinicScope::class)->find($tenant->id);
 
         if (! $clinic) {
@@ -191,28 +186,18 @@ class OnboardingWizard extends Page implements HasForms
         }
 
         $clinic->name = $data['clinic_name'];
+
+        // Setear atributos individuales — VirtualColumn los codifica en 'data' al hacer save().
+        // NO usar $clinic->data = [...] porque encodeAttributes() sobreescribe data con solo
+        // los atributos fuera de getCustomColumns(), perdiendo lo puesto directamente en data.
+        $clinic->logo = $data['logo'] ?? null;
+        $clinic->currency = $data['currency'];
+        $clinic->timezone = $data['timezone'];
+        $clinic->schedule_start = $data['schedule_start'];
+        $clinic->schedule_end = $data['schedule_end'];
+        $clinic->onboarding_step = 4;
+        $clinic->onboarding_completed_at = now()->toIso8601String();
         $clinic->save();
-
-        // Guardar datos en la columna data via raw query (VirtualColumn de Stancl maneja esto)
-        $existingData = [];
-        $rawData = \Illuminate\Support\Facades\DB::table('tenants')->where('id', $clinic->id)->value('data');
-        if ($rawData) {
-            $existingData = json_decode($rawData, true) ?? [];
-        }
-
-        $mergedData = array_merge($existingData, [
-            'logo' => $data['logo'] ?? null,
-            'currency' => $data['currency'],
-            'timezone' => $data['timezone'],
-            'schedule_start' => $data['schedule_start'],
-            'schedule_end' => $data['schedule_end'],
-            'onboarding_step' => 4,
-            'onboarding_completed_at' => now()->toIso8601String(),
-        ]);
-
-        \Illuminate\Support\Facades\DB::table('tenants')
-            ->where('id', $clinic->id)
-            ->update(['data' => json_encode($mergedData)]);
 
         if (in_array($data['import_procedures'] ?? '1', ['1', true, 'true'], true)) {
             $this->importProcedures($clinic->id);

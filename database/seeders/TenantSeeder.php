@@ -19,8 +19,14 @@ class TenantSeeder extends Seeder
         // ============================================================
         $clinic1 = Clinic::firstOrCreate(['id' => 'clinic1'], [
             'name' => 'Clínica Dental Sonrisas',
-            'data' => ['plan' => 'enterprise'],
         ]);
+        $clinic1->currency = 'USD';
+        $clinic1->timezone = 'America/Caracas';
+        $clinic1->schedule_start = '09:00';
+        $clinic1->schedule_end = '18:00';
+        $clinic1->onboarding_step = 4;
+        $clinic1->onboarding_completed_at = now()->toIso8601String();
+        $clinic1->save();
 
         $clinic1->domains()->firstOrCreate(['domain' => 'clinic1.localhost']);
         $clinic1->domains()->firstOrCreate(['domain' => "clinic1.{$centralDomain}"]);
@@ -72,8 +78,14 @@ class TenantSeeder extends Seeder
         // ============================================================
         $clinic2 = Clinic::firstOrCreate(['id' => 'clinic2'], [
             'name' => 'Ortodoncia Pérez',
-            'data' => ['plan' => 'professional'],
         ]);
+        $clinic2->currency = 'USD';
+        $clinic2->timezone = 'America/Caracas';
+        $clinic2->schedule_start = '08:00';
+        $clinic2->schedule_end = '17:00';
+        $clinic2->onboarding_step = 4;
+        $clinic2->onboarding_completed_at = now()->toIso8601String();
+        $clinic2->save();
 
         $clinic2->domains()->firstOrCreate(['domain' => 'clinic2.localhost']);
         $clinic2->domains()->firstOrCreate(['domain' => "clinic2.{$centralDomain}"]);
@@ -125,10 +137,16 @@ class TenantSeeder extends Seeder
         // ============================================================
         $clinic3 = Clinic::firstOrCreate(['id' => 'clinic3'], [
             'name' => 'Dental Trial',
-            'data' => ['plan' => 'free_trial'],
             'subscription_status' => \App\Enums\SubscriptionStatus::Trialing->value,
             'trial_ends_at' => now()->addDays(10),
         ]);
+        $clinic3->currency = 'Bs';
+        $clinic3->timezone = 'America/Caracas';
+        $clinic3->schedule_start = '09:00';
+        $clinic3->schedule_end = '18:00';
+        $clinic3->onboarding_step = 4;
+        $clinic3->onboarding_completed_at = now()->toIso8601String();
+        $clinic3->save();
 
         $clinic3->domains()->firstOrCreate(['domain' => 'clinic3.localhost']);
         $clinic3->domains()->firstOrCreate(['domain' => "clinic3.{$centralDomain}"]);
@@ -155,10 +173,16 @@ class TenantSeeder extends Seeder
         // ============================================================
         $clinic4 = Clinic::firstOrCreate(['id' => 'clinic4'], [
             'name' => 'Dental Suspendida',
-            'data' => ['plan' => 'basic'],
             'subscription_status' => \App\Enums\SubscriptionStatus::Suspended->value,
             'trial_ends_at' => now()->subDays(30),
         ]);
+        $clinic4->currency = 'USD';
+        $clinic4->timezone = 'America/Bogota';
+        $clinic4->schedule_start = '08:00';
+        $clinic4->schedule_end = '16:00';
+        $clinic4->onboarding_step = 4;
+        $clinic4->onboarding_completed_at = now()->toIso8601String();
+        $clinic4->save();
 
         $clinic4->domains()->firstOrCreate(['domain' => 'clinic4.localhost']);
         $clinic4->domains()->firstOrCreate(['domain' => "clinic4.{$centralDomain}"]);
