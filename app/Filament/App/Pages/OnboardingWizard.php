@@ -14,12 +14,12 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
-use Filament\Forms\Components\Wizard;
-use Filament\Forms\Components\Wizard\Step;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Wizard;
+use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -30,6 +30,11 @@ class OnboardingWizard extends Page implements HasForms
     use InteractsWithForms;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rocket-launch';
+
+    public function getHeadingIcon(): \BackedEnum|string|null
+    {
+        return null;
+    }
 
     protected string $view = 'filament.app.pages.onboarding-wizard';
 
@@ -119,10 +124,10 @@ class OnboardingWizard extends Page implements HasForms
                             Select::make('import_procedures')
                                 ->label('¿Cómo quieres configurar tus procedimientos?')
                                 ->options([
-                                    true => 'Importar plantilla (47 procedimientos predefinidos) — Recomendado',
-                                    false => 'Los configuraré manualmente después',
+                                    '1' => 'Importar plantilla (47 procedimientos predefinidos) — Recomendado',
+                                    '0' => 'Los configuraré manualmente después',
                                 ])
-                                ->default(true)
+                                ->default('1')
                                 ->required(),
                         ]),
                     Step::make('Inventario inicial')
@@ -132,10 +137,10 @@ class OnboardingWizard extends Page implements HasForms
                             Select::make('import_inventory')
                                 ->label('¿Cómo quieres configurar tu inventario?')
                                 ->options([
-                                    true => 'Importar plantilla (95 items predefinidos) — Recomendado',
-                                    false => 'Lo configuraré manualmente después',
+                                    '1' => 'Importar plantilla (95 items predefinidos) — Recomendado',
+                                    '0' => 'Lo configuraré manualmente después',
                                 ])
-                                ->default(true)
+                                ->default('1')
                                 ->required(),
                         ]),
                     Step::make('Tu equipo')
@@ -158,7 +163,7 @@ class OnboardingWizard extends Page implements HasForms
                                 ->placeholder('asistente@miclinica.com'),
                         ])->columns(2),
                 ])
-                    ->submitAction(label: 'Finalizar configuración')
+                    ->submitAction(new \Illuminate\Support\HtmlString('<button type="submit" class="fi-btn fi-btn-size-md fi-color-custom fi-btn-color-primary fi-color-primary fi-size-md gap-1.5 px-3 py-2 text-sm inline-grid shadow-sm rounded-lg bg-custom-600 text-white hover:bg-custom-500 focus-visible:ring-custom-500/50 dark:bg-custom-500 dark:hover:bg-custom-400 dark:focus-visible:ring-custom-400/50 relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2">Finalizar configuración</button>'))
                     ->persistStepInQueryString(),
             ])
             ->statePath('data');
@@ -176,39 +181,53 @@ class OnboardingWizard extends Page implements HasForms
             return;
         }
 
-        $existingData = is_array($tenant->data)
-            ? $tenant->data
-            : json_decode($tenant->data ?? '{}', true);
+        // Usar el modelo Clinic (no DB::table) porque Stancl VirtualColumn maneja 'data' de forma especial
+        $clinic = \App\Models\Clinic::withoutGlobalScope(\App\Scopes\ClinicScope::class)->find($tenant->id);
 
-        DB::table('tenants')
-            ->where('id', $tenant->id)
-            ->update([
-                'name' => $data['clinic_name'],
-                'data' => json_encode(array_merge($existingData, [
-                    'logo' => $data['logo'] ?? null,
-                    'currency' => $data['currency'],
-                    'timezone' => $data['timezone'],
-                    'schedule_start' => $data['schedule_start'],
-                    'schedule_end' => $data['schedule_end'],
-                    'onboarding_step' => 4,
-                    'onboarding_completed_at' => now()->toIso8601String(),
-                ])),
-            ]);
+        if (! $clinic) {
+            Notification::make()->title('Error: clínica no encontrada')->danger()->send();
 
-        if ($data['import_procedures']) {
-            $this->importProcedures($tenant->id);
+            return;
         }
 
-        if ($data['import_inventory']) {
-            $this->importInventory($tenant->id);
+        $clinic->name = $data['clinic_name'];
+        $clinic->save();
+
+        // Guardar datos en la columna data via raw query (VirtualColumn de Stancl maneja esto)
+        $existingData = [];
+        $rawData = \Illuminate\Support\Facades\DB::table('tenants')->where('id', $clinic->id)->value('data');
+        if ($rawData) {
+            $existingData = json_decode($rawData, true) ?? [];
+        }
+
+        $mergedData = array_merge($existingData, [
+            'logo' => $data['logo'] ?? null,
+            'currency' => $data['currency'],
+            'timezone' => $data['timezone'],
+            'schedule_start' => $data['schedule_start'],
+            'schedule_end' => $data['schedule_end'],
+            'onboarding_step' => 4,
+            'onboarding_completed_at' => now()->toIso8601String(),
+        ]);
+
+        \Illuminate\Support\Facades\DB::table('tenants')
+            ->where('id', $clinic->id)
+            ->update(['data' => json_encode($mergedData)]);
+
+        if (in_array($data['import_procedures'] ?? '1', ['1', true, 'true'], true)) {
+            $this->importProcedures($clinic->id);
+        }
+
+        if (in_array($data['import_inventory'] ?? '1', ['1', true, 'true'], true)) {
+            $this->importInventory($clinic->id);
         }
 
         if (! empty($data['doctor_email'])) {
-            $this->createTeamMember($tenant->id, $data['doctor_name'], $data['doctor_email'], 'doctor');
+            $this->createTeamMember($clinic->id, $data['doctor_name'], $data['doctor_email'], 'doctor');
         }
 
         if (! empty($data['assistant_email'])) {
-            $this->createTeamMember($tenant->id, $data['assistant_name'], $data['assistant_email'], 'assistant');
+            $this->createTeamMember($clinic->id, $data['assistant_name'], $data['assistant_email'], 'assistant');
         }
 
         Notification::make()
@@ -217,12 +236,14 @@ class OnboardingWizard extends Page implements HasForms
             ->success()
             ->send();
 
-        redirect()->to('/app');
+        $this->redirect('/app', navigate: false);
     }
 
     protected function importProcedures(string $clinicId): void
     {
-        $existing = ProcedurePrice::where('clinic_id', $clinicId)->count();
+        $existing = ProcedurePrice::withoutGlobalScope(\App\Scopes\ClinicScope::class)
+            ->where('clinic_id', $clinicId)
+            ->count();
 
         if ($existing > 0) {
             return;
@@ -234,7 +255,9 @@ class OnboardingWizard extends Page implements HasForms
 
     protected function importInventory(string $clinicId): void
     {
-        $existing = Inventory::where('clinic_id', $clinicId)->count();
+        $existing = Inventory::withoutGlobalScope(\App\Scopes\ClinicScope::class)
+            ->where('clinic_id', $clinicId)
+            ->count();
 
         if ($existing > 0) {
             return;

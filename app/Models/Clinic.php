@@ -36,7 +36,17 @@ class Clinic extends BaseTenant
 
     public function getOnboardingStepAttribute()
     {
-        return $this->data['onboarding_step'] ?? 1;
+        $data = $this->data;
+
+        if (! is_array($data)) {
+            $rawData = \Illuminate\Support\Facades\DB::table('tenants')
+                ->where('id', $this->id)
+                ->value('data');
+
+            $data = $rawData ? json_decode($rawData, true) : [];
+        }
+
+        return $data['onboarding_step'] ?? 1;
     }
 
     public static function getCustomColumns(): array
