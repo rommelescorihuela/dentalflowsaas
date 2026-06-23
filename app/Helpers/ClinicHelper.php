@@ -105,4 +105,56 @@ class ClinicHelper
     {
         return self::getCurrencySymbol().number_format($amount, 0, ',', '.');
     }
+
+    public static function getScheduleStart(): ?string
+    {
+        $tenant = tenant();
+
+        if (! $tenant) {
+            $user = auth()->user();
+
+            if ($user && $user->clinic_id) {
+                $tenant = config('tenancy.tenant_model')::find($user->clinic_id);
+            }
+        }
+
+        if (! $tenant) {
+            return null;
+        }
+
+        $data = is_array($tenant->data) ? $tenant->data : null;
+
+        if (! $data) {
+            $rawData = DB::table('tenants')->where('id', $tenant->id)->value('data');
+            $data = $rawData ? json_decode($rawData, true) : [];
+        }
+
+        return $data['schedule_start'] ?? null;
+    }
+
+    public static function getScheduleEnd(): ?string
+    {
+        $tenant = tenant();
+
+        if (! $tenant) {
+            $user = auth()->user();
+
+            if ($user && $user->clinic_id) {
+                $tenant = config('tenancy.tenant_model')::find($user->clinic_id);
+            }
+        }
+
+        if (! $tenant) {
+            return null;
+        }
+
+        $data = is_array($tenant->data) ? $tenant->data : null;
+
+        if (! $data) {
+            $rawData = DB::table('tenants')->where('id', $tenant->id)->value('data');
+            $data = $rawData ? json_decode($rawData, true) : [];
+        }
+
+        return $data['schedule_end'] ?? null;
+    }
 }
