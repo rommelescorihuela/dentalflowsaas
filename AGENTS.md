@@ -5,10 +5,10 @@
 - **PostgreSQL** only (≥14); `.env.example` ships with `DB_CONNECTION=sqlite` — **must override to `pgsql`**
 - **Multi-tenancy**: Stancl Tenancy 3.9, shared-DB approach (single DB, `clinic_id` column + global scope — see Tenancy section)
 - **Auth/RBAC**: Spatie Permissions 6.0 (no Filament Shield — custom role management; 4 roles: `super-admin`, `admin`, `doctor`, `assistant`)
-- **Payments**: Laravel Cashier (Stripe)
+- **Payments**: Manual only (Venezuela — bank transfer, Pago móvil, Zelle, Binance). `laravel/cashier` is in `composer.json` but **NOT used**.
 - **Linting**: Laravel Pint (no `pint.json` — Laravel defaults)
 - **Static analysis**: PHPStan level 5, no `phpstan.neon` (`vendor/bin/phpstan analyse app --level=5`)
-- **189 tests**: 22 Feature files + 1 Unit stub (`tests/Unit/ExampleTest.php`)
+- **34 test files**: 33 Feature + 1 Unit stub (`tests/Unit/ExampleTest.php`)
 
 ## Critical Commands
 
@@ -18,8 +18,9 @@ composer run test      # config:clear + php artisan test
 composer run setup     # composer install + copy .env + key:generate + migrate + npm install + build
 
 php artisan test --filter=SecurityTenantIsolationTest   # single test class
+php artisan test --filter=OnboardingWizardTest          # single test class
+php artisan migrate:fresh --seed                        # reset DB + seed demo data (4 clinics)
 php artisan diagnostic:all [--skip-tests]               # SystemDiagnosticCommand
-php artisan test:routes                                 # TestRoutesCommand
 php artisan tenants:create                              # Stancl-provided tenant creator
 ```
 
@@ -28,7 +29,7 @@ php artisan tenants:create                              # Stancl-provided tenant
 - **PostgreSQL required** — `.env.example` sets `DB_CONNECTION=sqlite`, change to `pgsql`.
 - **Test DB**: `dentalflow_test` on `127.0.0.1:5432`, hardcoded in `phpunit.xml`. Credentials (`DB_USERNAME`/`DB_PASSWORD`) are **NOT** set in `phpunit.xml` — provide them locally via `.env.testing` (gitignored); CI injects `postgres`/`postgres` as workflow env.
 - CI uses the **postgres:15** service container (not 14).
-- **Single shared database** — no per-tenant databases. Tenant isolation is via the `ClinicScope` global scope, not connection switching (see below).
+- **Single shared database** — no per-tenant databases. Tenant isolation is via the `ClinicScope` global scope, not connection switching.
 
 ## Tenancy Architecture
 
@@ -52,15 +53,32 @@ php artisan tenants:create                              # Stancl-provided tenant
 - **12 models use `BelongsToClinic`**: Appointment, Budget, BudgetItem, ClinicalRecord, Inventory, Odontogram, Patient, Payment, ProcedureInventory, ProcedurePrice, Treatment, User. Spatie `Role`/`Permission` are scoped via `setPermissionsTeamId()` instead (not the trait); `Clinic`/`Domain` are the Stancl tenant/domain models; `SystemActivity`/`SubscriptionPayment` are not trait-scoped.
 - **Tenancy bootstrappers gotcha**: `DatabaseTenancyBootstrapper` is **commented out** in `config/tenancy.php` — queries never switch connections. But `CacheTenancyBootstrapper`, `FilesystemTenancyBootstrapper`, `QueueTenancyBootstrapper` **are enabled**, so when tenancy is initialized `storage_path()` is suffixed with `tenant{clinic_id}` and cache keys are tagged per-tenant. Expect this when debugging file/cache/queue behavior in a tenant context.
 
-## Access URLs (Local Dev)
+## Stancl VirtualColumn — Critical Gotcha
 
-```
-Central admin:  http://127.0.0.1:8000/admin
-Clinic panel:   http://127.0.0.1:8000/app                 (tenant resolved from user clinic_id after login)
-Patient portal: http://127.0.0.1:8000/{tenant}/portal/{patient}
-```
+The `tenants` table has a `data` JSON column managed by Stancl's `VirtualColumn` trait. **This is non-obvious and has caused bugs:**
 
-Production: each clinic accesses via subdomain `clinic1.<central-domain>/app`. Portal routes use `signed` URLs + `throttle:portal` (30 req/min per IP, defined in `AppServiceProvider::boot()`).
+- **On model load** (`retrieved` event): VirtualColumn decodes `data` JSON into individual model attributes (e.g., `$tenant->currency`, `$tenant->timezone`), then **sets `$this->data = null`**.
+- **On model save** (`saving` event): `encodeAttributes()` collects all attributes NOT in `getCustomColumns()` (`['id', 'name', 'plan', 'data']`) and moves them INTO the `data` column as JSON.
+- **Consequence**: After loading a tenant, `$tenant->data` returns `null`. Access virtual attributes directly: `$tenant->currency`, `$tenant->timezone`, etc.
+- **Saving**: Set individual attributes (`$clinic->currency = 'USD'`), then `$clinic->save()`. Do NOT set `$clinic->data = [...]` — `encodeAttributes()` will overwrite it.
+- **Reading `onboarding_step`**: The `Clinic::getOnboardingStepAttribute()` accessor falls back to raw `DB::table('tenants')` query if `$this->data` is null/empty. Always use the accessor, not manual parsing.
+- **Migration note**: All virtual attributes (currency, timezone, logo, schedule_start/end, onboarding_step, etc.) are stored in the `data` JSON column. No separate DB columns needed.
+
+## Subscription System
+
+- **Plans**: Starter ($39/mo, 5 seats, 500 patients), Pro ($89/mo, unlimited). Defined in `config/plans.php`.
+- **Trial**: 14 days with full Pro access. `Subscription::effectivePlan()` returns Pro during trial.
+- **Status flow**: `trialing` → `active` → `past_due` (7-day grace) → `suspended` (blocked).
+- **Manual payments**: `SubscriptionPayment` model stores payment proofs. Admin reviews and approves/rejects in `SubscriptionPaymentsTable`.
+- **Middleware**: `EnsureSubscriptionActive` blocks `/app` access for suspended/cancelled clinics, redirects to Billing page.
+- **Cron**: `ProcessSubscriptions` command runs daily at 06:00 (expires trials, suspends past-due clinics).
+
+## Onboarding Wizard
+
+- **4-step wizard** at `/app/onboarding-wizard`: (1) Clinic data, (2) Import procedures, (3) Import inventory, (4) Invite team.
+- **Dashboard redirect**: `Dashboard::mount()` checks `$tenant->onboarding_step < 4` and redirects to wizard if incomplete.
+- **VirtualColumn**: Wizard sets individual attributes (`$clinic->currency = ...`), not `$clinic->data`.
+- **Seeders**: `TenantSeeder` sets `onboarding_step = 4` for all demo clinics so they skip the wizard.
 
 ## Middleware Chain
 
@@ -84,6 +102,8 @@ then `Authenticate` in `authMiddleware`.
 
 Both panels: dark mode, collapsible sidebar, primary color (App=Cyan, Admin=Indigo). Resources/pages/widgets are auto-discovered from the directories above. Vite entry points (from `vite.config.js`): `resources/css/app.css`, `resources/js/app.js`, `resources/css/filament/app/theme.css`, `resources/css/filament/admin/theme.css`.
 
+**Filament 4.x namespace changes**: `Section` moved from `Filament\Forms\Components\Section` to `Filament\Schemas\Components\Section`. Other form components (TextInput, Select, etc.) remain in `Filament\Forms\Components`.
+
 ## Test Conventions
 
 - Base class `Tests\TestCase` (NOT `PHPUnit\Framework\TestCase`) provides:
@@ -98,12 +118,12 @@ Both panels: dark mode, collapsible sidebar, primary color (App=Cyan, Admin=Indi
 
 ```
 app/Filament/App/Resources/      Clinic-panel resources (auto-discovered)
-app/Filament/App/Pages/          ClinicSettings page
+app/Filament/App/Pages/          Billing, Dashboard, OnboardingWizard
 app/Filament/Resources/          Central admin resources (auto-discovered)
-app/Http/Middleware/             InitializeTenancyBySubdomainId, SetTenancyUrlDefaults, SyncSpatiePermissionsTeamId
+app/Http/Middleware/             InitializeTenancyBySubdomainId, SetTenancyUrlDefaults, SyncSpatiePermissionsTeamId, EnsureSubscriptionActive
 app/Livewire/                    Odontogram (interactive SVG), Auth/RegisterTenant, PatientPortal/BookAppointment
-app/Services/BudgetGenerator.php Auto-generates budgets from completed odontograms
-app/Services/TenantService.php   Tenant/onboarding helpers
+app/Services/                    BudgetGenerator, PdfService, SubscriptionService, PlanLimits, TenantService
+app/Helpers/ClinicHelper.php     Currency, timezone, logo, money formatting (per-tenant)
 app/Traits/BelongsToClinic.php   Global-scope trait for tenant models
 app/Scopes/ClinicScope.php       Global scope: filters by clinic_id when tenancy initialized
 app/Observers/                   OdontogramObserver (budget gen), AppointmentObserver (inventory deduction), ClinicObserver
@@ -119,6 +139,23 @@ app/Policies/                    13 policies (RBAC enforcement)
   3. Resolves price from `procedure_price_id` first, falls back to `diagnosis_code` lookup, then to hardcoded `diagnosisDefaults` (e.g. `caries`, `endodontic`, `crown`).
   4. Groups items by procedure, appends tooth numbers to the treatment name.
   5. Creates a `draft` budget with 30-day `expires_at`; toast notification fired by the observer.
+
+## PDF Generation
+
+- `PdfService` generates PDFs for budgets and odontograms using `barryvdh/laravel-dompdf`.
+- Routes: `/app/budgets/{id}/pdf`, `/app/odontograms/{id}/pdf`, `/portal/budgets/{id}/pdf`.
+- Views: `resources/views/pdf/budget.blade.php`, `pdf/odontogram.blade.php`, `pdf/partials/tooth-svg.blade.php`.
+- PDF is a Starter+ feature (not Pro-only).
+
+## Access URLs (Local Dev)
+
+```
+Central admin:  http://127.0.0.1:8000/admin
+Clinic panel:   http://127.0.0.1:8000/app                 (tenant resolved from user clinic_id after login)
+Patient portal: http://127.0.0.1:8000/{tenant}/portal/{patient}
+```
+
+Production: each clinic accesses via subdomain `clinic1.<central-domain>/app`. Portal routes use `signed` URLs + `throttle:portal` (30 req/min per IP, defined in `AppServiceProvider::boot()`).
 
 ## CI/CD (`.github/workflows/ci.yml`)
 
