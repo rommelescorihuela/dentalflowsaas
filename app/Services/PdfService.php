@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Helpers\ClinicHelper;
 use App\Models\Budget;
 use App\Models\Odontogram;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -50,19 +51,15 @@ class PdfService
     {
         $budget->load(['patient', 'items.procedurePrice', 'clinic']);
 
-        $clinicData = is_array($budget->clinic->data)
-            ? $budget->clinic->data
-            : json_decode($budget->clinic->data ?? '{}', true);
-
-        $currency = $clinicData['currency'] ?? 'USD';
-        $currencySymbol = $this->currencySymbol($currency);
+        $currencySymbol = ClinicHelper::getCurrencySymbol();
+        $logoPath = ClinicHelper::getLogo();
+        $logo = $logoPath ? public_path('storage/'.$logoPath) : null;
 
         $pdf = Pdf::loadView('pdf.budget', [
             'budget' => $budget,
             'clinic' => $budget->clinic,
-            'clinicData' => $clinicData,
             'currencySymbol' => $currencySymbol,
-            'logo' => $clinicData['logo'] ?? null,
+            'logo' => $logo,
         ]);
 
         $filename = "presupuesto-{$budget->id}-{$budget->patient->name}.pdf";
@@ -74,9 +71,8 @@ class PdfService
     {
         $odontogram->load(['patient', 'clinicalRecords', 'clinic']);
 
-        $clinicData = is_array($odontogram->clinic->data)
-            ? $odontogram->clinic->data
-            : json_decode($odontogram->clinic->data ?? '{}', true);
+        $logoPath = ClinicHelper::getLogo();
+        $logo = $logoPath ? public_path('storage/'.$logoPath) : null;
 
         $toothMap = [];
         foreach ($odontogram->clinicalRecords as $record) {
@@ -90,10 +86,9 @@ class PdfService
             'odontogram' => $odontogram,
             'patient' => $odontogram->patient,
             'clinic' => $odontogram->clinic,
-            'clinicData' => $clinicData,
             'toothMap' => $toothMap,
             'colors' => $this->diagnosisColors,
-            'logo' => $clinicData['logo'] ?? null,
+            'logo' => $logo,
             'upperRight' => [18, 17, 16, 15, 14, 13, 12, 11],
             'upperLeft' => [21, 22, 23, 24, 25, 26, 27, 28],
             'lowerRight' => [48, 47, 46, 45, 44, 43, 42, 41],
@@ -108,15 +103,5 @@ class PdfService
     public function getDiagnosisColors(): array
     {
         return $this->diagnosisColors;
-    }
-
-    protected function currencySymbol(string $currency): string
-    {
-        return match ($currency) {
-            'Bs' => 'Bs ',
-            'EUR' => '€',
-            'USD' => '$',
-            default => '$',
-        };
     }
 }

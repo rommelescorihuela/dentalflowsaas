@@ -41,12 +41,11 @@
                 <img src="{{ $logo }}" height="50" style="margin-bottom: 8px;">
             @endif
             <h1>{{ $clinic->name }}</h1>
-            @php $cd = $clinicData; @endphp
-            @if (!empty($cd['schedule_start']))
-                <p>Horario: {{ $cd['schedule_start'] ?? '' }} - {{ $cd['schedule_end'] ?? '' }}</p>
+            @if ($clinic->schedule_start)
+                <p>Horario: {{ $clinic->schedule_start }} - {{ $clinic->schedule_end }}</p>
             @endif
-            @if (!empty($cd['timezone']))
-                <p>Zona horaria: {{ $cd['timezone'] }}</p>
+            @if ($clinic->timezone)
+                <p>Zona horaria: {{ $clinic->timezone }}</p>
             @endif
         </div>
         <div class="budget-meta">
