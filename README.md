@@ -57,43 +57,64 @@ cd dentalflowsaas
 
 # Opción 1: Script automatizado
 composer run setup
+# Llenar DB con datos demo (clínicas, roles, permisos, super admin)
+php artisan db:seed --class=DatabaseSeeder
 
 # Opción 2: Paso a paso
 composer install
 cp .env.example .env
-# Editar .env: DB_CONNECTION=pgsql + credenciales
+# Editar .env: DB_CONNECTION=pgsql + credenciales + TENANCY_CENTRAL_DOMAINS
 php artisan key:generate
 php artisan migrate --force
-php artisan db:seed --class=ProcedurePriceSeeder
-php artisan db:seed --class=InventorySeeder
-php artisan make:filament-user
+php artisan db:seed --class=DatabaseSeeder
 npm install && npm run build
 ```
+
+> **Super admin por defecto**: `admin@dentalflow.com` / `password`
+>
+> **Producción**: agregar el dominio principal en `.env`:
+> `TENANCY_CENTRAL_DOMAINS=dentalflow.digitalwebsolution.info`
 
 ---
 
 ## Comandos
 
 ```bash
+composer run setup        # install + .env + key:generate + migrate + npm install/build
 composer run dev          # server + queue + logs + vite (concurrently)
 composer run test         # config:clear + php artisan test
-php artisan test --filter=SecurityTenantIsolationTest
-php artisan diagnostic:all [--skip-tests]
-php artisan tenants:create
-php artisan test:routes
+composer run lint         # vendor/bin/pint
+composer run analyse      # vendor/bin/phpstan analyse app --level=5
+
+php artisan db:seed --class=DatabaseSeeder   # demo: 4 clínicas, roles, permisos, super admin
+php artisan migrate:fresh --seed             # reset + seed completo
+php artisan diagnostic:all [--skip-tests]    # health check
+php artisan test:routes                      # diagnostic de rutas tenant
+php artisan subscriptions:process            # ciclo de suscripciones diario
+php artisan appointments:send-reminders      # recordatorios de citas
 ```
 
 ---
 
-## URLs (Desarrollo Local)
+## URLs
+
+### Desarrollo Local (`127.0.0.1:8000`)
 
 ```
 Central admin:  http://127.0.0.1:8000/admin
-Clinic panel:   http://127.0.0.1:8000/app                 (tenant via user clinic_id)
-Patient portal: http://127.0.0.1:8000/{tenant}/portal/{patient}
+Clinic panel:   http://127.0.0.1:8000/app           (tenant desde clinic_id del usuario)
+Patient portal: http://127.0.0.1:8000/{tenant}/portal/{patient}  (URL firmada)
 ```
 
-En producción, cada clínica accede vía subdominio: `clinic1.dentalflow.dev/app`
+### Producción
+
+Cada clínica accede vía subdominio del dominio principal:
+
+```
+Central admin:  https://dentalflow.digitalwebsolution.info/admin
+Clinic panel:   https://{tenant}.dentalflow.digitalwebsolution.info/app
+Patient portal: https://{tenant}.dentalflow.digitalwebsolution.info/{tenant}/portal/{patient}
+```
 
 ---
 
