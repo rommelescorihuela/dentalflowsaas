@@ -2,15 +2,10 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\Clinic;
-use App\Models\User;
-use App\Models\Patient;
-use App\Models\Odontogram;
 use App\Models\ClinicalRecord;
+use App\Models\Odontogram;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Stancl\Tenancy\Facades\Tenancy;
-use Illuminate\Support\Facades\Auth;
+use Tests\TestCase;
 
 class OdontogramFunctionalTest extends TestCase
 {
@@ -25,7 +20,7 @@ class OdontogramFunctionalTest extends TestCase
     public function test_can_create_odontogram_session(): void
     {
         $this->switchTenant('clinic-a');
-        
+
         $odontogram = Odontogram::create([
             'clinic_id' => 'clinic-a',
             'patient_id' => $this->patientA->id,
@@ -41,7 +36,7 @@ class OdontogramFunctionalTest extends TestCase
     public function test_can_add_clinical_record_to_odontogram(): void
     {
         $this->switchTenant('clinic-a');
-        
+
         $odontogram = Odontogram::create([
             'clinic_id' => 'clinic-a',
             'patient_id' => $this->patientA->id,
@@ -68,7 +63,7 @@ class OdontogramFunctionalTest extends TestCase
     public function test_odontogram_can_have_multiple_records(): void
     {
         $this->switchTenant('clinic-a');
-        
+
         $odontogram = Odontogram::create([
             'clinic_id' => 'clinic-a',
             'patient_id' => $this->patientA->id,
@@ -78,7 +73,7 @@ class OdontogramFunctionalTest extends TestCase
         ]);
 
         $surfaces = ['top', 'bottom', 'left', 'right', 'center'];
-        
+
         foreach ($surfaces as $surface) {
             ClinicalRecord::create([
                 'clinic_id' => 'clinic-a',
@@ -98,7 +93,7 @@ class OdontogramFunctionalTest extends TestCase
     public function test_can_record_all_32_teeth(): void
     {
         $this->switchTenant('clinic-a');
-        
+
         $odontogram = Odontogram::create([
             'clinic_id' => 'clinic-a',
             'patient_id' => $this->patientA->id,
@@ -133,7 +128,7 @@ class OdontogramFunctionalTest extends TestCase
     public function test_can_have_multiple_odontogram_sessions(): void
     {
         $this->switchTenant('clinic-a');
-        
+
         Odontogram::create([
             'clinic_id' => 'clinic-a',
             'patient_id' => $this->patientA->id,
@@ -157,7 +152,7 @@ class OdontogramFunctionalTest extends TestCase
     public function test_can_filter_by_diagnosis_code(): void
     {
         $this->switchTenant('clinic-a');
-        
+
         $odontogram = Odontogram::create([
             'clinic_id' => 'clinic-a',
             'patient_id' => $this->patientA->id,
@@ -193,7 +188,7 @@ class OdontogramFunctionalTest extends TestCase
     public function test_clinical_records_isolated_between_sessions(): void
     {
         $this->switchTenant('clinic-a');
-        
+
         $odontogram1 = Odontogram::create([
             'clinic_id' => 'clinic-a',
             'patient_id' => $this->patientA->id,
@@ -242,7 +237,7 @@ class OdontogramFunctionalTest extends TestCase
     public function test_valid_diagnosis_codes(): void
     {
         $this->switchTenant('clinic-a');
-        
+
         $odontogram = Odontogram::create([
             'clinic_id' => 'clinic-a',
             'patient_id' => $this->patientA->id,
@@ -270,7 +265,7 @@ class OdontogramFunctionalTest extends TestCase
     public function test_valid_surfaces(): void
     {
         $this->switchTenant('clinic-a');
-        
+
         $odontogram = Odontogram::create([
             'clinic_id' => 'clinic-a',
             'patient_id' => $this->patientA->id,
@@ -298,7 +293,7 @@ class OdontogramFunctionalTest extends TestCase
     public function test_treatment_status_options(): void
     {
         $this->switchTenant('clinic-a');
-        
+
         $odontogram = Odontogram::create([
             'clinic_id' => 'clinic-a',
             'patient_id' => $this->patientA->id,

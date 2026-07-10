@@ -3,11 +3,10 @@
 namespace App\Filament\Widgets;
 
 use App\Models\SystemActivity;
-use Filament\Tables;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
 
 class RecentSystemActivities extends TableWidget
 {
@@ -39,7 +38,7 @@ class RecentSystemActivities extends TableWidget
                         'danger' => 'delete',
                         'warning' => 'login',
                     ])
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         'create' => 'Crear',
                         'update' => 'Actualizar',
                         'delete' => 'Eliminar',

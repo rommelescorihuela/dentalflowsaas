@@ -3,15 +3,15 @@
 namespace App\Livewire;
 
 use App\Models\ClinicalRecord;
-use App\Models\Patient;
-use Filament\Schemas\Schema;
+use App\Models\ProcedurePrice;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Livewire\Component;
-use Illuminate\Support\Facades\Auth;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Schema;
 use Filament\Widgets\Widget;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class Odontogram extends Widget implements HasForms
@@ -23,8 +23,11 @@ class Odontogram extends Widget implements HasForms
     protected int|string|array $columnSpan = 'full';
 
     public ?Model $record = null;
+
     public ?int $odontogramId = null; // NEW: specific odontogram session
+
     public ?int $selectedTooth = null;
+
     public array $selectedSurfaces = [];
 
     // Tooth state: [tooth_number => [surface => status]]
@@ -81,8 +84,11 @@ class Odontogram extends Widget implements HasForms
     ];
 
     public array $upperTeethRight = [18, 17, 16, 15, 14, 13, 12, 11];
+
     public array $upperTeethLeft = [21, 22, 23, 24, 25, 26, 27, 28];
+
     public array $lowerTeethRight = [48, 47, 46, 45, 44, 43, 42, 41];
+
     public array $lowerTeethLeft = [31, 32, 33, 34, 35, 36, 37, 38];
 
     public function mount(?Model $record = null, ?int $odontogramId = null)
@@ -134,7 +140,7 @@ class Odontogram extends Widget implements HasForms
         // Toggle surface selection
         if (in_array($surface, $this->selectedSurfaces)) {
             $this->selectedSurfaces = array_values(array_diff($this->selectedSurfaces, [$surface]));
-            // If no surfaces left, clear tooth selection? 
+            // If no surfaces left, clear tooth selection?
             if (empty($this->selectedSurfaces)) {
                 $this->selectedTooth = null;
             }
@@ -186,7 +192,7 @@ class Odontogram extends Widget implements HasForms
     {
         // Fetch procedures from CRUD to populate options dynamically
         $clinicId = $this->resolveTenantId();
-        $procedures = $clinicId ? \App\Models\ProcedurePrice::where('clinic_id', $clinicId)->get() : collect();
+        $procedures = $clinicId ? ProcedurePrice::where('clinic_id', $clinicId)->get() : collect();
 
         $options = [];
 
@@ -194,7 +200,7 @@ class Odontogram extends Widget implements HasForms
             // Use ID as key to show ALL procedures
             $label = $proc->procedure_name;
             if ($proc->price) {
-                $label .= ' ($' . number_format($proc->price, 0) . ')';
+                $label .= ' ($'.number_format($proc->price, 0).')';
             }
             $options[$proc->id] = $label;
         }
@@ -253,7 +259,7 @@ class Odontogram extends Widget implements HasForms
         $data = $this->form->getState();
         $surfaces = $data['surfaces'] ?? [];
 
-        if (!$this->selectedTooth || empty($surfaces)) {
+        if (! $this->selectedTooth || empty($surfaces)) {
             return;
         }
 
@@ -262,24 +268,25 @@ class Odontogram extends Widget implements HasForms
         $procedurePriceId = $data['procedure_price_id'] ?? null;
 
         if (is_numeric($procedurePriceId)) {
-            $proc = \App\Models\ProcedurePrice::find($procedurePriceId);
+            $proc = ProcedurePrice::find($procedurePriceId);
             if ($proc) {
                 $diagnosisCode = $proc->diagnosis_code;
             }
         }
 
         // Fallback for legacy/hardcoded options
-        if (!$diagnosisCode && isset($data['diagnosis_code'])) {
+        if (! $diagnosisCode && isset($data['diagnosis_code'])) {
             $diagnosisCode = $data['diagnosis_code'];
         }
 
         $clinicId = $this->resolveTenantId();
-        if (!$clinicId) {
+        if (! $clinicId) {
             Log::error('Odontogram::saveRecord() - clinic_id could not be resolved');
-            \Filament\Notifications\Notification::make()
+            Notification::make()
                 ->title('Error: clínica no identificada')
                 ->danger()
                 ->send();
+
             return;
         }
 
@@ -306,7 +313,7 @@ class Odontogram extends Widget implements HasForms
 
         $this->dispatch('record-saved');
 
-        \Filament\Notifications\Notification::make()
+        Notification::make()
             ->title('Registro Guardado')
             ->success()
             ->send();
@@ -352,6 +359,7 @@ class Odontogram extends Widget implements HasForms
             $found = $tenantModel::find($subdomain);
             if ($found) {
                 tenancy()->initialize($found);
+
                 return $found->id;
             }
         }

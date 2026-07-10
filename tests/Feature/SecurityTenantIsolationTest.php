@@ -2,15 +2,12 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\Clinic;
-use App\Models\User;
-use App\Models\Patient;
 use App\Models\Budget;
-use App\Models\Odontogram;
 use App\Models\ClinicalRecord;
+use App\Models\Odontogram;
+use App\Models\Patient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Stancl\Tenancy\Facades\Tenancy;
+use Tests\TestCase;
 
 class SecurityTenantIsolationTest extends TestCase
 {
@@ -199,6 +196,6 @@ class SecurityTenantIsolationTest extends TestCase
         $this->switchTenant('clinic-a');
         $patients = Patient::all();
         $this->assertCount(2, $patients);
-        $this->assertTrue($patients->every(fn($p) => $p->clinic_id === 'clinic-a'));
+        $this->assertTrue($patients->every(fn ($p) => $p->clinic_id === 'clinic-a'));
     }
 }

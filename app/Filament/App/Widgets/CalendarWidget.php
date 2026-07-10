@@ -3,9 +3,9 @@
 namespace App\Filament\App\Widgets;
 
 use App\Models\Appointment;
-use Filament\Widgets\Widget;
-use Illuminate\Database\Eloquent\Collection;
 use Carbon\Carbon;
+use Filament\Notifications\Notification;
+use Filament\Widgets\Widget;
 
 class CalendarWidget extends Widget
 {
@@ -24,9 +24,9 @@ class CalendarWidget extends Widget
             ->whereDate('start_time', '>=', now()->startOfMonth()->subMonth())
             ->whereDate('end_time', '<=', now()->endOfMonth()->addMonth())
             ->get()
-            ->map(fn(Appointment $appointment) => [
+            ->map(fn (Appointment $appointment) => [
                 'id' => $appointment->id,
-                'title' => $appointment->patient->name . ' - ' . match($appointment->type) {
+                'title' => $appointment->patient->name.' - '.match ($appointment->type) {
                     'control' => 'Control',
                     'urgent' => 'Urgente',
                     'cleaning' => 'Limpieza',
@@ -50,7 +50,7 @@ class CalendarWidget extends Widget
     {
         $appointment = Appointment::find($id);
 
-        if (!$appointment) {
+        if (! $appointment) {
             return;
         }
 
@@ -59,11 +59,12 @@ class CalendarWidget extends Widget
 
         // Validate: no past dates
         if ($newStart->lt(now())) {
-            \Filament\Notifications\Notification::make()
-        ->title('No se puede reagendar a fecha pasada')
-        ->body('Las citas no pueden moverse a una fecha en el pasado.')
+            Notification::make()
+                ->title('No se puede reagendar a fecha pasada')
+                ->body('Las citas no pueden moverse a una fecha en el pasado.')
                 ->danger()
                 ->send();
+
             return;
         }
 
@@ -74,17 +75,18 @@ class CalendarWidget extends Widget
             ->where(function ($query) use ($newStart, $newEnd) {
                 $query->where(function ($q) use ($newStart, $newEnd) {
                     $q->where('start_time', '<', $newEnd)
-                      ->where('end_time', '>', $newStart);
+                        ->where('end_time', '>', $newStart);
                 });
             })
             ->exists();
 
         if ($overlapping) {
-            \Filament\Notifications\Notification::make()
-        ->title('Horario no disponible')
-        ->body('El paciente ya tiene una cita durante este horario.')
+            Notification::make()
+                ->title('Horario no disponible')
+                ->body('El paciente ya tiene una cita durante este horario.')
                 ->danger()
                 ->send();
+
             return;
         }
 
@@ -93,7 +95,7 @@ class CalendarWidget extends Widget
             'end_time' => $newEnd,
         ]);
 
-        \Filament\Notifications\Notification::make()
+        Notification::make()
             ->title('Cita Reagendada')
             ->success()
             ->send();

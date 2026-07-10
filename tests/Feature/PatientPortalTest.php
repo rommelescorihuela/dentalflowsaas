@@ -2,13 +2,9 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\Patient;
-use App\Models\Budget;
-use App\Models\Appointment;
-use App\Models\Odontogram;
-use App\Models\ClinicalRecord;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class PatientPortalTest extends TestCase
 {

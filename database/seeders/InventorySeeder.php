@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Clinic;
 use App\Models\Inventory;
 use Illuminate\Database\Seeder;
 
@@ -1080,10 +1081,11 @@ class InventorySeeder extends Seeder
 
     public function run(): void
     {
-        $clinicId = tenant('id') ?? \App\Models\Clinic::first()?->id;
+        $clinicId = tenant('id') ?? Clinic::first()?->id;
 
-        if (!$clinicId) {
+        if (! $clinicId) {
             $this->command?->error('No se encontró un tenant activo.');
+
             return;
         }
 
@@ -1097,6 +1099,6 @@ class InventorySeeder extends Seeder
             );
         }
 
-        $this->command?->info('✅ ' . count($this->inventoryItems) . ' items de inventario sembrados para: ' . $clinicId);
+        $this->command?->info('✅ '.count($this->inventoryItems).' items de inventario sembrados para: '.$clinicId);
     }
 }

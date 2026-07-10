@@ -2,17 +2,16 @@
 
 namespace App\Filament\App\Resources\Inventory;
 
-use App\Filament\App\Resources\Inventory\Pages;
+use App\Helpers\ClinicHelper;
 use App\Models\Inventory;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Support\Icons\Heroicon;
 
 class InventoryResource extends Resource
 {
@@ -55,7 +54,7 @@ class InventoryResource extends Resource
                 TextInput::make('price')
                     ->label('Precio')
                     ->numeric()
-                    ->prefix(\App\Helpers\ClinicHelper::getCurrencySymbol())
+                    ->prefix(ClinicHelper::getCurrencySymbol())
                     ->required(),
                 TextInput::make('quantity')
                     ->label('Cantidad')
@@ -85,7 +84,7 @@ class InventoryResource extends Resource
                     ->reactive()
                     ->required(),
                 DatePicker::make('expiration_date')
-                    ->hidden(fn($get) => $get('expiration_type') === 'Inexpirable'),
+                    ->hidden(fn ($get) => $get('expiration_type') === 'Inexpirable'),
             ]);
     }
 
@@ -97,8 +96,8 @@ class InventoryResource extends Resource
                 TextColumn::make('category')->sortable(),
                 TextColumn::make('supplier')->searchable(),
                 TextColumn::make('quantity')->sortable()
-                    ->color(fn(Inventory $record) => $record->quantity <= $record->low_stock_threshold ? 'danger' : 'success'),
-                TextColumn::make('price')->formatStateUsing(fn ($state) => \App\Helpers\ClinicHelper::formatMoney((float) $state)),
+                    ->color(fn (Inventory $record) => $record->quantity <= $record->low_stock_threshold ? 'danger' : 'success'),
+                TextColumn::make('price')->formatStateUsing(fn ($state) => ClinicHelper::formatMoney((float) $state)),
                 TextColumn::make('expiration_date')->date(),
             ])
             ->filters([

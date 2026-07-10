@@ -2,27 +2,26 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
+use App\Filament\App\Widgets\FinancialStatsOverview;
+use App\Livewire\PatientPortal\BookAppointment;
 use App\Models\Clinic;
 use App\Models\Patient;
 use App\Models\User;
-use App\Models\Payment;
-use App\Models\Budget;
-use App\Services\TenantService;
-use Illuminate\Support\Facades\URL;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use ReflectionMethod;
 
 class SystemDiagnosticCommand extends Command
 {
     protected $signature = 'diagnostic:all {--skip-tests : Saltar tests automatizados}';
+
     protected $description = 'Ejecutar diagnóstico completo del sistema DentalFlow';
 
     public function handle()
     {
         $this->info('=== DENTALFLOW SAAS DIAGNOSTIC ===');
-        $this->info('Timestamp: ' . now()->toDateTimeString());
+        $this->info('Timestamp: '.now()->toDateTimeString());
         $this->newLine();
 
         $startTotal = microtime(true);
@@ -37,14 +36,14 @@ class SystemDiagnosticCommand extends Command
         $this->benchmark();
 
         // 4. Tests (opcional)
-        if (!$this->option('skip-tests')) {
+        if (! $this->option('skip-tests')) {
             $this->runTests();
         }
 
         $endTotal = microtime(true);
         $this->newLine();
         $this->info('=== DIAGNOSTIC COMPLETO ===');
-        $this->info('Duración total: ' . round($endTotal - $startTotal, 2) . 's');
+        $this->info('Duración total: '.round($endTotal - $startTotal, 2).'s');
     }
 
     private function healthCheck()
@@ -56,7 +55,7 @@ class SystemDiagnosticCommand extends Command
             DB::connection()->getPdo();
             $this->info('  ✅ Base de datos: OK');
         } catch (\Exception $e) {
-            $this->error('  ❌ Base de datos: ' . $e->getMessage());
+            $this->error('  ❌ Base de datos: '.$e->getMessage());
         }
 
         $tenantCount = Clinic::count();
@@ -83,7 +82,7 @@ class SystemDiagnosticCommand extends Command
         $clinic = Clinic::first();
         if ($clinic) {
             tenancy()->initialize($clinic);
-            $component = new \App\Livewire\PatientPortal\BookAppointment();
+            $component = new BookAppointment;
             $component->patient = Patient::first() ?? Patient::create([
                 'name' => 'Test Patient',
                 'email' => 'test@test.com',
@@ -98,18 +97,18 @@ class SystemDiagnosticCommand extends Command
 
         // BI Widgets
         try {
-            $widget = new \App\Filament\App\Widgets\FinancialStatsOverview();
+            $widget = new FinancialStatsOverview;
             $method = new ReflectionMethod($widget, 'getStats');
             $method->setAccessible(true);
             $stats = $method->invoke($widget);
-            $this->info('  ✅ BI Dashboard: ' . count($stats) . ' KPIs');
+            $this->info('  ✅ BI Dashboard: '.count($stats).' KPIs');
         } catch (\Exception $e) {
-            $this->error('  ❌ BI Dashboard: ' . $e->getMessage());
+            $this->error('  ❌ BI Dashboard: '.$e->getMessage());
         }
 
         // Tenant Isolation
-        $clinicA = Clinic::create(['id' => 'iso_a_' . time(), 'name' => 'Test A']);
-        $clinicB = Clinic::create(['id' => 'iso_b_' . time(), 'name' => 'Test B']);
+        $clinicA = Clinic::create(['id' => 'iso_a_'.time(), 'name' => 'Test A']);
+        $clinicB = Clinic::create(['id' => 'iso_b_'.time(), 'name' => 'Test B']);
 
         tenancy()->initialize($clinicA);
         Patient::create(['name' => 'P A', 'email' => 'pa@test.com', 'clinic_id' => $clinicA->id, 'phone' => '1']);
@@ -149,7 +148,7 @@ class SystemDiagnosticCommand extends Command
 
         $times = [];
         foreach ($urls as $url => $name) {
-            $ch = curl_init('http://127.0.0.1:8000' . $url);
+            $ch = curl_init('http://127.0.0.1:8000'.$url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
             curl_setopt($ch, CURLOPT_TIMEOUT, 5);
@@ -163,7 +162,7 @@ class SystemDiagnosticCommand extends Command
             curl_close($ch);
 
             if ($code === 0 || $result === false) {
-                $this->warn("  ⏭ {$name}: servidor no disponible (" . ($error ?: 'timeout') . ")");
+                $this->warn("  ⏭ {$name}: servidor no disponible (".($error ?: 'timeout').')');
             } else {
                 $status = $code >= 200 && $code < 400 ? '✅' : ($code >= 300 ? '↔' : '❌');
                 $this->line("  {$status} {$name}: {$code} ({$time}ms)");

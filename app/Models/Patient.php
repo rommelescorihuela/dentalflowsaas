@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Traits\BelongsToClinic;
 use App\Traits\ActivityLogger;
+use App\Traits\BelongsToClinic;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Patient extends Model
 {
-    use HasFactory, BelongsToClinic, ActivityLogger;
+    use ActivityLogger, BelongsToClinic, HasFactory;
 
     protected $fillable = [
         'clinic_id',
@@ -32,7 +34,7 @@ class Patient extends Model
         'birth_date' => 'date',
     ];
 
-    public function doctor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function doctor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'doctor_id');
     }
@@ -60,5 +62,15 @@ class Patient extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function medicalHistory(): HasOne
+    {
+        return $this->hasOne(PatientMedicalHistory::class);
+    }
+
+    public function prescriptions(): HasMany
+    {
+        return $this->hasMany(Prescription::class);
     }
 }

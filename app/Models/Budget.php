@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Mail\BudgetSent;
+use App\Traits\ActivityLogger;
 use App\Traits\BelongsToClinic;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Traits\ActivityLogger;
-use App\Mail\BudgetSent;
 use Illuminate\Support\Facades\Mail;
 
 class Budget extends Model
 {
-    use BelongsToClinic, ActivityLogger;
+    use ActivityLogger, BelongsToClinic;
 
     protected $fillable = [
         'clinic_id',

@@ -6,6 +6,7 @@ namespace Tests\Feature\Subscription;
 
 use App\Enums\Plan;
 use App\Enums\SubscriptionStatus;
+use App\Models\SubscriptionPayment;
 use App\Services\PlanLimits;
 use App\Services\SubscriptionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -69,7 +70,7 @@ class SuspendedAccessTest extends TestCase
 
         $this->assertFalse(app(PlanLimits::class)->hasAccess($this->clinicA->fresh()));
 
-        $payment = \App\Models\SubscriptionPayment::create([
+        $payment = SubscriptionPayment::create([
             'clinic_id' => $this->clinicA->id,
             'amount' => 99,
             'currency' => 'USD',

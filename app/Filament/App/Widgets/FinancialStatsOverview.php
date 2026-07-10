@@ -2,6 +2,11 @@
 
 namespace App\Filament\App\Widgets;
 
+use App\Helpers\ClinicHelper;
+use App\Models\Budget;
+use App\Models\Clinic;
+use App\Models\Payment;
+use App\Services\PlanLimits;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -13,24 +18,24 @@ class FinancialStatsOverview extends StatsOverviewWidget
 
     public static function canView(): bool
     {
-        $tenant = tenant() ?? (\App\Models\Clinic::find(auth()->user()?->clinic_id));
+        $tenant = tenant() ?? (Clinic::find(auth()->user()?->clinic_id));
 
         if (! $tenant) {
             return false;
         }
 
-        return app(\App\Services\PlanLimits::class)->hasFeature($tenant, 'bi_reports');
+        return app(PlanLimits::class)->hasFeature($tenant, 'bi_reports');
     }
 
     protected function getStats(): array
     {
         // 1. Revenue This Month
-        $revenueThisMonth = \App\Models\Payment::whereBetween('paid_at', [
+        $revenueThisMonth = Payment::whereBetween('paid_at', [
             now()->startOfMonth(),
             now()->endOfMonth(),
         ])->sum('amount');
 
-        $revenueLastMonth = \App\Models\Payment::whereBetween('paid_at', [
+        $revenueLastMonth = Payment::whereBetween('paid_at', [
             now()->subMonth()->startOfMonth(),
             now()->subMonth()->endOfMonth(),
         ])->sum('amount');
@@ -40,24 +45,24 @@ class FinancialStatsOverview extends StatsOverviewWidget
             : 0;
 
         // 2. Outstanding (Accounts Receivable)
-        $totalAcceptedBudgets = \App\Models\Budget::where('status', 'accepted')->sum('total');
-        $totalPayments = \App\Models\Payment::sum('amount');
+        $totalAcceptedBudgets = Budget::where('status', 'accepted')->sum('total');
+        $totalPayments = Payment::sum('amount');
         $outstanding = $totalAcceptedBudgets - $totalPayments;
 
         // 3. Acceptance Rate
-        $totalSent = \App\Models\Budget::whereIn('status', ['sent', 'accepted'])->count();
-        $totalAccepted = \App\Models\Budget::where('status', 'accepted')->count();
+        $totalSent = Budget::whereIn('status', ['sent', 'accepted'])->count();
+        $totalAccepted = Budget::where('status', 'accepted')->count();
         $acceptanceRate = $totalSent > 0 ? ($totalAccepted / $totalSent) * 100 : 0;
 
         return [
-            Stat::make('Ingresos (Mes)', \App\Helpers\ClinicHelper::formatMoney($revenueThisMonth))
+            Stat::make('Ingresos (Mes)', ClinicHelper::formatMoney($revenueThisMonth))
                 ->description(number_format(abs($revenueTrend), 1).'% '.($revenueTrend >= 0 ? 'subida' : 'bajada'))
                 ->descriptionIcon($revenueTrend >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->icon($revenueTrend >= 0 ? 'heroicon-o-arrow-trending-up' : 'heroicon-o-arrow-trending-down')
                 ->chart([$revenueLastMonth, $revenueThisMonth])
                 ->color($revenueTrend >= 0 ? 'success' : 'danger'),
 
-            Stat::make('Por Cobrar', \App\Helpers\ClinicHelper::formatMoney($outstanding))
+            Stat::make('Por Cobrar', ClinicHelper::formatMoney($outstanding))
                 ->description('Total deuda de pacientes')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->icon('heroicon-o-banknotes')

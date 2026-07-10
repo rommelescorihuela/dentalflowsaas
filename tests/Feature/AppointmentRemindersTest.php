@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Mail\AppointmentReminder;
 use App\Models\Appointment;
+use App\Models\Patient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Stancl\Tenancy\Facades\Tenancy;
@@ -40,7 +42,7 @@ class AppointmentRemindersTest extends TestCase
             ->assertSuccessful()
             ->expectsOutputToContain('Recordatorios enviados: 1');
 
-        Mail::assertSent(\App\Mail\AppointmentReminder::class, function ($mail) use ($appointment) {
+        Mail::assertSent(AppointmentReminder::class, function ($mail) use ($appointment) {
             return $mail->appointment->id === $appointment->id
                 && $mail->hasTo($this->patientA->email);
         });
@@ -95,7 +97,7 @@ class AppointmentRemindersTest extends TestCase
         Tenancy::initialize('clinic-a');
         setPermissionsTeamId('clinic-a');
 
-        $patientNoEmail = \App\Models\Patient::create([
+        $patientNoEmail = Patient::create([
             'name' => 'Sin Email',
             'phone' => '+56999999999',
             'clinic_id' => 'clinic-a',

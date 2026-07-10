@@ -2,8 +2,12 @@
 
 namespace App\Livewire\Auth;
 
+use App\Mail\WelcomeClinic;
+use App\Models\User;
 use App\Services\TenantService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
@@ -49,9 +53,9 @@ class RegisterTenant extends Component
 
             // Send Welcome Email
             try {
-                \Illuminate\Support\Facades\Mail::to($this->email)->send(new \App\Mail\WelcomeClinic($clinic));
+                Mail::to($this->email)->send(new WelcomeClinic($clinic));
             } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Failed to send welcome email: '.$e->getMessage());
+                Log::error('Failed to send welcome email: '.$e->getMessage());
             }
 
             $host = request()->getHost();
@@ -59,7 +63,7 @@ class RegisterTenant extends Component
 
             if ($isLocal) {
                 Auth::loginUsingId(
-                    \App\Models\User::where('email', $this->email)->firstOrFail()->id
+                    User::where('email', $this->email)->firstOrFail()->id
                 );
 
                 return redirect('/app');

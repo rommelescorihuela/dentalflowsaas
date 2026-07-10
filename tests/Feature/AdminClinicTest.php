@@ -2,14 +2,13 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\Clinic;
-use App\Models\User;
-use App\Models\Patient;
-use App\Models\Budget;
-use App\Models\ProcedurePrice;
 use App\Models\Inventory;
+use App\Models\Patient;
+use App\Models\ProcedurePrice;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class AdminClinicTest extends TestCase
 {

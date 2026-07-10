@@ -17,6 +17,8 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('clinic_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
+
+            $table->index(['procedure_price_id', 'inventory_id'], 'idx_procedure_inventory_composite');
         });
     }
 

@@ -2,17 +2,19 @@
 
 namespace App\Filament\App\Resources\ProcedurePrices;
 
-use App\Filament\App\Resources\ProcedurePrices\Pages;
+use App\Helpers\ClinicHelper;
 use App\Models\ProcedurePrice;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Support\Icons\Heroicon;
 
 class ProcedurePriceResource extends Resource
 {
@@ -41,7 +43,7 @@ class ProcedurePriceResource extends Resource
                     ->maxLength(255),
                 TextInput::make('price')
                     ->numeric()
-                    ->prefix(\App\Helpers\ClinicHelper::getCurrencySymbol())
+                    ->prefix(ClinicHelper::getCurrencySymbol())
                     ->required(),
                 TextInput::make('duration')
                     ->label('Duración')
@@ -55,10 +57,10 @@ class ProcedurePriceResource extends Resource
                     ->image()
                     ->directory('procedure-images')
                     ->columnSpanFull(),
-                \Filament\Forms\Components\Repeater::make('procedureInventories')
+                Repeater::make('procedureInventories')
                     ->relationship()
                     ->schema([
-                        \Filament\Forms\Components\Select::make('inventory_id')
+                        Select::make('inventory_id')
                             ->relationship('inventory', 'name')
                             ->required()
                             ->searchable()
@@ -87,7 +89,7 @@ class ProcedurePriceResource extends Resource
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('price')
-                    ->formatStateUsing(fn ($state) => \App\Helpers\ClinicHelper::formatMoney((float) $state))
+                    ->formatStateUsing(fn ($state) => ClinicHelper::formatMoney((float) $state))
                     ->sortable(),
                 TextColumn::make('duration'),
             ])

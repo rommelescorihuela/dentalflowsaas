@@ -32,6 +32,7 @@ class SendAppointmentReminders extends Command
         foreach ($appointments as $appointment) {
             if (! $appointment->patient?->email) {
                 $skipped++;
+
                 continue;
             }
 

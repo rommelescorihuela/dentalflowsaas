@@ -7,7 +7,7 @@
 ![Livewire](https://img.shields.io/badge/Livewire-3.x-pink?logo=livewire)
 ![PHP](https://img.shields.io/badge/PHP-8.3-blue?logo=php)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14%2B-blue?logo=postgresql)
-![Tests](https://img.shields.io/badge/Tests-189-green)
+![Tests](https://img.shields.io/badge/Tests-34%20archivos-green)
 
 ---
 
@@ -32,7 +32,7 @@
 | Base de datos | PostgreSQL 14+ |
 | Multi-tenancy | Stancl Tenancy 3.9 (shared-DB, `clinic_id`) |
 | Auth/RBAC | Spatie Permissions 6.0 |
-| Pagos | Laravel Cashier (Stripe) |
+| Pagos | Manual (Venezuela: transferencia, Pago móvil, Zelle, Binance) |
 | Linting | Laravel Pint (defaults) |
 | Static Analysis | PHPStan nivel 5 |
 | Assets | Vite 7 |
@@ -124,7 +124,7 @@ app/
 
 ## Testing
 
-- **189 tests** en 22 archivos Feature + 1 Unit
+- **34 archivos de test** (33 Feature + 1 Unit)
 - Base: `Tests\TestCase` con `setUpTenants()`, `switchTenant()`, helpers de autenticación y factories
 - Usa `RefreshDatabase` (truncate, no transacciones — PostgreSQL)
 - Portal routes requieren `signed` URLs

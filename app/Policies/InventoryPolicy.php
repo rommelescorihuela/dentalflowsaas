@@ -2,10 +2,9 @@
 
 namespace App\Policies;
 
-use App\Models\Inventory;
-use App\Models\User;
+use App\Traits\HasSpatiePermissions;
 
 class InventoryPolicy
 {
-    use \App\Traits\HasSpatiePermissions;
+    use HasSpatiePermissions;
 }

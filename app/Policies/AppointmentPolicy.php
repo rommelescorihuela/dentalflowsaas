@@ -1,10 +1,10 @@
 <?php
- 
+
 namespace App\Policies;
- 
+
 use App\Models\Appointment;
 use App\Models\User;
- 
+
 class AppointmentPolicy
 {
     public function viewAny(User $user): bool
@@ -29,7 +29,7 @@ class AppointmentPolicy
         }
 
         $patient = $appointment->patient;
-        if (!$patient) {
+        if (! $patient) {
             return false;
         }
 
@@ -47,7 +47,7 @@ class AppointmentPolicy
         }
 
         $patient = $appointment->patient;
-        if (!$patient) {
+        if (! $patient) {
             return false;
         }
 

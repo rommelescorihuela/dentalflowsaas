@@ -5,27 +5,23 @@ declare(strict_types=1);
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Traits\ActivityLogger;
+use App\Traits\BelongsToClinic;
+use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Traits\BelongsToClinic;
+use Illuminate\Support\Collection;
 use Spatie\Permission\Traits\HasRoles;
 
-
-use Filament\Models\Contracts\FilamentUser;
-
-use App\Traits\ActivityLogger;
-
-class User extends Authenticatable implements HasTenants, FilamentUser
+class User extends Authenticatable implements FilamentUser, HasTenants
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, BelongsToClinic, HasRoles, ActivityLogger;
-
-
+    /** @use HasFactory<UserFactory> */
+    use ActivityLogger, BelongsToClinic, HasFactory, HasRoles, Notifiable;
 
     public function canAccessPanel(Panel $panel): bool
     {

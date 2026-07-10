@@ -2,19 +2,21 @@
 
 namespace Database\Seeders;
 
-use App\Models\ProcedurePrice;
+use App\Models\Clinic;
 use App\Models\Inventory;
 use App\Models\ProcedureInventory;
+use App\Models\ProcedurePrice;
 use Illuminate\Database\Seeder;
 
 class ProcedureInventorySeeder extends Seeder
 {
     public function run(): void
     {
-        $clinicId = tenant('id') ?? \App\Models\Clinic::first()?->id;
+        $clinicId = tenant('id') ?? Clinic::first()?->id;
 
-        if (!$clinicId) {
+        if (! $clinicId) {
             $this->command?->warn('No tenant context for ProcedureInventorySeeder.');
+
             return;
         }
 
@@ -112,13 +114,13 @@ class ProcedureInventorySeeder extends Seeder
 
         foreach ($mappings as $diagnosisCode => $supplies) {
             $procedure = $procedures->firstWhere('diagnosis_code', $diagnosisCode);
-            if (!$procedure) {
+            if (! $procedure) {
                 continue;
             }
 
             foreach ($supplies as [$nameSubstring, $qty]) {
-                $inventory = $inventories->first(fn($i) => stripos($i->name, (string) $nameSubstring) !== false);
-                if (!$inventory) {
+                $inventory = $inventories->first(fn ($i) => stripos($i->name, (string) $nameSubstring) !== false);
+                if (! $inventory) {
                     continue;
                 }
 

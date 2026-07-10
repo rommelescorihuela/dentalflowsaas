@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Permission\Models\Role as SpatieRole;
 
 class Role extends SpatieRole
@@ -14,7 +15,7 @@ class Role extends SpatieRole
         'clinic_id',
     ];
 
-    public function clinic(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function clinic(): BelongsTo
     {
         return $this->belongsTo(Clinic::class);
     }

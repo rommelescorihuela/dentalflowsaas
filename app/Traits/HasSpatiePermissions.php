@@ -17,6 +17,7 @@ trait HasSpatiePermissions
     protected function getModelName(): string
     {
         $policyClass = class_basename($this);
+
         return Str::replaceLast('Policy', '', $policyClass);
     }
 

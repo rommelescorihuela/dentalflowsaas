@@ -22,6 +22,11 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('clinic_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
+
+            $table->index('start_time', 'idx_appointments_start_time');
+            $table->index('end_time', 'idx_appointments_end_time');
+            $table->index(['patient_id', 'status'], 'idx_appointments_patient_status');
+            $table->index('user_id', 'idx_appointments_user_id');
         });
     }
 

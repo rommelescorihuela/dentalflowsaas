@@ -12,6 +12,11 @@
         :root { --teal: #0D9488; --gold: #F59E0B; --ink: #292524; }
         body { font-family: 'Work Sans', sans-serif; background: #FFFBF5; color: var(--ink); }
         .font-display { font-family: 'Outfit', sans-serif; letter-spacing: -0.02em; }
+        .portal-reveal { opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .portal-reveal.visible { opacity: 1; transform: translateY(0); }
+        .portal-reveal-delay-1 { transition-delay: 0.1s; }
+        .portal-reveal-delay-2 { transition-delay: 0.2s; }
+        .portal-reveal-delay-3 { transition-delay: 0.3s; }
         @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
         .animate-float { animation: float 6s ease-in-out infinite; }
         @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; } }
@@ -51,7 +56,7 @@
 
         <main class="max-w-4xl mx-auto py-8 px-6 lg:px-12">
             <!-- Budget Info -->
-            <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden mb-6">
+            <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden mb-6 portal-reveal">
                 <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-primary-50 to-primary-50/50">
                     <h3 class="text-lg font-bold text-gray-900">Información del Presupuesto</h3>
                 </div>
@@ -83,7 +88,7 @@
             </div>
 
             <!-- Budget Items -->
-            <div class="bg-white rounded-[2rem] border border-teal-500/10 shadow-lg overflow-hidden mb-8">
+            <div class="bg-white rounded-[2rem] border border-teal-500/10 shadow-lg overflow-hidden mb-8 portal-reveal portal-reveal-delay-1">
                 <div class="px-8 py-5 border-b border-stone-100 bg-gradient-to-r from-emerald-50 to-transparent">
                     <h3 class="text-xl font-display font-bold text-stone-800 flex items-center gap-2">
                         <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
@@ -125,7 +130,7 @@
             </div>
 
             <!-- Actions -->
-            <div class="bg-white rounded-[2rem] border border-teal-500/10 shadow-lg overflow-hidden">
+            <div class="bg-white rounded-[2rem] border border-teal-500/10 shadow-lg overflow-hidden portal-reveal portal-reveal-delay-2">
                 <div class="p-6 flex justify-center">
                     <a href="{{ URL::signedRoute('portal.budgets.pdf', ['patient' => $budget->patient, 'budget' => $budget]) }}"
                        target="_blank"
@@ -139,7 +144,7 @@
             </div>
 
             @if($budget->status === 'sent')
-            <div class="bg-white rounded-[2rem] border border-teal-500/10 shadow-lg overflow-hidden">
+            <div class="bg-white rounded-[2rem] border border-teal-500/10 shadow-lg overflow-hidden portal-reveal portal-reveal-delay-3">
                 <div class="px-8 py-5 border-b border-stone-100 bg-gradient-to-r from-amber-50 to-transparent">
                     <h3 class="text-xl font-display font-bold text-stone-800">Que deseas hacer?</h3>
                 </div>
@@ -182,5 +187,21 @@
             @endif
         </main>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const reveals = document.querySelectorAll('.portal-reveal');
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                        }
+                    });
+                },
+                { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+            );
+            reveals.forEach(el => observer.observe(el));
+        });
+    </script>
 </body>
 </html>

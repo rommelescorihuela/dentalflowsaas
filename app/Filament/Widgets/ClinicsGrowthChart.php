@@ -29,7 +29,7 @@ class ClinicsGrowthChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Clinicas',
-                    'data' => $data->map(fn(TrendValue $value) => $value->aggregate),
+                    'data' => $data->map(fn (TrendValue $value) => $value->aggregate),
                     'borderColor' => '#10b981',
                     'backgroundColor' => 'rgba(16, 185, 129, 0.1)',
                     'fill' => 'start',
@@ -40,7 +40,7 @@ class ClinicsGrowthChart extends ChartWidget
                     'pointRadius' => 4,
                 ],
             ],
-            'labels' => $data->map(fn(TrendValue $value) => $value->date),
+            'labels' => $data->map(fn (TrendValue $value) => $value->date),
         ];
     }
 

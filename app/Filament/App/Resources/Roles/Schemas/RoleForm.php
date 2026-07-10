@@ -2,9 +2,9 @@
 
 namespace App\Filament\App\Resources\Roles\Schemas;
 
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Spatie\Permission\Models\Permission;
@@ -21,13 +21,13 @@ class RoleForm
                             ->label('Nombre del Rol')
                             ->required()
                             ->unique(ignoreRecord: true, modifyRuleUsing: function ($rule) {
-                                return $rule->where('clinic_id', \Filament\Facades\Filament::getTenant()?->id);
+                                return $rule->where('clinic_id', Filament::getTenant()?->id);
                             })
                             ->helperText('ej: doctor, recepcionista, asistente'),
 
                         TextInput::make('clinic_id')
                             ->label('Clínica')
-                            ->default(fn() => \Filament\Facades\Filament::getTenant()?->id)
+                            ->default(fn () => Filament::getTenant()?->id)
                             ->disabled()
                             ->dehydrated()
                             ->helperText('Asignado automaticamente a la clinica actual'),

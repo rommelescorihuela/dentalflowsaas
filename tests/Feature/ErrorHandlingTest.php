@@ -2,13 +2,14 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\Patient;
 use App\Models\Appointment;
 use App\Models\Budget;
 use App\Models\Odontogram;
-use App\Models\ClinicalRecord;
+use App\Models\Patient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
+use Stancl\Tenancy\Exceptions\TenantCouldNotBeIdentifiedById;
+use Tests\TestCase;
 
 class ErrorHandlingTest extends TestCase
 {
@@ -85,7 +86,7 @@ class ErrorHandlingTest extends TestCase
             'status' => 'scheduled',
         ]);
 
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $this->expectException(ValidationException::class);
 
         Appointment::create([
             'clinic_id' => 'clinic-a',
@@ -130,7 +131,7 @@ class ErrorHandlingTest extends TestCase
 
         try {
             $this->switchTenant('nonexistent-clinic');
-        } catch (\Stancl\Tenancy\Exceptions\TenantCouldNotBeIdentifiedById $e) {
+        } catch (TenantCouldNotBeIdentifiedById $e) {
             $afterClinic = tenant('id');
             $this->assertEquals('clinic-a', $afterClinic);
         }
@@ -165,7 +166,7 @@ class ErrorHandlingTest extends TestCase
                 'email' => "paciente$i@clinic-a.test",
                 'phone' => '+56911111111',
                 'clinic_id' => 'clinic-a',
-                'rut' => str_pad($i + 100, 8, '0', STR_PAD_LEFT) . '-1',
+                'rut' => str_pad($i + 100, 8, '0', STR_PAD_LEFT).'-1',
             ]);
         }
 

@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Enums\SubscriptionStatus;
 use App\Models\Clinic;
+use App\Models\Subscription;
 use App\Notifications\GracePeriodEndingNotification;
 use App\Notifications\SubscriptionSuspendedNotification;
 use App\Notifications\TrialExpiredNotification;
@@ -25,7 +26,7 @@ class ProcessSubscriptions extends Command
         $now = now();
         $graceDays = 7;
 
-        $subscriptions = \App\Models\Subscription::with('clinic')->get();
+        $subscriptions = Subscription::with('clinic')->get();
 
         $trialExpired = 0;
         $suspended = 0;

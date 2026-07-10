@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\SystemActivities\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class SystemActivitiesTable
@@ -14,33 +13,33 @@ class SystemActivitiesTable
     {
         return $table
             ->columns([
-                \Filament\Tables\Columns\TextColumn::make('user.name')
+                TextColumn::make('user.name')
                     ->label('Usuario')
                     ->sortable()
                     ->searchable(),
-                \Filament\Tables\Columns\TextColumn::make('action')
+                TextColumn::make('action')
                     ->label('Accion')
                     ->badge()
                     ->sortable()
                     ->searchable(),
-                \Filament\Tables\Columns\TextColumn::make('subject_type')
+                TextColumn::make('subject_type')
                     ->label('Asunto')
-                    ->formatStateUsing(fn($state) => class_basename($state))
+                    ->formatStateUsing(fn ($state) => class_basename($state))
                     ->searchable(),
-                \Filament\Tables\Columns\TextColumn::make('description')
+                TextColumn::make('description')
                     ->label('Descripcion')
                     ->limit(50)
                     ->searchable(),
-                \Filament\Tables\Columns\TextColumn::make('ip_address')
+                TextColumn::make('ip_address')
                     ->label('IP')
                     ->toggleable(isToggledHiddenByDefault: true),
-                \Filament\Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label('Fecha')
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
-                \Filament\Tables\Filters\SelectFilter::make('action')
+                SelectFilter::make('action')
                     ->options([
                         'create' => 'Crear',
                         'update' => 'Actualizar',

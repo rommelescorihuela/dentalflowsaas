@@ -1,10 +1,10 @@
 <?php
- 
+
 namespace App\Policies;
- 
+
 use App\Models\Budget;
 use App\Models\User;
- 
+
 class BudgetPolicy
 {
     public function viewAny(User $user): bool
@@ -29,7 +29,7 @@ class BudgetPolicy
         }
 
         $patient = $budget->patient;
-        if (!$patient) {
+        if (! $patient) {
             return false;
         }
 
@@ -47,7 +47,7 @@ class BudgetPolicy
         }
 
         $patient = $budget->patient;
-        if (!$patient) {
+        if (! $patient) {
             return false;
         }
 

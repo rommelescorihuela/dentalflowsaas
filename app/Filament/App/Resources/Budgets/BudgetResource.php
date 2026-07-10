@@ -2,8 +2,14 @@
 
 namespace App\Filament\App\Resources\Budgets;
 
+use App\Helpers\ClinicHelper;
 use App\Models\Budget;
+use App\Models\ProcedurePrice;
 use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -32,7 +38,7 @@ class BudgetResource extends Resource
                     ->searchable(),
                 Forms\Components\TextInput::make('total')
                     ->numeric()
-                    ->prefix(\App\Helpers\ClinicHelper::getCurrencySymbol())
+                    ->prefix(ClinicHelper::getCurrencySymbol())
                     ->required(),
                 Forms\Components\Select::make('status')
                     ->options([
@@ -57,7 +63,7 @@ class BudgetResource extends Resource
                         Forms\Components\Select::make('procedure_price_id')
                             ->label('Procedimiento')
                             ->options(function () {
-                                return \App\Models\ProcedurePrice::where('clinic_id', tenant('id'))
+                                return ProcedurePrice::where('clinic_id', tenant('id'))
                                     ->pluck('procedure_name', 'id')
                                     ->toArray();
                             })
@@ -65,7 +71,7 @@ class BudgetResource extends Resource
                             ->live()
                             ->afterStateUpdated(function ($state, callable $set) {
                                 if ($state) {
-                                    $procedure = \App\Models\ProcedurePrice::find($state);
+                                    $procedure = ProcedurePrice::find($state);
                                     if ($procedure) {
                                         $set('treatment_name', $procedure->procedure_name);
                                         $set('cost', $procedure->price);
@@ -86,7 +92,7 @@ class BudgetResource extends Resource
                             ->required(),
                         Forms\Components\TextInput::make('cost')
                             ->numeric()
-                            ->prefix(\App\Helpers\ClinicHelper::getCurrencySymbol())
+                            ->prefix(ClinicHelper::getCurrencySymbol())
                             ->live()
                             ->afterStateUpdated(function ($state, callable $get, callable $set) {
                                 $cost = $state ?? 0;
@@ -100,7 +106,7 @@ class BudgetResource extends Resource
                                 $cost = $get('cost') ?? 0;
                                 $qty = $get('quantity') ?? 1;
 
-                                return \App\Helpers\ClinicHelper::formatMoneyShort($cost * $qty);
+                                return ClinicHelper::formatMoneyShort($cost * $qty);
                             }),
                     ])
                     ->columnSpanFull()
@@ -116,7 +122,7 @@ class BudgetResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('total')
-                    ->formatStateUsing(fn ($state) => \App\Helpers\ClinicHelper::formatMoney((float) $state))
+                    ->formatStateUsing(fn ($state) => ClinicHelper::formatMoney((float) $state))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
@@ -152,17 +158,17 @@ class BudgetResource extends Resource
                     ]),
             ])
             ->actions([
-                \Filament\Actions\Action::make('downloadPdf')
+                Action::make('downloadPdf')
                     ->label('PDF')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('primary')
                     ->url(fn (Budget $record): string => route('budgets.pdf', $record))
                     ->openUrlInNewTab(),
-                \Filament\Actions\EditAction::make(),
+                EditAction::make(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

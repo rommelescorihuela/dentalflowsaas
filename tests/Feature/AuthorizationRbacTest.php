@@ -2,15 +2,10 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Patient;
 use App\Models\Odontogram;
-use App\Models\ClinicalRecord;
-use App\Models\Budget;
+use App\Models\Patient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use Tests\TestCase;
 
 class AuthorizationRbacTest extends TestCase
 {
@@ -31,7 +26,7 @@ class AuthorizationRbacTest extends TestCase
             'email' => 'test@clinic-a.test',
             'phone' => '+56911111111',
             'clinic_id' => 'clinic-a',
-            'rut' => '50000001-' . time(),
+            'rut' => '50000001-'.time(),
         ]);
 
         $this->actingAsDoctor($this->doctorA);
@@ -65,7 +60,7 @@ class AuthorizationRbacTest extends TestCase
             'email' => 'pda@clinic-a.test',
             'phone' => '+56911111111',
             'clinic_id' => 'clinic-a',
-            'rut' => '50000001-' . time(),
+            'rut' => '50000001-'.time(),
         ]);
 
         $this->actingAsDoctor($this->doctorA);

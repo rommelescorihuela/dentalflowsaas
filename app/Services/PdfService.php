@@ -8,6 +8,7 @@ use App\Helpers\ClinicHelper;
 use App\Models\Budget;
 use App\Models\Odontogram;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Symfony\Component\HttpFoundation\Response;
 
 class PdfService
 {
@@ -47,7 +48,7 @@ class PdfService
         'cbct' => '#64748b',
     ];
 
-    public function generateBudgetPdf(Budget $budget): \Symfony\Component\HttpFoundation\Response
+    public function generateBudgetPdf(Budget $budget): Response
     {
         $budget->load(['patient', 'items.procedurePrice', 'clinic']);
 
@@ -67,7 +68,7 @@ class PdfService
         return $pdf->download($filename);
     }
 
-    public function generateOdontogramPdf(Odontogram $odontogram): \Symfony\Component\HttpFoundation\Response
+    public function generateOdontogramPdf(Odontogram $odontogram): Response
     {
         $odontogram->load(['patient', 'clinicalRecords', 'clinic']);
 

@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\Role;
+use App\Traits\HasSpatiePermissions;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Foundation\Auth\User as AuthUser;
 
 class RolePolicy
 {
     use HandlesAuthorization;
-    use \App\Traits\HasSpatiePermissions;
+    use HasSpatiePermissions;
 
     public function forceDeleteAny(AuthUser $authUser): bool
     {

@@ -3,9 +3,16 @@
 namespace App\Filament\App\Resources\Patients\RelationManagers;
 
 use App\Filament\App\Resources\Patients\PatientResource;
+use App\Helpers\ClinicHelper;
+use App\Models\Budget;
 use App\Models\Odontogram;
 use App\Services\BudgetGenerator;
+use Filament\Actions\Action;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
@@ -49,11 +56,11 @@ class OdontogramsRelationManager extends RelationManager
                     ->required()
                     ->maxLength(255)
                     ->placeholder('Ej: Revisión Inicial, Seguimiento 6 Meses'),
-                \Filament\Forms\Components\DatePicker::make('date')
+                DatePicker::make('date')
                     ->label('Fecha')
                     ->required()
                     ->default(now()),
-                \Filament\Forms\Components\Select::make('status')
+                Select::make('status')
                     ->label('Estado')
                     ->options([
                         'in_progress' => 'En Progreso',
@@ -61,7 +68,7 @@ class OdontogramsRelationManager extends RelationManager
                     ])
                     ->default('in_progress')
                     ->required(),
-                \Filament\Forms\Components\Textarea::make('notes')
+                Textarea::make('notes')
                     ->label('Notas')
                     ->rows(3)
                     ->placeholder('Notas de la sesión...'),
@@ -108,7 +115,7 @@ class OdontogramsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                \Filament\Actions\Action::make('create_odontogram')
+                Action::make('create_odontogram')
                     ->label('Nuevo Odontograma')
                     ->icon('heroicon-o-plus')
                     ->color('primary')
@@ -118,11 +125,11 @@ class OdontogramsRelationManager extends RelationManager
                             ->required()
                             ->maxLength(255)
                             ->placeholder('Ej: Revisión Inicial, Seguimiento 6 Meses'),
-                        \Filament\Forms\Components\DatePicker::make('date')
+                        DatePicker::make('date')
                             ->label('Fecha')
                             ->required()
                             ->default(now()),
-                        \Filament\Forms\Components\Select::make('status')
+                        Select::make('status')
                             ->label('Estado')
                             ->options([
                                 'in_progress' => 'En Progreso',
@@ -130,7 +137,7 @@ class OdontogramsRelationManager extends RelationManager
                             ])
                             ->default('in_progress')
                             ->required(),
-                        \Filament\Forms\Components\Textarea::make('notes')
+                        Textarea::make('notes')
                             ->label('Notas')
                             ->rows(3)
                             ->placeholder('Notas de la sesión...'),
@@ -143,7 +150,7 @@ class OdontogramsRelationManager extends RelationManager
                             ->exists();
 
                         if ($hasInProgress) {
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->title('No se puede crear un nuevo odontograma')
                                 ->body('Por favor completa el odontograma en progreso antes de crear uno nuevo.')
                                 ->warning()
@@ -155,7 +162,7 @@ class OdontogramsRelationManager extends RelationManager
                         $data['clinic_id'] = auth()->user()->clinic_id;
                         $odontogram = $this->getOwnerRecord()->odontograms()->create($data);
 
-                        \Filament\Notifications\Notification::make()
+                        Notification::make()
                             ->title('Odontograma creado')
                             ->success()
                             ->send();
@@ -167,7 +174,7 @@ class OdontogramsRelationManager extends RelationManager
                     }),
             ])
             ->actions([
-                \Filament\Actions\Action::make('open')
+                Action::make('open')
                     ->label('Ver')
                     ->icon('heroicon-o-eye')
                     ->color('gray')
@@ -175,13 +182,13 @@ class OdontogramsRelationManager extends RelationManager
                         'patient' => $record->patient_id,
                         'odontogram' => $record->id,
                     ])),
-                \Filament\Actions\Action::make('downloadPdf')
+                Action::make('downloadPdf')
                     ->label('PDF')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('info')
                     ->url(fn ($record): string => route('odontograms.pdf', $record))
                     ->openUrlInNewTab(),
-                \Filament\Actions\Action::make('edit')
+                Action::make('edit')
                     ->label('Editar')
                     ->icon('heroicon-o-pencil')
                     ->color('primary')
@@ -189,7 +196,7 @@ class OdontogramsRelationManager extends RelationManager
                         'patient' => $record->patient_id,
                         'odontogram' => $record->id,
                     ])),
-                \Filament\Actions\Action::make('generate_budget')
+                Action::make('generate_budget')
                     ->label('Generar Presupuesto')
                     ->icon('heroicon-o-document-currency-dollar')
                     ->color('success')
@@ -199,9 +206,9 @@ class OdontogramsRelationManager extends RelationManager
                     ->modalDescription('Esto creará un presupuesto en borrador basado en los registros clínicos. Podrás editarlo antes de enviarlo al paciente.')
                     ->modalSubmitActionLabel('Generar')
                     ->action(function (Odontogram $record, BudgetGenerator $generator) {
-                        $existing = \App\Models\Budget::where('odontogram_id', $record->id)->first();
+                        $existing = Budget::where('odontogram_id', $record->id)->first();
                         if ($existing) {
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->title('Ya existe un presupuesto')
                                 ->body('Ya se generó un presupuesto para este odontograma. Puedes editarlo desde la sección de Presupuestos.')
                                 ->warning()
@@ -212,20 +219,20 @@ class OdontogramsRelationManager extends RelationManager
 
                         $budget = $generator->generate($record);
 
-                        \Filament\Notifications\Notification::make()
+                        Notification::make()
                             ->title('Presupuesto generado')
-                            ->body('Borrador de presupuesto #'.$budget->id.' creado con total '.\App\Helpers\ClinicHelper::formatMoneyShort($budget->total).'. Ahora puedes editarlo.')
+                            ->body('Borrador de presupuesto #'.$budget->id.' creado con total '.ClinicHelper::formatMoneyShort($budget->total).'. Ahora puedes editarlo.')
                             ->success()
                             ->send();
                     }),
-                \Filament\Actions\Action::make('delete')
+                Action::make('delete')
                     ->label('Eliminar')
                     ->icon('heroicon-o-trash')
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->action(function (\App\Models\Odontogram $record) {
+                    ->action(function (Odontogram $record) {
                         if ($record->clinic_id !== tenant('id')) {
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->title('Acceso denegado')
                                 ->body('No tienes permiso para eliminar este odontograma.')
                                 ->danger()
@@ -234,7 +241,7 @@ class OdontogramsRelationManager extends RelationManager
                             return;
                         }
                         $record->delete();
-                        \Filament\Notifications\Notification::make()
+                        Notification::make()
                             ->title('Odontograma eliminado')
                             ->success()
                             ->send();

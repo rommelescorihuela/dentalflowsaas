@@ -2,10 +2,9 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\Clinic;
-use App\Models\Patient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class SystemReadinessTest extends TestCase
 {
@@ -47,6 +46,6 @@ class SystemReadinessTest extends TestCase
 
     public function test_tenant_service_is_configured(): void
     {
-        $this->assertEquals(\App\Models\Clinic::class, config('tenancy.tenant_model'));
+        $this->assertEquals(Clinic::class, config('tenancy.tenant_model'));
     }
 }

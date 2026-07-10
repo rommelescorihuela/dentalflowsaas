@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Observers\AppointmentObserver;
+use App\Traits\ActivityLogger;
 use App\Traits\BelongsToClinic;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Validation\ValidationException;
-use Carbon\Carbon;
-use App\Traits\ActivityLogger;
 
 class Appointment extends Model
 {
-    use BelongsToClinic, ActivityLogger;
+    use ActivityLogger, BelongsToClinic;
 
     protected $fillable = [
         'clinic_id',
@@ -36,7 +37,7 @@ class Appointment extends Model
     public static function boot(): void
     {
         parent::boot();
-        self::observe(\App\Observers\AppointmentObserver::class);
+        self::observe(AppointmentObserver::class);
 
         static::creating(function ($appointment) {
             if ($appointment->start_time && Carbon::parse($appointment->start_time)->isPast()) {

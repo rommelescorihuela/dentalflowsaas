@@ -8,6 +8,7 @@ use App\Models\SystemActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Str;
 
 trait ActivityLogger
 {
@@ -34,14 +35,14 @@ trait ActivityLogger
         $newValues = $newValues ? array_diff_key($newValues, array_flip($hidden)) : null;
 
         SystemActivity::create([
-            'uuid' => (string) \Illuminate\Support\Str::uuid(),
+            'uuid' => (string) Str::uuid(),
             'clinic_id' => tenant('id') ?? $model->clinic_id ?? session('tenant_id'), // Use tenant() helper first, fallback to model then session
             'user_id' => Auth::id(),
             'user_type' => Auth::user() ? class_basename(Auth::user()) : null,
             'action' => $action,
             'subject_type' => get_class($model),
             'subject_id' => $model->getKey(),
-            'description' => ucfirst($action) . ' ' . class_basename($model) . ' #' . $model->getKey(),
+            'description' => ucfirst($action).' '.class_basename($model).' #'.$model->getKey(),
 
             // Request Metadata
             'ip_address' => Request::ip(),

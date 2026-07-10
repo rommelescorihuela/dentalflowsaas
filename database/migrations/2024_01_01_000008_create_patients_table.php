@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('patients', function (Blueprint $table) {
             $table->id();
             $table->string('clinic_id');
-            $table->unsignedBigInteger('doctor_id')->nullable()->after('clinic_id');
+            $table->unsignedBigInteger('doctor_id')->nullable();
             $table->string('name');
             $table->string('email')->nullable();
             $table->string('phone')->nullable();

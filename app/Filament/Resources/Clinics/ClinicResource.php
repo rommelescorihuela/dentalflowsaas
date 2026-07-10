@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Clinics;
 use App\Filament\Resources\Clinics\Pages\CreateClinic;
 use App\Filament\Resources\Clinics\Pages\EditClinic;
 use App\Filament\Resources\Clinics\Pages\ListClinics;
+use App\Filament\Resources\Clinics\RelationManagers\DomainsRelationManager;
 use App\Filament\Resources\Clinics\Schemas\ClinicForm;
 use App\Filament\Resources\Clinics\Tables\ClinicsTable;
 use App\Models\Clinic;
@@ -12,7 +13,6 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use App\Filament\Resources\Clinics\RelationManagers\DomainsRelationManager;
 use Filament\Tables\Table;
 
 class ClinicResource extends Resource

@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Patient;
 use App\Models\Appointment;
 use App\Models\Budget;
-use App\Models\Odontogram;
+use App\Models\Patient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class AuthorizationPolicyTest extends TestCase
 {

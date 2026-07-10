@@ -6,7 +6,6 @@ use App\Models\Patient;
 use Filament\Widgets\ChartWidget;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
-use App\Models\Appointment;
 
 class PatientAppointmentsChart extends ChartWidget
 {
@@ -16,7 +15,7 @@ class PatientAppointmentsChart extends ChartWidget
 
     protected function getData(): array
     {
-        if (!$this->record) {
+        if (! $this->record) {
             return [];
         }
 
@@ -32,10 +31,10 @@ class PatientAppointmentsChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Citas',
-                    'data' => $data->map(fn(TrendValue $value) => $value->aggregate),
+                    'data' => $data->map(fn (TrendValue $value) => $value->aggregate),
                 ],
             ],
-            'labels' => $data->map(fn(TrendValue $value) => $value->date),
+            'labels' => $data->map(fn (TrendValue $value) => $value->date),
         ];
     }
 

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Budget;
-use App\Models\BudgetItem;
 use App\Models\Odontogram;
 use App\Models\ProcedurePrice;
 use Illuminate\Support\Facades\DB;
@@ -69,24 +68,24 @@ class BudgetGenerator
                 }
 
                 // Fallback to diagnosis code lookup (usando cache)
-                if (!$procedure && $record->diagnosis_code && isset($proceduresByDiagnosis[$record->diagnosis_code])) {
+                if (! $procedure && $record->diagnosis_code && isset($proceduresByDiagnosis[$record->diagnosis_code])) {
                     $procedure = $proceduresByDiagnosis[$record->diagnosis_code]->first();
                 }
 
                 if ($procedure) {
-                    $key = 'proc_' . $procedure->id;
+                    $key = 'proc_'.$procedure->id;
                     $name = $procedure->procedure_name;
                     $cost = $procedure->price;
                     $procedurePriceId = $procedure->id;
                 } else {
                     $default = $this->diagnosisDefaults[$record->diagnosis_code] ?? null;
-                    $key = 'default_' . ($record->diagnosis_code ?? 'unknown');
+                    $key = 'default_'.($record->diagnosis_code ?? 'unknown');
                     $cost = $default ? 50000 * $default['multiplier'] : 50000;
                     $name = $default['name'] ?? 'Tratamiento';
                     $procedurePriceId = null;
                 }
 
-                if (!isset($groupedItems[$key])) {
+                if (! isset($groupedItems[$key])) {
                     $groupedItems[$key] = [
                         'treatment_name' => $name,
                         'cost' => $cost,
@@ -107,13 +106,13 @@ class BudgetGenerator
                 'odontogram_id' => $odontogram->id,
                 'total' => $total,
                 'status' => 'draft',
-                'notes' => 'Presupuesto generado automáticamente desde odontograma #' . $odontogram->id . '.',
+                'notes' => 'Presupuesto generado automáticamente desde odontograma #'.$odontogram->id.'.',
                 'expires_at' => now()->addDays(30),
             ]);
 
             foreach ($groupedItems as $item) {
                 $teethList = implode(', ', array_unique($item['teeth']));
-                $treatmentName = $item['treatment_name'] . ' (Dientes: ' . $teethList . ')';
+                $treatmentName = $item['treatment_name'].' (Dientes: '.$teethList.')';
 
                 $budget->items()->create([
                     'clinic_id' => $odontogram->clinic_id,

@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Traits\ActivityLogger;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\DB;
 use Stancl\Tenancy\Database\Concerns\HasDomains;
 use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 
@@ -39,7 +40,7 @@ class Clinic extends BaseTenant
         $data = $this->data;
 
         if (! is_array($data) || empty($data)) {
-            $rawData = \Illuminate\Support\Facades\DB::table('tenants')
+            $rawData = DB::table('tenants')
                 ->where('id', $this->id)
                 ->value('data');
 

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,7 +19,7 @@ class DatabaseSeeder extends Seeder
         // Create Super Admin
         $superAdmin = User::firstOrCreate(['email' => 'admin@dentalflow.com'], [
             'name' => 'Super Admin',
-            'password' => \Illuminate\Support\Facades\Hash::make('password'),
+            'password' => Hash::make('password'),
             'clinic_id' => null, // Super admins don't belong to a specific tenant (or belong to multiple)
         ]);
 
@@ -35,6 +36,10 @@ class DatabaseSeeder extends Seeder
         ]);
 
         setPermissionsTeamId(null);
-        $superAdmin->assignRole('super-admin');
+        // Reload from DB to ensure fresh Spatie context after PermissionSeeder ran
+        $superAdmin = User::where('email', 'admin@dentalflow.com')->first();
+        if ($superAdmin && ! $superAdmin->hasRole('super-admin')) {
+            $superAdmin->assignRole('super-admin');
+        }
     }
 }

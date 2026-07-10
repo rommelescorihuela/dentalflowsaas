@@ -1,15 +1,19 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
+use App\Filament\App\Widgets\FinancialStatsOverview;
+use App\Filament\App\Widgets\RevenueChart;
+use App\Livewire\PatientPortal\BookAppointment;
+use App\Models\Budget;
 use App\Models\Clinic;
 use App\Models\Patient;
 use App\Models\Payment;
-use App\Models\Budget;
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Support\Facades\Schema;
 use ReflectionMethod;
 
-require __DIR__ . '/vendor/autoload.php';
-$app = require __DIR__ . '/bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+require __DIR__.'/vendor/autoload.php';
+$app = require __DIR__.'/bootstrap/app.php';
+$app->make(Kernel::class)->bootstrap();
 
 echo "--- Starting System Verification ---\n";
 
@@ -23,14 +27,12 @@ if (Schema::hasColumn('tenants', 'onboarding_step')) {
     echo "❌ Database: Column 'onboarding_step' MISSING in 'tenants' table.\n";
 }
 
-
-
 // --- PHASE 3: SELF-SCHEDULING ---
 echo "\n[Phase 3] Verifying Self-Scheduling Logic...\n";
 
 // Initialize Tenancy
 $clinic = Clinic::first();
-if (!$clinic) {
+if (! $clinic) {
     echo "⚠️ No clinic found. Skipping logic tests.\n";
     exit;
 }
@@ -39,32 +41,31 @@ tenancy()->initialize($clinic);
 
 // Get Patient
 $patient = Patient::first();
-if (!$patient) {
+if (! $patient) {
     $patient = Patient::create([
         'name' => 'Test Patient',
         'email' => 'test@test.com',
-        // 'status' => 'active', 
-        'clinic_id' => $clinic->id
+        // 'status' => 'active',
+        'clinic_id' => $clinic->id,
     ]);
 }
 
 // Test BookAppointment Logic
 try {
-    $component = new \App\Livewire\PatientPortal\BookAppointment();
+    $component = new BookAppointment;
     $component->patient = $patient;
     $component->selectedDate = now()->addDay()->format('Y-m-d'); // Tomorrow
     $component->loadTimeSlots();
 
     if (count($component->availableSlots) > 0) {
         echo "✅ Logic: Slots generated successfully for {$component->selectedDate}.\n";
-        echo "   Sample slots: " . implode(', ', array_slice($component->availableSlots, 0, 5)) . "...\n";
+        echo '   Sample slots: '.implode(', ', array_slice($component->availableSlots, 0, 5))."...\n";
     } else {
         echo "⚠️ Logic: No slots generated (Check business hours logic).\n";
     }
 } catch (Exception $e) {
-    echo "❌ Logic: BookAppointment Error - " . $e->getMessage() . "\n";
+    echo '❌ Logic: BookAppointment Error - '.$e->getMessage()."\n";
 }
-
 
 // --- PHASE 3.5: CONFIGURABLE SCHEDULES ---
 echo "\n[Phase 3.5] Verifying Custom Schedule Logic...\n";
@@ -72,17 +73,17 @@ echo "\n[Phase 3.5] Verifying Custom Schedule Logic...\n";
 // Use explicit set and save
 $newData = array_merge($clinic->data ?? [], [
     'schedule_start' => '10:00',
-    'schedule_end' => '14:00'
+    'schedule_end' => '14:00',
 ]);
 $clinic->data = $newData;
 $clinic->save();
 $clinic->refresh();
 tenancy()->initialize($clinic);
 
-echo "DEBUG: Tenant Data Payload (via tenant()): " . json_encode(tenant()->data) . "\n";
+echo 'DEBUG: Tenant Data Payload (via tenant()): '.json_encode(tenant()->data)."\n";
 
 try {
-    $component = new \App\Livewire\PatientPortal\BookAppointment();
+    $component = new BookAppointment;
     $component->patient = $patient;
     $component->selectedDate = now()->addDay()->format('Y-m-d');
     $component->loadTimeSlots();
@@ -101,9 +102,8 @@ try {
     }
 
 } catch (Exception $e) {
-    echo "❌ Logic: Custom Schedule Error - " . $e->getMessage() . "\n";
+    echo '❌ Logic: Custom Schedule Error - '.$e->getMessage()."\n";
 }
-
 
 // --- PHASE 4: BUSINESS INTELLIGENCE ---
 echo "\n[Phase 4] Verifying BI Dashboard Widgets...\n";
@@ -114,23 +114,23 @@ Budget::create(['total' => 500.00, 'status' => 'accepted', 'clinic_id' => $clini
 
 // Test FinancialStatsOverview
 try {
-    $statsWidget = new \App\Filament\App\Widgets\FinancialStatsOverview();
-    $method = new ReflectionMethod(\App\Filament\App\Widgets\FinancialStatsOverview::class, 'getStats');
+    $statsWidget = new FinancialStatsOverview;
+    $method = new ReflectionMethod(FinancialStatsOverview::class, 'getStats');
     $method->setAccessible(true);
     $stats = $method->invoke($statsWidget);
 
     echo "✅ Widget: FinancialStatsOverview calculated stats:\n";
     foreach ($stats as $stat) {
-        echo "   - " . $stat->getLabel() . ": " . $stat->getValue() . " (" . $stat->getDescription() . ")\n";
+        echo '   - '.$stat->getLabel().': '.$stat->getValue().' ('.$stat->getDescription().")\n";
     }
 } catch (Exception $e) {
-    echo "❌ Widget: FinancialStatsOverview Error - " . $e->getMessage() . "\n";
+    echo '❌ Widget: FinancialStatsOverview Error - '.$e->getMessage()."\n";
 }
 
 // Test RevenueChart
 try {
-    $chartWidget = new \App\Filament\App\Widgets\RevenueChart();
-    $methodChart = new ReflectionMethod(\App\Filament\App\Widgets\RevenueChart::class, 'getData');
+    $chartWidget = new RevenueChart;
+    $methodChart = new ReflectionMethod(RevenueChart::class, 'getData');
     $methodChart->setAccessible(true);
     $data = $methodChart->invoke($chartWidget);
 
@@ -142,7 +142,7 @@ try {
         echo "❌ Widget: RevenueChart returned empty datasets.\n";
     }
 } catch (Exception $e) {
-    echo "❌ Widget: RevenueChart Error - " . $e->getMessage() . "\n";
+    echo '❌ Widget: RevenueChart Error - '.$e->getMessage()."\n";
 }
 
 echo "\n--- Verification Complete ---\n";

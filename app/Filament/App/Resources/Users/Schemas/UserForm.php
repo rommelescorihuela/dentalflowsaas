@@ -2,9 +2,11 @@
 
 namespace App\Filament\App\Resources\Users\Schemas;
 
-use Filament\Forms\Components\DateTimePicker;
+use App\Models\Role;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\DB;
 
 class UserForm
 {
@@ -24,18 +26,19 @@ class UserForm
                 TextInput::make('password')
                     ->password()
                     ->confirmed()
-                    ->dehydrated(fn($state) => filled($state))
-                    ->required(fn(string $operation): bool => $operation === 'create'),
+                    ->dehydrated(fn ($state) => filled($state))
+                    ->required(fn (string $operation): bool => $operation === 'create'),
                 TextInput::make('password_confirmation')
                     ->password()
-                    ->required(fn(string $operation): bool => $operation === 'create')
-                    ->visible(fn(string $operation): bool => $operation === 'create' || filled($operation)),
-                \Filament\Forms\Components\Select::make('roles')
+                    ->required(fn (string $operation): bool => $operation === 'create')
+                    ->visible(fn (string $operation): bool => $operation === 'create' || filled($operation)),
+                Select::make('roles')
                     ->label('Roles')
                     ->multiple()
                     ->options(function () {
                         $clinicId = tenant('id') ?? auth()->user()?->clinic_id;
-                        return \App\Models\Role::where('clinic_id', $clinicId)
+
+                        return Role::where('clinic_id', $clinicId)
                             ->pluck('name', 'id');
                     })
                     ->saveRelationshipsUsing(function ($record, $state) {
@@ -48,16 +51,17 @@ class UserForm
                         }
                     })
                     ->loadStateFromRelationshipsUsing(function ($component, $record) {
-                        if (!$record?->exists) {
+                        if (! $record?->exists) {
                             return $component->state([]);
                         }
                         $clinicId = tenant('id') ?? auth()->user()?->clinic_id;
-                        $roleIds = \Illuminate\Support\Facades\DB::table('model_has_roles')
+                        $roleIds = DB::table('model_has_roles')
                             ->where('model_id', $record->id)
                             ->where('model_type', get_class($record))
                             ->where('clinic_id', $clinicId)
                             ->pluck('role_id')
                             ->toArray();
+
                         return $component->state($roleIds);
                     })
                     ->preload()

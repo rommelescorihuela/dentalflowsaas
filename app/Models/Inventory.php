@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Traits\BelongsToClinic;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\BelongsToClinic;
 
 class Inventory extends Model
 {
-    use HasFactory, BelongsToClinic;
+    use BelongsToClinic, HasFactory;
 
     protected $fillable = [
         'name',
@@ -32,5 +32,4 @@ class Inventory extends Model
         'low_stock_threshold' => 'integer',
         'items_per_unit' => 'integer',
     ];
-
 }

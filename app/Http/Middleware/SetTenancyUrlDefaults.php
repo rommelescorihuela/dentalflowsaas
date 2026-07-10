@@ -12,7 +12,7 @@ class SetTenancyUrlDefaults
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -22,7 +22,7 @@ class SetTenancyUrlDefaults
         } else {
             // Fallback to segment identification for early URL generation (like redirects)
             $segment = $request->segment(1);
-            if ($segment && !in_array($segment, ['admin', 'up', 'login', 'register', 'livewire'])) {
+            if ($segment && ! in_array($segment, ['admin', 'up', 'login', 'register', 'livewire'])) {
                 $tenantId = $segment;
             }
         }

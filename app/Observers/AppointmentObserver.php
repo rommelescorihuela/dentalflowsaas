@@ -6,8 +6,8 @@ namespace App\Observers;
 
 use App\Models\Appointment;
 use App\Models\Inventory;
-use Illuminate\Support\Facades\DB;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\DB;
 
 class AppointmentObserver
 {
@@ -23,13 +23,13 @@ class AppointmentObserver
 
     protected function deductInventory(Appointment $appointment)
     {
-        if (!$appointment->procedure_price_id) {
+        if (! $appointment->procedure_price_id) {
             return;
         }
 
         $procedure = $appointment->procedurePrice;
 
-        if (!$procedure) {
+        if (! $procedure) {
             return;
         }
 
@@ -43,8 +43,9 @@ class AppointmentObserver
             foreach ($supplies as $supply) {
                 $inventory = $supply->inventory;
 
-                if (!$inventory)
+                if (! $inventory) {
                     continue;
+                }
 
                 $quantityToDeduct = $supply->quantity_used;
 
@@ -52,7 +53,7 @@ class AppointmentObserver
                 // If more complex "Piece vs Box" logic is needed, we can expand later.
                 // Assuming 'quantity' in Inventory is the atomic unit for now or adapting.
 
-                // RMDC logic was complex (boxes vs pieces). 
+                // RMDC logic was complex (boxes vs pieces).
                 // SaaS Inventory has: price, quantity, items_per_unit.
                 // Let's assume quantity is "Total Units" for simplicity unless we see "items_per_unit" distinct usage.
 

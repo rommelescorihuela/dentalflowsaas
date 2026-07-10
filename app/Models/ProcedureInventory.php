@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Traits\BelongsToClinic;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\BelongsToClinic;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProcedureInventory extends Model
 {
-    use HasFactory, BelongsToClinic;
+    use BelongsToClinic, HasFactory;
 
     protected $table = 'procedure_inventory';
 

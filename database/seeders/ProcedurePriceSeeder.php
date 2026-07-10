@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Clinic;
 use App\Models\ProcedurePrice;
 use Illuminate\Database\Seeder;
 
@@ -362,10 +363,11 @@ class ProcedurePriceSeeder extends Seeder
 
     public function run(): void
     {
-        $clinicId = tenant('id') ?? \App\Models\Clinic::first()?->id;
+        $clinicId = tenant('id') ?? Clinic::first()?->id;
 
-        if (!$clinicId) {
+        if (! $clinicId) {
             $this->command?->error('No se encontró un tenant activo. Ejecuta este seeder dentro de un contexto de tenancy o asegúrate de tener al menos un tenant creado.');
+
             return;
         }
 
@@ -379,6 +381,6 @@ class ProcedurePriceSeeder extends Seeder
             );
         }
 
-        $this->command?->info('✅ ' . count($this->procedures) . ' procedimientos sembrados para el tenant: ' . $clinicId);
+        $this->command?->info('✅ '.count($this->procedures).' procedimientos sembrados para el tenant: '.$clinicId);
     }
 }

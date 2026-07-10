@@ -19,7 +19,7 @@ class EditRole extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        if (!empty($data['clinic_id'])) {
+        if (! empty($data['clinic_id'])) {
             setPermissionsTeamId($data['clinic_id']);
         }
 

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages;
 
+use App\Models\Clinic;
 use App\Models\Inventory;
 use App\Models\ProcedurePrice;
 use App\Models\User;
+use App\Scopes\ClinicScope;
 use Database\Seeders\InventorySeeder;
 use Database\Seeders\ProcedureInventorySeeder;
 use Database\Seeders\ProcedurePriceSeeder;
@@ -21,8 +23,8 @@ use Filament\Pages\Page;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 
 class OnboardingWizard extends Page implements HasForms
@@ -159,7 +161,7 @@ class OnboardingWizard extends Page implements HasForms
                                 ->placeholder('asistente@miclinica.com'),
                         ])->columns(2),
                 ])
-                    ->submitAction(new \Illuminate\Support\HtmlString('<button type="submit" class="fi-btn fi-btn-size-md fi-color-custom fi-btn-color-primary fi-color-primary fi-size-md gap-1.5 px-3 py-2 text-sm inline-grid shadow-sm rounded-lg bg-custom-600 text-white hover:bg-custom-500 focus-visible:ring-custom-500/50 dark:bg-custom-500 dark:hover:bg-custom-400 dark:focus-visible:ring-custom-400/50 relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2">Finalizar configuración</button>'))
+                    ->submitAction(new HtmlString('<button type="submit" class="fi-btn fi-btn-size-md fi-color-custom fi-btn-color-primary fi-color-primary fi-size-md gap-1.5 px-3 py-2 text-sm inline-grid shadow-sm rounded-lg bg-custom-600 text-white hover:bg-custom-500 focus-visible:ring-custom-500/50 dark:bg-custom-500 dark:hover:bg-custom-400 dark:focus-visible:ring-custom-400/50 relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2">Finalizar configuración</button>'))
                     ->persistStepInQueryString(),
             ])
             ->statePath('data');
@@ -177,7 +179,7 @@ class OnboardingWizard extends Page implements HasForms
             return;
         }
 
-        $clinic = \App\Models\Clinic::withoutGlobalScope(\App\Scopes\ClinicScope::class)->find($tenant->id);
+        $clinic = Clinic::withoutGlobalScope(ClinicScope::class)->find($tenant->id);
 
         if (! $clinic) {
             Notification::make()->title('Error: clínica no encontrada')->danger()->send();
@@ -226,7 +228,7 @@ class OnboardingWizard extends Page implements HasForms
 
     protected function importProcedures(string $clinicId): void
     {
-        $existing = ProcedurePrice::withoutGlobalScope(\App\Scopes\ClinicScope::class)
+        $existing = ProcedurePrice::withoutGlobalScope(ClinicScope::class)
             ->where('clinic_id', $clinicId)
             ->count();
 
@@ -240,7 +242,7 @@ class OnboardingWizard extends Page implements HasForms
 
     protected function importInventory(string $clinicId): void
     {
-        $existing = Inventory::withoutGlobalScope(\App\Scopes\ClinicScope::class)
+        $existing = Inventory::withoutGlobalScope(ClinicScope::class)
             ->where('clinic_id', $clinicId)
             ->count();
 

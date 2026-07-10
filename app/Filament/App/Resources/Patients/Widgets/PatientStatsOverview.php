@@ -5,7 +5,6 @@ namespace App\Filament\App\Resources\Patients\Widgets;
 use App\Models\Patient;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use App\Models\Appointment;
 
 class PatientStatsOverview extends BaseWidget
 {
@@ -13,7 +12,7 @@ class PatientStatsOverview extends BaseWidget
 
     protected function getStats(): array
     {
-        if (!$this->record) {
+        if (! $this->record) {
             return [];
         }
 

@@ -30,7 +30,7 @@ class SubscriptionRevenueChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Ingresos',
-                    'data' => $data->map(fn(TrendValue $value) => round($value->aggregate, 2)),
+                    'data' => $data->map(fn (TrendValue $value) => round($value->aggregate, 2)),
                     'borderColor' => '#6366f1',
                     'backgroundColor' => 'rgba(99, 102, 241, 0.1)',
                     'fill' => 'start',
@@ -41,7 +41,7 @@ class SubscriptionRevenueChart extends ChartWidget
                     'pointRadius' => 4,
                 ],
             ],
-            'labels' => $data->map(fn(TrendValue $value) => $value->date),
+            'labels' => $data->map(fn (TrendValue $value) => $value->date),
         ];
     }
 

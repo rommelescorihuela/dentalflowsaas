@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Filament\Notifications\Notification;
 
 class ClinicSettingsController extends Controller
 {
@@ -12,7 +11,7 @@ class ClinicSettingsController extends Controller
     {
         $tenant = tenant();
 
-        if (!$tenant) {
+        if (! $tenant) {
             $user = auth()->user();
             if ($user && $user->clinic_id) {
                 $tenantModel = config('tenancy.tenant_model');
@@ -23,7 +22,7 @@ class ClinicSettingsController extends Controller
             }
         }
 
-        if (!$tenant) {
+        if (! $tenant) {
             return back()->withErrors(['tenant' => 'No se pudo identificar la clínica.']);
         }
 
@@ -53,7 +52,7 @@ class ClinicSettingsController extends Controller
                     'schedule_end' => $data['schedule_end'],
                     'primary_color' => $data['primary_color'] ?? '#0891b2',
                     'onboarding_step' => 4,
-                ]))
+                ])),
             ]);
 
         // We can't use Filament notifications directly here easily, so we use session

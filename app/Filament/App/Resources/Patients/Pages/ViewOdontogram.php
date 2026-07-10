@@ -4,16 +4,23 @@ namespace App\Filament\App\Resources\Patients\Pages;
 
 use App\Filament\App\Resources\Budgets\BudgetResource;
 use App\Filament\App\Resources\Patients\PatientResource;
+use App\Helpers\ClinicHelper;
 use App\Models\Budget;
 use App\Models\Odontogram;
 use App\Services\BudgetGenerator;
-use Filament\Resources\Pages\Page;
-
-use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Schemas\Schema;
+use Carbon\Carbon;
 use Filament\Actions\Action;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
+use Filament\Resources\Pages\Page;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\View;
+use Filament\Schemas\Schema;
 
 class ViewOdontogram extends Page implements HasForms
 {
@@ -50,28 +57,28 @@ class ViewOdontogram extends Page implements HasForms
     {
         return $form
             ->components([
-                \Filament\Schemas\Components\Section::make('Detalles del Odontograma')
+                Section::make('Detalles del Odontograma')
                     ->columns(2)
                     ->schema([
-                        \Filament\Forms\Components\TextInput::make('name')
+                        TextInput::make('name')
                             ->required()
                             ->maxLength(255),
-                        \Filament\Forms\Components\DatePicker::make('date')
+                        DatePicker::make('date')
                             ->required(),
-                        \Filament\Forms\Components\Select::make('status')
+                        Select::make('status')
                             ->options([
                                 'in_progress' => 'En Progreso',
                                 'completed' => 'Completado',
                             ])
                             ->required()
                             ->hint('Cambia a "Completado" para generar un presupuesto automaticamente'),
-                        \Filament\Forms\Components\Textarea::make('notes')
+                        Textarea::make('notes')
                             ->rows(3)
                             ->columnSpanFull(),
                     ]),
-                \Filament\Schemas\Components\Section::make('Odontograma')
+                Section::make('Odontograma')
                     ->schema([
-                        \Filament\Schemas\Components\View::make('filament.app.resources.patients.pages.components.odontogram-embed')
+                        View::make('filament.app.resources.patients.pages.components.odontogram-embed')
                             ->viewData([
                                 'patient' => $this->odontogram->patient,
                                 'odontogramId' => $this->odontogram->id,
@@ -105,16 +112,16 @@ class ViewOdontogram extends Page implements HasForms
 
     public function getSubheading(): string
     {
-        return \Carbon\Carbon::parse($this->odontogram->date)->locale('es')->isoFormat('D [de] MMMM, Y');
+        return Carbon::parse($this->odontogram->date)->locale('es')->isoFormat('D [de] MMMM, Y');
     }
 
     protected function getHeaderActions(): array
     {
         $actions = [
-            \Filament\Actions\Action::make('back')
+            Action::make('back')
                 ->label('Volver al Paciente')
                 ->icon('heroicon-o-arrow-left')
-                ->url(fn() => PatientResource::getUrl('edit', ['record' => $this->odontogram->patient_id]))
+                ->url(fn () => PatientResource::getUrl('edit', ['record' => $this->odontogram->patient_id]))
                 ->color('gray'),
             Action::make('save')
                 ->label('Guardar Cambios')
@@ -124,11 +131,11 @@ class ViewOdontogram extends Page implements HasForms
 
         if ($this->odontogram->status === 'completed') {
             if ($this->budget) {
-                $actions[] = \Filament\Actions\Action::make('view_budget')
-                    ->label('Ver Presupuesto #' . $this->budget->id)
+                $actions[] = Action::make('view_budget')
+                    ->label('Ver Presupuesto #'.$this->budget->id)
                     ->icon('heroicon-o-document-currency-dollar')
                     ->color('success')
-                    ->url(fn() => \App\Filament\App\Resources\Budgets\BudgetResource::getUrl('edit', ['record' => $this->budget->id]));
+                    ->url(fn () => BudgetResource::getUrl('edit', ['record' => $this->budget->id]));
             } else {
                 $actions[] = Action::make('generate_budget')
                     ->label('Generar Presupuesto')
@@ -142,7 +149,7 @@ class ViewOdontogram extends Page implements HasForms
                             Notification::make()
                                 ->success()
                                 ->title('Presupuesto generado')
-                                ->body('Presupuesto #' . $budget->id . ' creado por ' . \App\Helpers\ClinicHelper::formatMoneyShort($budget->total))
+                                ->body('Presupuesto #'.$budget->id.' creado por '.ClinicHelper::formatMoneyShort($budget->total))
                                 ->send();
                         }
                     });

@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Traits\ActivityLogger;
+use App\Traits\BelongsToClinic;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\BelongsToClinic;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
-use App\Traits\ActivityLogger;
 
 class Payment extends Model
 {
-    use HasFactory, BelongsToClinic, ActivityLogger;
+    use ActivityLogger, BelongsToClinic, HasFactory;
 
     protected $fillable = [
         'clinic_id',

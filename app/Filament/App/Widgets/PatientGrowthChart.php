@@ -2,7 +2,12 @@
 
 namespace App\Filament\App\Widgets;
 
+use App\Models\Clinic;
+use App\Models\Patient;
+use App\Services\PlanLimits;
 use Filament\Widgets\ChartWidget;
+use Flowframe\Trend\Trend;
+use Flowframe\Trend\TrendValue;
 
 class PatientGrowthChart extends ChartWidget
 {
@@ -14,18 +19,18 @@ class PatientGrowthChart extends ChartWidget
 
     public static function canView(): bool
     {
-        $tenant = tenant() ?? (\App\Models\Clinic::find(auth()->user()?->clinic_id));
+        $tenant = tenant() ?? (Clinic::find(auth()->user()?->clinic_id));
 
         if (! $tenant) {
             return false;
         }
 
-        return app(\App\Services\PlanLimits::class)->hasFeature($tenant, 'bi_reports');
+        return app(PlanLimits::class)->hasFeature($tenant, 'bi_reports');
     }
 
     protected function getData(): array
     {
-        $data = \Flowframe\Trend\Trend::model(\App\Models\Patient::class)
+        $data = Trend::model(Patient::class)
             ->between(
                 start: now()->startOfYear(),
                 end: now()->endOfYear(),
@@ -37,7 +42,7 @@ class PatientGrowthChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Nuevos Pacientes',
-                    'data' => $data->map(fn (\Flowframe\Trend\TrendValue $value) => $value->aggregate),
+                    'data' => $data->map(fn (TrendValue $value) => $value->aggregate),
                     'borderColor' => '#0891b2',
                     'backgroundColor' => 'rgba(8, 145, 178, 0.1)',
                     'fill' => 'start',
@@ -48,7 +53,7 @@ class PatientGrowthChart extends ChartWidget
                     'pointRadius' => 4,
                 ],
             ],
-            'labels' => $data->map(fn (\Flowframe\Trend\TrendValue $value) => $value->date),
+            'labels' => $data->map(fn (TrendValue $value) => $value->date),
         ];
     }
 

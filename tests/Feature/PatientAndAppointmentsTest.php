@@ -2,13 +2,14 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\Patient;
 use App\Models\Appointment;
 use App\Models\Budget;
 use App\Models\BudgetItem;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\Patient;
 use Carbon\Carbon;
+use Illuminate\Database\QueryException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class PatientAndAppointmentsTest extends TestCase
 {
@@ -98,7 +99,7 @@ class PatientAndAppointmentsTest extends TestCase
         }
 
         $budget->refresh();
-        $budget->total = $budget->items->sum(fn($item) => $item->cost * $item->quantity);
+        $budget->total = $budget->items->sum(fn ($item) => $item->cost * $item->quantity);
         $budget->save();
 
         $this->assertEquals(200000, $budget->total);
@@ -197,11 +198,11 @@ class PatientAndAppointmentsTest extends TestCase
     {
         $this->switchTenant('clinic-a');
 
-        $uniqueRut = '60000001-' . time();
+        $uniqueRut = '60000001-'.time();
 
         $patient = Patient::create([
             'name' => 'Paciente 1',
-            'email' => 'p1-' . time() . '@clinic-a.test',
+            'email' => 'p1-'.time().'@clinic-a.test',
             'phone' => '+56911111111',
             'clinic_id' => 'clinic-a',
             'rut' => $uniqueRut,
@@ -209,11 +210,11 @@ class PatientAndAppointmentsTest extends TestCase
 
         $this->assertEquals('Paciente 1', $patient->name);
 
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
 
         Patient::create([
             'name' => 'Paciente Duplicado',
-            'email' => 'p2-' . time() . '@clinic-a.test',
+            'email' => 'p2-'.time().'@clinic-a.test',
             'phone' => '+56922222222',
             'clinic_id' => 'clinic-a',
             'rut' => $uniqueRut,

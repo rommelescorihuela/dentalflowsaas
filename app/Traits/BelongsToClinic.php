@@ -20,7 +20,7 @@ trait BelongsToClinic
         static::addGlobalScope(new ClinicScope);
 
         static::creating(function ($model) {
-            if (!$model->getAttribute(static::$tenantIdColumn) && !$model->relationLoaded('tenant')) {
+            if (! $model->getAttribute(static::$tenantIdColumn) && ! $model->relationLoaded('tenant')) {
                 if (tenancy()->initialized) {
                     $model->setAttribute(static::$tenantIdColumn, tenant()->getTenantKey());
                     $model->setRelation('tenant', tenant());

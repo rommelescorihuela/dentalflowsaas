@@ -2,6 +2,12 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\App\Pages\Dashboard;
+use App\Helpers\ClinicHelper;
+use App\Http\Middleware\EnsureSubscriptionActive;
+use App\Http\Middleware\InitializeTenancyBySubdomainId;
+use App\Http\Middleware\SetTenancyUrlDefaults;
+use App\Http\Middleware\SyncSpatiePermissionsTeamId;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -29,7 +35,7 @@ class AppPanelProvider extends PanelProvider
             ->login()
             ->brandName('DentalFlow')
             ->brandLogo(function () {
-                $logo = \App\Helpers\ClinicHelper::getLogo();
+                $logo = ClinicHelper::getLogo();
 
                 return $logo ? asset('storage/'.$logo) : asset('images/logo.svg');
             })
@@ -44,7 +50,7 @@ class AppPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\Filament\App\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\Filament\App\Pages')
             ->pages([
-                \App\Filament\App\Pages\Dashboard::class,
+                Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\Filament\App\Widgets')
             ->middleware([
@@ -56,16 +62,16 @@ class AppPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-                \App\Http\Middleware\InitializeTenancyBySubdomainId::class,
-                \App\Http\Middleware\SetTenancyUrlDefaults::class,
-                \App\Http\Middleware\SyncSpatiePermissionsTeamId::class,
+                InitializeTenancyBySubdomainId::class,
+                SetTenancyUrlDefaults::class,
+                SyncSpatiePermissionsTeamId::class,
             ])
             ->plugins([
                 // Shield removed - using custom role management
             ])
             ->authMiddleware([
                 Authenticate::class,
-                \App\Http\Middleware\EnsureSubscriptionActive::class,
+                EnsureSubscriptionActive::class,
             ]);
     }
 }

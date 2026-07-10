@@ -8,7 +8,6 @@ use App\Models\Budget;
 use App\Models\Odontogram;
 use App\Models\Patient;
 use App\Services\PdfService;
-use App\Services\PlanLimits;
 use Illuminate\Http\Request;
 
 class PdfController extends Controller

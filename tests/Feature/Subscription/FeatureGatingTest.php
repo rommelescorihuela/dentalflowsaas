@@ -7,7 +7,9 @@ namespace Tests\Feature\Subscription;
 use App\Enums\Plan;
 use App\Models\Budget;
 use App\Models\Clinic;
+use App\Models\Patient;
 use App\Models\SubscriptionPayment;
+use App\Services\PlanLimits;
 use App\Services\SubscriptionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\URL;
@@ -26,7 +28,7 @@ class FeatureGatingTest extends TestCase
 
     public function test_pro_plan_has_all_features(): void
     {
-        $planLimits = app(\App\Services\PlanLimits::class);
+        $planLimits = app(PlanLimits::class);
         $clinic = $this->clinicA->fresh();
 
         $this->assertTrue($planLimits->hasFeature($clinic, 'portal'));
@@ -53,7 +55,7 @@ class FeatureGatingTest extends TestCase
         ]);
         $service->activate($clinic, Plan::Basic, $payment);
 
-        $planLimits = app(\App\Services\PlanLimits::class);
+        $planLimits = app(PlanLimits::class);
         $clinic = $clinic->fresh();
 
         $this->assertFalse($planLimits->hasFeature($clinic, 'portal'));
@@ -84,7 +86,7 @@ class FeatureGatingTest extends TestCase
         Tenancy::initialize('starter-clinic');
         setPermissionsTeamId('starter-clinic');
 
-        $patient = \App\Models\Patient::create([
+        $patient = Patient::create([
             'name' => 'Test Patient',
             'email' => 'test@starter.test',
             'phone' => '+56911111111',
@@ -120,7 +122,7 @@ class FeatureGatingTest extends TestCase
 
         Tenancy::initialize('starter-clinic');
 
-        $patient = \App\Models\Patient::create([
+        $patient = Patient::create([
             'name' => 'Test Patient',
             'email' => 'test@starter.test',
             'phone' => '+56911111111',
@@ -146,7 +148,7 @@ class FeatureGatingTest extends TestCase
         $clinic = Clinic::create(['id' => 'trial-clinic', 'name' => 'Trial Clinic']);
         $service->createTrial($clinic);
 
-        $planLimits = app(\App\Services\PlanLimits::class);
+        $planLimits = app(PlanLimits::class);
         $clinic = $clinic->fresh();
 
         $this->assertTrue($planLimits->hasFeature($clinic, 'portal'));

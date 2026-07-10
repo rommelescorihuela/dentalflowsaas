@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\PlanLimits;
 use App\Services\TenantService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Stancl\Tenancy\Facades\Tenancy;
 use Tests\TestCase;
 
 class OnboardingSubscriptionTest extends TestCase
@@ -59,7 +60,7 @@ class OnboardingSubscriptionTest extends TestCase
         $this->assertNotNull($user);
         $this->assertEquals('new-clinic', $user->clinic_id);
 
-        \Stancl\Tenancy\Facades\Tenancy::initialize('new-clinic');
+        Tenancy::initialize('new-clinic');
         setPermissionsTeamId('new-clinic');
         $this->assertTrue($user->fresh()->hasRole('admin'));
     }

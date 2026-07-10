@@ -2,11 +2,11 @@
 
 namespace App\Filament\App\Widgets;
 
-use Filament\Widgets\StatsOverviewWidget;
-use Filament\Widgets\StatsOverviewWidget\Stat;
-use App\Models\Patient;
 use App\Models\Appointment;
 use App\Models\Budget;
+use App\Models\Patient;
+use Filament\Widgets\StatsOverviewWidget;
+use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class StatsOverview extends StatsOverviewWidget
 {

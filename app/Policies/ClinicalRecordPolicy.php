@@ -1,10 +1,10 @@
 <?php
- 
+
 namespace App\Policies;
- 
-use App\Models\User;
+
 use App\Models\ClinicalRecord;
- 
+use App\Models\User;
+
 class ClinicalRecordPolicy
 {
     public function viewAny(User $user): bool
@@ -29,7 +29,7 @@ class ClinicalRecordPolicy
         }
 
         $patient = $clinicalRecord->patient;
-        if (!$patient) {
+        if (! $patient) {
             return false;
         }
 
@@ -47,7 +47,7 @@ class ClinicalRecordPolicy
         }
 
         $patient = $clinicalRecord->patient;
-        if (!$patient) {
+        if (! $patient) {
             return false;
         }
 

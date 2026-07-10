@@ -498,6 +498,67 @@ h1, h2, h3, h4, h5, h6,
     backdrop-filter: blur(8px);
 }
 
+/* ========== PAGE ENTRANCE ANIMATION ========== */
+.fi-main {
+    animation: pageEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes pageEnter {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== SKELETON LOADING FOR TABLES ========== */
+.fi-ta-loading tbody tr {
+    position: relative;
+    overflow: hidden;
+}
+
+.fi-ta-loading tbody tr::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(6, 182, 212, 0.05) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 2s infinite;
+    pointer-events: none;
+}
+
+@keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ========== SIDEBAR COLLAPSE SMOOTH ========== */
+.fi-sidebar-nav {
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.fi-sidebar-collapsed .fi-sidebar-item-label {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+/* ========== STAT COUNTER ANIMATION ========== */
+.fi-wi-stats-overview-stat .fi-wi-stats-overview-stat-value {
+    animation: countIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes countIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== TOAST ENTRANCE ========== */
+.fi-no-notification {
+    animation: toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes toastIn {
+    from { opacity: 0; transform: translateX(20px) scale(0.95); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
 /* ========== DARK MODE ========== */
 .dark .fi-body {
     background: linear-gradient(135deg, #020617 0%, #0f172a 30%, #0c1929 70%, #0a1628 100%);

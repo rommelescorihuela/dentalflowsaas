@@ -2,11 +2,12 @@
 
 namespace App\Livewire\PatientPortal;
 
-use Livewire\Component;
+use App\Models\Appointment;
 use App\Models\Patient;
 use App\Models\ProcedurePrice;
-use App\Models\Appointment;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\URL;
+use Livewire\Component;
 
 class BookAppointment extends Component
 {
@@ -15,7 +16,9 @@ class BookAppointment extends Component
     public int $step = 1;
 
     public $selectedProcedureId;
+
     public $selectedDate;
+
     public $selectedTimeSlot;
 
     public $availableSlots = [];
@@ -47,7 +50,9 @@ class BookAppointment extends Component
 
     public function loadTimeSlots()
     {
-        if (!$this->selectedDate) return;
+        if (! $this->selectedDate) {
+            return;
+        }
 
         $date = Carbon::parse($this->selectedDate);
 
@@ -80,7 +85,7 @@ class BookAppointment extends Component
                 return $apt->start_time->lt($slotEnd) && $apt->end_time->gt($current);
             });
 
-            if (!$isTaken && $current->gt(now())) {
+            if (! $isTaken && $current->gt(now())) {
                 $slots[] = $current->format('H:i');
             }
 
@@ -124,7 +129,7 @@ class BookAppointment extends Component
         Appointment::create([
             'patient_id' => $this->patient->id,
             'clinic_id' => tenant('id'),
-            'notes' => 'Cita Web: ' . $procedure->procedure_name,
+            'notes' => 'Cita Web: '.$procedure->procedure_name,
             'start_time' => $startTime,
             'end_time' => $endTime,
             'status' => 'scheduled',
@@ -132,7 +137,7 @@ class BookAppointment extends Component
             'procedure_price_id' => $this->selectedProcedureId,
         ]);
 
-        return redirect()->to(\Illuminate\Support\Facades\URL::signedRoute('portal.dashboard', ['patient' => $this->patient]))
+        return redirect()->to(URL::signedRoute('portal.dashboard', ['patient' => $this->patient]))
             ->with('success', '¡Cita reservada con éxito! Espera nuestra confirmación.');
     }
 

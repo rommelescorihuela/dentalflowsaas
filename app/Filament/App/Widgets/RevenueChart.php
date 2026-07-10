@@ -2,7 +2,9 @@
 
 namespace App\Filament\App\Widgets;
 
+use App\Models\Clinic;
 use App\Models\Payment;
+use App\Services\PlanLimits;
 use Filament\Widgets\ChartWidget;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
@@ -19,13 +21,13 @@ class RevenueChart extends ChartWidget
 
     public static function canView(): bool
     {
-        $tenant = tenant() ?? (\App\Models\Clinic::find(auth()->user()?->clinic_id));
+        $tenant = tenant() ?? (Clinic::find(auth()->user()?->clinic_id));
 
         if (! $tenant) {
             return false;
         }
 
-        return app(\App\Services\PlanLimits::class)->hasFeature($tenant, 'bi_reports');
+        return app(PlanLimits::class)->hasFeature($tenant, 'bi_reports');
     }
 
     protected function getData(): array

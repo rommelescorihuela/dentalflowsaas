@@ -2,14 +2,18 @@
 
 namespace App\Filament\Pages;
 
-use Filament\Pages\Page;
+use App\Models\Inventory;
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
-use Illuminate\Support\Facades\Artisan;
 use Filament\Notifications\Notification;
+use Filament\Pages\Page;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Models\User;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 class SystemTools extends Page
@@ -20,7 +24,7 @@ class SystemTools extends Page
 
     protected static ?string $navigationLabel = 'Herramientas del Sistema';
 
-    public static function getNavigationIcon(): string|\Illuminate\Contracts\Support\Htmlable|null
+    public static function getNavigationIcon(): string|Htmlable|null
     {
         return 'heroicon-o-wrench-screwdriver';
     }
@@ -37,7 +41,7 @@ class SystemTools extends Page
 
     protected function runCommand(string $command, array $params = []): string
     {
-        $output = new BufferedOutput();
+        $output = new BufferedOutput;
         $output->writeln("\$ php artisan {$command}");
         $output->writeln(str_repeat('-', 50));
 
@@ -48,6 +52,7 @@ class SystemTools extends Page
         }
 
         $output->writeln(str_repeat('-', 50));
+
         return $output->fetch();
     }
 
@@ -69,7 +74,7 @@ class SystemTools extends Page
 
                         try {
                             $user = config('database.connections.pgsql.username');
-                            \Illuminate\Support\Facades\DB::statement("GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO \"$user\"");
+                            DB::statement("GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO \"$user\"");
                             $out[] = "✅ Permisos otorgados a '{$user}' en todas las secuencias.";
                             $out[] = str_repeat('-', 50);
 
@@ -105,11 +110,11 @@ class SystemTools extends Page
                         $out[] = str_repeat('-', 50);
 
                         try {
-                            $hasTenantId = \Illuminate\Support\Facades\Schema::hasColumn('domains', 'tenant_id');
-                            $hasClinicId = \Illuminate\Support\Facades\Schema::hasColumn('domains', 'clinic_id');
+                            $hasTenantId = Schema::hasColumn('domains', 'tenant_id');
+                            $hasClinicId = Schema::hasColumn('domains', 'clinic_id');
 
-                            if ($hasTenantId && !$hasClinicId) {
-                                \Illuminate\Support\Facades\DB::statement('ALTER TABLE domains RENAME COLUMN tenant_id TO clinic_id');
+                            if ($hasTenantId && ! $hasClinicId) {
+                                DB::statement('ALTER TABLE domains RENAME COLUMN tenant_id TO clinic_id');
                                 $out[] = '✅ domains.tenant_id → clinic_id';
                             } else {
                                 $out[] = 'ℹ️  domains: sin cambios necesarios';
@@ -122,13 +127,13 @@ class SystemTools extends Page
                             ];
 
                             foreach ($permissionMigrations as $migrationName => $tableName) {
-                                $isMigrated = \Illuminate\Support\Facades\DB::table('migrations')->where('migration', $migrationName)->exists();
-                                $tableExists = \Illuminate\Support\Facades\Schema::hasTable($tableName);
-                                $columnExists = ($tableName === 'permissions') ? true : \Illuminate\Support\Facades\Schema::hasColumn($tableName, 'clinic_id');
+                                $isMigrated = DB::table('migrations')->where('migration', $migrationName)->exists();
+                                $tableExists = Schema::hasTable($tableName);
+                                $columnExists = ($tableName === 'permissions') ? true : Schema::hasColumn($tableName, 'clinic_id');
 
-                                if ($tableExists && $columnExists && !$isMigrated) {
-                                    $maxBatch = \Illuminate\Support\Facades\DB::table('migrations')->max('batch') ?? 0;
-                                    \Illuminate\Support\Facades\DB::table('migrations')->insert([
+                                if ($tableExists && $columnExists && ! $isMigrated) {
+                                    $maxBatch = DB::table('migrations')->max('batch') ?? 0;
+                                    DB::table('migrations')->insert([
                                         'migration' => $migrationName,
                                         'batch' => $maxBatch + 1,
                                     ]);
@@ -225,14 +230,14 @@ class SystemTools extends Page
                         $out[] = str_repeat('-', 50);
 
                         try {
-                            $clinics = \Illuminate\Support\Facades\DB::table('tenants')->get();
+                            $clinics = DB::table('tenants')->get();
                             $out[] = "Clínicas: {$clinics->count()}";
 
                             foreach ($clinics as $clinic) {
                                 $out[] = "  - {$clinic->id}: {$clinic->name}";
                             }
 
-                            $domains = \Illuminate\Support\Facades\DB::table('domains')->get();
+                            $domains = DB::table('domains')->get();
                             $out[] = '';
                             $out[] = "Dominios: {$domains->count()}";
 
@@ -241,7 +246,7 @@ class SystemTools extends Page
                             }
 
                             $targetDomain = 'clinicatest.dentalflow.digitalwebsolution.info';
-                            $domainExists = \Illuminate\Support\Facades\DB::table('domains')
+                            $domainExists = DB::table('domains')
                                 ->where('domain', $targetDomain)
                                 ->first();
 
@@ -252,9 +257,9 @@ class SystemTools extends Page
                                 $out[] = '';
                                 $out[] = "⚠️  '{$targetDomain}' no existe";
 
-                                $clinic = \Illuminate\Support\Facades\DB::table('tenants')->where('id', 'clinicatest')->first();
-                                if (!$clinic) {
-                                    \Illuminate\Support\Facades\DB::table('tenants')->insert([
+                                $clinic = DB::table('tenants')->where('id', 'clinicatest')->first();
+                                if (! $clinic) {
+                                    DB::table('tenants')->insert([
                                         'id' => 'clinicatest',
                                         'name' => 'Clínica Test',
                                         'created_at' => now(),
@@ -263,7 +268,7 @@ class SystemTools extends Page
                                     $out[] = '✅ Clínica clinicatest creada';
                                 }
 
-                                \Illuminate\Support\Facades\DB::table('domains')->insert([
+                                DB::table('domains')->insert([
                                     'domain' => $targetDomain,
                                     'clinic_id' => 'clinicatest',
                                     'created_at' => now(),
@@ -302,7 +307,7 @@ class SystemTools extends Page
                         $out[] = str_repeat('-', 50);
 
                         try {
-                            $columns = \Illuminate\Support\Facades\DB::select("SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'inventories' ORDER BY ordinal_position");
+                            $columns = DB::select("SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'inventories' ORDER BY ordinal_position");
                             $out[] = 'Columnas en inventories:';
                             foreach ($columns as $col) {
                                 $out[] = "  - {$col->column_name} ({$col->data_type})";
@@ -311,21 +316,21 @@ class SystemTools extends Page
                             $requiredCols = ['price', 'quantity', 'low_stock_threshold', 'items_per_unit', 'supplier'];
                             $missing = [];
                             foreach ($requiredCols as $col) {
-                                if (!collect($columns)->contains('column_name', $col)) {
+                                if (! collect($columns)->contains('column_name', $col)) {
                                     $missing[] = $col;
                                 }
                             }
 
-                            if (!empty($missing)) {
+                            if (! empty($missing)) {
                                 $out[] = '';
-                                $out[] = '⚠️  Columnas faltantes: ' . implode(', ', $missing);
+                                $out[] = '⚠️  Columnas faltantes: '.implode(', ', $missing);
                                 $out[] = '   Ejecuta las migraciones pendientes.';
                             } else {
                                 $out[] = '';
                                 $out[] = '✅ Tabla inventories correcta';
                             }
 
-                            $inventoryCount = \App\Models\Inventory::count();
+                            $inventoryCount = Inventory::count();
                             $out[] = "   Total productos: {$inventoryCount}";
 
                             $out[] = str_repeat('-', 50);
@@ -408,14 +413,15 @@ class SystemTools extends Page
                 ->modalDescription('ESTO ELIMINARÁ TODOS LOS DATOS (migrate:fresh) Y COMENZARÁ DE CERO.')
                 ->modalSubmitActionLabel('ENTIENDO, BORRAR TODOS LOS DATOS')
                 ->modalIcon('heroicon-o-exclamation-triangle')
-                ->hidden(!auth()->user()?->hasRole('super-admin'))
+                ->hidden(! auth()->user()?->hasRole('super-admin'))
                 ->action(function () {
-                    if (!auth()->user()->hasRole('super-admin')) {
+                    if (! auth()->user()->hasRole('super-admin')) {
                         Notification::make()
                             ->title('Acceso Denegado')
                             ->body('Solo super-admin puede ejecutar Hard Reset.')
                             ->danger()
                             ->send();
+
                         return;
                     }
 
@@ -425,6 +431,7 @@ class SystemTools extends Page
                             ->body('Hard Reset está deshabilitado en producción.')
                             ->danger()
                             ->send();
+
                         return;
                     }
 
@@ -437,7 +444,7 @@ class SystemTools extends Page
                         ]);
 
                         $this->lastOutput = $this->runCommand('migrate:fresh', ['--force' => true])
-                            . "\n" . $this->runCommand('db:seed');
+                            ."\n".$this->runCommand('db:seed');
 
                         Log::channel('audit')->info('HARD RESET COMPLETED', [
                             'user_id' => auth()->id(),
@@ -447,14 +454,14 @@ class SystemTools extends Page
                         foreach ($superAdmins as $admin) {
                             if ($admin->id !== auth()->id()) {
                                 Mail::raw(
-                                    "ALERTA - HARD RESET EJECUTADO\n\n" .
-                                    "Usuario: " . auth()->user()->name . " (" . auth()->user()->email . ")\n" .
-                                    "Fecha: " . now()->toIso8601String() . "\n" .
-                                    "IP: " . request()->ip() . "\n",
+                                    "ALERTA - HARD RESET EJECUTADO\n\n".
+                                    'Usuario: '.auth()->user()->name.' ('.auth()->user()->email.")\n".
+                                    'Fecha: '.now()->toIso8601String()."\n".
+                                    'IP: '.request()->ip()."\n",
                                     function ($message) use ($admin) {
                                         $message
                                             ->to($admin->email)
-                                            ->subject('🚨 Reinicio Completo Ejecutado - ' . config('app.name'));
+                                            ->subject('🚨 Reinicio Completo Ejecutado - '.config('app.name'));
                                     }
                                 );
                             }

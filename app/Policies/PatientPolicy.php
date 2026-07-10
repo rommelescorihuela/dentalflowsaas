@@ -60,6 +60,10 @@ class PatientPolicy
             return true;
         }
 
+        if (is_null($patient->doctor_id)) {
+            return true;
+        }
+
         return $user->id === $patient->doctor_id;
     }
 }

@@ -58,7 +58,7 @@ return new class extends Migration
             $table->primary(['role_id', $columnNames['model_morph_key'], 'model_type'], 'model_has_roles_role_model_type_primary');
         });
 
-        Schema::create($tableNames['role_has_permissions'], function (Blueprint $table) use ($teams, $columnNames, $tableNames) {
+        Schema::create($tableNames['role_has_permissions'], function (Blueprint $table) use ($tableNames) {
             $table->unsignedBigInteger('permission_id');
             $table->unsignedBigInteger('role_id');
             $table->foreign('permission_id')->references('id')->on($tableNames['permissions'])->onDelete('cascade');
@@ -70,7 +70,7 @@ return new class extends Migration
     public function down(): void
     {
         $tableNames = config('permission.table_names');
-        
+
         Schema::dropIfExists($tableNames['role_has_permissions']);
         Schema::dropIfExists($tableNames['model_has_roles']);
         Schema::dropIfExists($tableNames['model_has_permissions']);

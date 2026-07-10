@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Enums\Plan;
+use App\Filament\App\Pages\OnboardingWizard;
 use App\Models\Inventory;
 use App\Models\ProcedurePrice;
 use App\Models\User;
@@ -91,7 +92,7 @@ class OnboardingWizardTest extends TestCase
 
         $this->assertEquals(0, ProcedurePrice::where('clinic_id', 'onboard-test')->count());
 
-        $wizard = new \App\Filament\App\Pages\OnboardingWizard;
+        $wizard = new OnboardingWizard;
         $reflection = new \ReflectionClass($wizard);
         $method = $reflection->getMethod('importProcedures');
         $method->setAccessible(true);
@@ -116,7 +117,7 @@ class OnboardingWizardTest extends TestCase
 
         $this->assertEquals(0, Inventory::where('clinic_id', 'onboard-test')->count());
 
-        $wizard = new \App\Filament\App\Pages\OnboardingWizard;
+        $wizard = new OnboardingWizard;
         $reflection = new \ReflectionClass($wizard);
         $method = $reflection->getMethod('importInventory');
         $method->setAccessible(true);

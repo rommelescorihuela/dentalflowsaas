@@ -2,18 +2,18 @@
 
 namespace App\Filament\App\Resources\Patients;
 
-use App\Filament\App\Resources\Patients\Pages;
 use App\Models\Patient;
 use BackedEnum;
-use Filament\Forms;
-use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Filament\Actions\EditAction;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Support\Facades\URL;
 
 class PatientResource extends Resource
 {
@@ -85,14 +85,14 @@ class PatientResource extends Resource
                 Action::make('health_progress')
                     ->label('Progreso de Salud')
                     ->icon('heroicon-o-chart-bar')
-                    ->url(fn(Patient $record): string => Pages\HealthProgress::getUrl(['record' => $record]))
+                    ->url(fn (Patient $record): string => Pages\HealthProgress::getUrl(['record' => $record]))
                     ->color('info'),
                 Action::make('portal_link')
                     ->label('Portal')
                     ->icon('heroicon-o-link')
                     ->url(function (Patient $record) {
                         try {
-                            return \Illuminate\Support\Facades\URL::signedRoute('portal.dashboard', ['tenant' => tenant('id') ?: request()->segment(1), 'patient' => $record]);
+                            return URL::signedRoute('portal.dashboard', ['tenant' => tenant('id') ?: request()->segment(1), 'patient' => $record]);
                         } catch (\Exception $e) {
                             return '#';
                         }
@@ -110,6 +110,8 @@ class PatientResource extends Resource
     {
         return [
             RelationManagers\OdontogramsRelationManager::class,
+            RelationManagers\ClinicalHistoryRelationManager::class,
+            RelationManagers\PrescriptionsRelationManager::class,
         ];
     }
 

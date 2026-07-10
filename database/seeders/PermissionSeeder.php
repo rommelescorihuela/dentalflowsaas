@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use Filament\Resources\Resource;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -24,11 +26,11 @@ class PermissionSeeder extends Seeder
         ];
 
         foreach ($resourcePaths as $resourcesPath) {
-            if (!file_exists($resourcesPath)) {
+            if (! file_exists($resourcesPath)) {
                 continue;
             }
 
-            $files = \Illuminate\Support\Facades\File::allFiles($resourcesPath);
+            $files = File::allFiles($resourcesPath);
 
             foreach ($files as $file) {
                 // Determine the namespace based on the path
@@ -38,7 +40,7 @@ class PermissionSeeder extends Seeder
                     $namespace = 'App\\Filament\\Resources\\';
                 }
 
-                $class = $namespace . str_replace(['/', '.php'], ['\\', ''], $file->getRelativePathname());
+                $class = $namespace.str_replace(['/', '.php'], ['\\', ''], $file->getRelativePathname());
 
                 // Check if it's a valid Resource class
                 if (class_exists($class) && is_subclass_of($class, \Filament\Resources\Resource::class)) {
@@ -46,7 +48,7 @@ class PermissionSeeder extends Seeder
                     if ($model) {
                         $modelName = class_basename($model);
                         // Avoid duplicates and internal models if needed
-                        if (!in_array($modelName, $modelNames)) {
+                        if (! in_array($modelName, $modelNames)) {
                             $modelNames[] = $modelName;
                         }
                     }
@@ -96,9 +98,10 @@ class PermissionSeeder extends Seeder
         $adminRole->syncPermissions($permissions);      // Admin gets all permissions per clinic
 
         // Doctor: full CRUD on clinical resources
-        $doctorResources = ['Patient', 'Appointment', 'Odontogram', 'ClinicalRecord', 'Budget', 'Payment'];
+        $doctorResources = ['Patient', 'Appointment', 'Odontogram', 'ClinicalRecord', 'PatientMedicalHistory', 'Prescription', 'Budget', 'Payment'];
         $doctorPermissions = collect($permissions)->filter(function ($p) use ($doctorResources) {
             $parts = explode(':', $p->name);
+
             return in_array($parts[0], ['ViewAny', 'View', 'Create', 'Update', 'Delete'])
                 && in_array($parts[1], $doctorResources);
         });
@@ -108,6 +111,7 @@ class PermissionSeeder extends Seeder
         $assistantResources = ['Patient', 'Appointment', 'Budget'];
         $assistantPermissions = collect($permissions)->filter(function ($p) use ($assistantResources) {
             $parts = explode(':', $p->name);
+
             return in_array($parts[0], ['ViewAny', 'View', 'Create', 'Update'])
                 && in_array($parts[1], $assistantResources);
         });

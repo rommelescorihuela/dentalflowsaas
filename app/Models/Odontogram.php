@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Traits\ActivityLogger;
+use App\Traits\BelongsToClinic;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Traits\BelongsToClinic;
-use App\Traits\ActivityLogger;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Odontogram extends Model
 {
-    use BelongsToClinic, ActivityLogger;
+    use ActivityLogger, BelongsToClinic;
 
     protected $fillable = [
         'clinic_id',
@@ -37,7 +38,7 @@ class Odontogram extends Model
         return $this->hasMany(ClinicalRecord::class);
     }
 
-    public function budget(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function budget(): HasOne
     {
         return $this->hasOne(Budget::class);
     }

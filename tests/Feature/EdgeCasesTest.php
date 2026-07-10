@@ -2,15 +2,17 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\Patient;
 use App\Models\Appointment;
 use App\Models\Budget;
-use App\Models\Odontogram;
+use App\Models\BudgetItem;
 use App\Models\ClinicalRecord;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Stancl\Tenancy\Facades\Tenancy;
+use App\Models\Patient;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Database\QueryException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
+use Tests\TestCase;
 
 class EdgeCasesTest extends TestCase
 {
@@ -26,11 +28,11 @@ class EdgeCasesTest extends TestCase
     {
         $this->switchTenant('clinic-a');
 
-        $uniqueRut = '99999999-' . time();
+        $uniqueRut = '99999999-'.time();
 
         $patient1 = Patient::create([
             'name' => 'Paciente 1',
-            'email' => 'p1-' . time() . '@clinic-a.test',
+            'email' => 'p1-'.time().'@clinic-a.test',
             'phone' => '+56911111111',
             'clinic_id' => 'clinic-a',
             'rut' => $uniqueRut,
@@ -38,11 +40,11 @@ class EdgeCasesTest extends TestCase
 
         $this->assertEquals($uniqueRut, $patient1->rut);
 
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
 
         Patient::create([
             'name' => 'Paciente Duplicado',
-            'email' => 'p2-' . time() . '@clinic-a.test',
+            'email' => 'p2-'.time().'@clinic-a.test',
             'phone' => '+56922222222',
             'clinic_id' => 'clinic-a',
             'rut' => $uniqueRut,
@@ -53,7 +55,7 @@ class EdgeCasesTest extends TestCase
     {
         $this->switchTenant('clinic-a');
 
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $this->expectException(ValidationException::class);
 
         Appointment::create([
             'clinic_id' => 'clinic-a',
@@ -104,7 +106,7 @@ class EdgeCasesTest extends TestCase
         for ($i = 1; $i <= 100; $i++) {
             $cost = rand(1000, 50000);
             $total += $cost;
-            \App\Models\BudgetItem::create([
+            BudgetItem::create([
                 'budget_id' => $budget->id,
                 'treatment_name' => "Tratamiento $i",
                 'cost' => $cost,
@@ -112,7 +114,7 @@ class EdgeCasesTest extends TestCase
             ]);
         }
 
-        $budget->total = $budget->items->sum(fn($item) => $item->cost * $item->quantity);
+        $budget->total = $budget->items->sum(fn ($item) => $item->cost * $item->quantity);
         $budget->save();
 
         $this->assertEquals(100, $budget->items->count());
@@ -180,7 +182,7 @@ class EdgeCasesTest extends TestCase
     {
         $this->switchTenant('clinic-a');
 
-        $user = \App\Models\User::create([
+        $user = User::create([
             'name' => 'Usuario Multi Rol',
             'email' => 'multirole@clinic-a.test',
             'password' => bcrypt('password'),

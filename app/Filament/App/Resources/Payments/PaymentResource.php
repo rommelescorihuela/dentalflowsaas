@@ -2,9 +2,8 @@
 
 namespace App\Filament\App\Resources\Payments;
 
-use App\Filament\App\Resources\Payments\Pages;
+use App\Helpers\ClinicHelper;
 use App\Models\Payment;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -12,7 +11,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-
 
 class PaymentResource extends Resource
 {
@@ -49,7 +47,7 @@ class PaymentResource extends Resource
                     ->placeholder('Seleccionar Presupuesto (Opcional)'),
                 TextInput::make('amount')
                     ->numeric()
-                    ->prefix(\App\Helpers\ClinicHelper::getCurrencySymbol())
+                    ->prefix(ClinicHelper::getCurrencySymbol())
                     ->required(),
                 Select::make('method')
                     ->options([
@@ -80,11 +78,11 @@ class PaymentResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('patient.name')->searchable()->sortable(),
-                TextColumn::make('amount')->formatStateUsing(fn ($state) => \App\Helpers\ClinicHelper::formatMoney((float) $state))->sortable(),
+                TextColumn::make('amount')->formatStateUsing(fn ($state) => ClinicHelper::formatMoney((float) $state))->sortable(),
                 TextColumn::make('method')->badge(),
                 TextColumn::make('status')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'paid' => 'success',
                         'pending' => 'warning',
                         'refunded' => 'danger',

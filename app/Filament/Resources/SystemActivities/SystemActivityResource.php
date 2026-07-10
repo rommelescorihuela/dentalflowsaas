@@ -2,19 +2,14 @@
 
 namespace App\Filament\Resources\SystemActivities;
 
-use App\Filament\Resources\SystemActivities\Pages\CreateSystemActivity;
-use App\Filament\Resources\SystemActivities\Pages\EditSystemActivity;
 use App\Filament\Resources\SystemActivities\Pages\ListSystemActivities;
 use App\Filament\Resources\SystemActivities\Pages\ViewSystemActivity;
 use App\Filament\Resources\SystemActivities\Schemas\SystemActivityForm;
 use App\Filament\Resources\SystemActivities\Schemas\SystemActivityInfolist;
 use App\Filament\Resources\SystemActivities\Tables\SystemActivitiesTable;
 use App\Models\SystemActivity;
-use BackedEnum;
-use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
 class SystemActivityResource extends Resource

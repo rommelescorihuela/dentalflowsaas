@@ -9,6 +9,17 @@
 @theme {
     --font-sans: 'Open Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     --font-display: 'Outfit', 'Open Sans', ui-sans-serif, system-ui, sans-serif;
+    --color-primary-50: #ecfeff;
+    --color-primary-100: #cffafe;
+    --color-primary-200: #a5f3fc;
+    --color-primary-300: #67e8f9;
+    --color-primary-400: #22d3ee;
+    --color-primary-500: #06b6d4;
+    --color-primary-600: #0891b2;
+    --color-primary-700: #0e7490;
+    --color-primary-800: #155e75;
+    --color-primary-900: #164e63;
+    --color-primary-950: #083344;
 }
 
 /* ========== AURORA ANIMATIONS ========== */
@@ -99,6 +110,8 @@
 .animation-delay-600 { animation-delay: 0.6s; }
 .animation-delay-800 { animation-delay: 0.8s; }
 .animation-delay-1000 { animation-delay: 1s; }
+.animation-delay-2000 { animation-delay: 2s; }
+.animation-delay-4000 { animation-delay: 4s; }
 .animation-delay-2000 { animation-delay: 2s; }
 .animation-delay-4000 { animation-delay: 4s; }
 

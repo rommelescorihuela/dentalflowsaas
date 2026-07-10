@@ -2,15 +2,14 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\Clinic;
-use App\Models\User;
 use App\Models\Patient;
-use App\Models\Budget;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Stancl\Tenancy\Facades\Tenancy;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
+use Stancl\Tenancy\Facades\Tenancy;
+use Tests\TestCase;
 
 class SuperAdminTest extends TestCase
 {
@@ -135,7 +134,7 @@ class SuperAdminTest extends TestCase
     public function test_regular_admin_cannot_access_other_clinic_data(): void
     {
         $this->actingAsAdmin($this->adminA);
-        
+
         $patientA = Patient::all()->first();
         $this->assertEquals('clinic-a', $patientA->clinic_id);
     }

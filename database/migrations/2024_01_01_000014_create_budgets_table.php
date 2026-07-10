@@ -21,6 +21,9 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('clinic_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
+
+            $table->index('status', 'idx_budgets_status');
+            $table->index(['patient_id', 'status'], 'idx_budgets_patient_status');
         });
 
         Schema::create('budget_items', function (Blueprint $table) {

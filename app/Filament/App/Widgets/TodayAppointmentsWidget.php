@@ -2,13 +2,11 @@
 
 namespace App\Filament\App\Widgets;
 
-use Filament\Tables;
+use App\Models\Appointment;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
-use App\Models\Appointment;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
-use Illuminate\Database\Eloquent\Builder;
 
 class TodayAppointmentsWidget extends TableWidget
 {
@@ -48,7 +46,7 @@ class TodayAppointmentsWidget extends TableWidget
                         'danger' => 'cancelled',
                         'warning' => 'no-show',
                     ])
-                    ->formatStateUsing(fn(string $state): string => match($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         'scheduled' => 'Programada',
                         'completed' => 'Completada',
                         'cancelled' => 'Cancelada',

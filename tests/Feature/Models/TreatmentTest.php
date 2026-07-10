@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Models;
 
-use Tests\TestCase;
-use App\Models\Treatment;
 use App\Models\Appointment;
+use App\Models\Treatment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class TreatmentTest extends TestCase
 {

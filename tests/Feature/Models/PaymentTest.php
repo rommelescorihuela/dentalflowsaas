@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Models;
 
-use Tests\TestCase;
-use App\Models\Payment;
-use App\Models\Patient;
 use App\Models\Budget;
+use App\Models\Payment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class PaymentTest extends TestCase
 {

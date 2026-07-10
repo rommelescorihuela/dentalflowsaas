@@ -4,10 +4,11 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Services\PlanLimits;
+use App\Traits\HasSpatiePermissions;
 
 class UserPolicy
 {
-    use \App\Traits\HasSpatiePermissions;
+    use HasSpatiePermissions;
 
     public function create(User $user): bool
     {

@@ -2,7 +2,9 @@
 
 namespace App\Filament\App\Widgets;
 
+use App\Models\Clinic;
 use App\Models\Inventory;
+use App\Services\PlanLimits;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -18,13 +20,13 @@ class LowInventoryAlertWidget extends TableWidget
 
     public static function canView(): bool
     {
-        $tenant = tenant() ?? (\App\Models\Clinic::find(auth()->user()?->clinic_id));
+        $tenant = tenant() ?? (Clinic::find(auth()->user()?->clinic_id));
 
         if (! $tenant) {
             return false;
         }
 
-        return app(\App\Services\PlanLimits::class)->hasFeature($tenant, 'low_inventory_alert');
+        return app(PlanLimits::class)->hasFeature($tenant, 'low_inventory_alert');
     }
 
     public function table(Table $table): Table

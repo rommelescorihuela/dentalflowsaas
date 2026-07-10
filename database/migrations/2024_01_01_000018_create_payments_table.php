@@ -22,6 +22,9 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('clinic_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
+
+            $table->index('paid_at', 'idx_payments_paid_at');
+            $table->index('status', 'idx_payments_status');
         });
     }
 

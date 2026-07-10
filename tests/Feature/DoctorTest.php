@@ -2,12 +2,10 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\Patient;
-use App\Models\Odontogram;
 use App\Models\ClinicalRecord;
-use App\Models\Budget;
+use App\Models\Odontogram;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class DoctorTest extends TestCase
 {

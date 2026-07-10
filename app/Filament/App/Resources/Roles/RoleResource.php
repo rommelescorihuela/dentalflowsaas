@@ -9,10 +9,12 @@ use App\Filament\App\Resources\Roles\Schemas\RoleForm;
 use App\Filament\App\Resources\Roles\Tables\RolesTable;
 use App\Models\Role;
 use BackedEnum;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class RoleResource extends Resource
 {
@@ -71,12 +73,12 @@ class RoleResource extends Resource
         ];
     }
 
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
 
         // Filter roles to only show those belonging to the current tenant
-        if ($tenant = \Filament\Facades\Filament::getTenant()) {
+        if ($tenant = Filament::getTenant()) {
             $query->where('clinic_id', $tenant->id);
         }
 

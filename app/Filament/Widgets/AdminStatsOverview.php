@@ -5,10 +5,8 @@ namespace App\Filament\Widgets;
 use App\Models\Clinic;
 use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
-use App\Models\User;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Illuminate\Support\Facades\DB;
 
 class AdminStatsOverview extends BaseWidget
 {
@@ -55,7 +53,7 @@ class AdminStatsOverview extends BaseWidget
             : 0;
 
         return [
-            Stat::make('MRR', '$' . number_format($mrr, 2))
+            Stat::make('MRR', '$'.number_format($mrr, 2))
                 ->description($mrrTrend >= 0 ? "+{$mrrTrend}% vs mes anterior" : "{$mrrTrend}% vs mes anterior")
                 ->descriptionIcon($mrrTrend >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->color($mrrTrend >= 0 ? 'success' : 'danger'),
@@ -65,17 +63,17 @@ class AdminStatsOverview extends BaseWidget
                 ->descriptionIcon('heroicon-o-building-office')
                 ->color('primary'),
 
-            Stat::make('Conversión Trial', $conversionRate . '%')
-                ->description("{$convertedToPaid} de " . ($totalTrials + $convertedToPaid) . " clínicas")
+            Stat::make('Conversión Trial', $conversionRate.'%')
+                ->description("{$convertedToPaid} de ".($totalTrials + $convertedToPaid).' clínicas')
                 ->descriptionIcon('heroicon-o-arrow-right-circle')
                 ->color($conversionRate > 50 ? 'success' : 'warning'),
 
-            Stat::make('Churn Rate', $churnRate . '%')
+            Stat::make('Churn Rate', $churnRate.'%')
                 ->description("{$churnedClinics} clínicas perdidas")
                 ->descriptionIcon('heroicon-o-arrow-trending-down')
                 ->color($churnRate < 10 ? 'success' : ($churnRate < 20 ? 'warning' : 'danger')),
 
-            Stat::make('Activación', $activationRate . '%')
+            Stat::make('Activación', $activationRate.'%')
                 ->description("{$activatedClinics} clínicas con pacientes")
                 ->descriptionIcon('heroicon-o-check-circle')
                 ->color($activationRate > 70 ? 'success' : 'warning'),

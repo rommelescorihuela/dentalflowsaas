@@ -11,7 +11,7 @@ class CreateRole extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        if (!empty($data['clinic_id'])) {
+        if (! empty($data['clinic_id'])) {
             setPermissionsTeamId($data['clinic_id']);
         }
 

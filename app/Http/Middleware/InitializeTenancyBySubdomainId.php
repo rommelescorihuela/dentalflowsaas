@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Stancl\Tenancy\Middleware\IdentificationMiddleware;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -15,12 +16,6 @@ class InitializeTenancyBySubdomainId extends IdentificationMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $host = $request->getHost();
-
-        // Log to see what we are getting
-        \Illuminate\Support\Facades\Log::info('TENANCY IDENT ATTEMPT:', [
-            'host' => $host,
-            'url' => $request->fullUrl(),
-        ]);
 
         $parts = explode('.', $host);
         $subdomain = $parts[0];
@@ -36,10 +31,11 @@ class InitializeTenancyBySubdomainId extends IdentificationMiddleware
 
             if ($tenant) {
                 tenancy()->initialize($tenant);
+
                 return $next($request);
             }
 
-            \Illuminate\Support\Facades\Log::warning("Tenant not found for subdomain: {$subdomain}");
+            Log::warning("Tenant not found for subdomain: {$subdomain}");
         }
 
         return $next($request);

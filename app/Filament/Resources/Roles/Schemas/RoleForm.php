@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Roles\Schemas;
 
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\CheckboxList;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Spatie\Permission\Models\Permission;

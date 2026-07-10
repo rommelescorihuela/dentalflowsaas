@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Appointment;
 use App\Models\Budget;
 use App\Models\ClinicalRecord;
 use App\Models\Odontogram;
@@ -18,7 +17,9 @@ class BudgetGeneratorTest extends TestCase
     use RefreshDatabase;
 
     protected User $doctor;
+
     protected Patient $patient;
+
     protected Odontogram $odontogram;
 
     protected function setUp(): void

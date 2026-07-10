@@ -2,18 +2,17 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\Clinic;
-use App\Models\User;
-use App\Models\Patient;
 use App\Models\Appointment;
 use App\Models\Budget;
-use App\Models\Odontogram;
+use App\Models\Clinic;
 use App\Models\ClinicalRecord;
+use App\Models\Odontogram;
+use App\Models\Patient;
+use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Stancl\Tenancy\Facades\Tenancy;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
+use Tests\TestCase;
 
 class ValidationTest extends TestCase
 {
@@ -34,7 +33,7 @@ class ValidationTest extends TestCase
             'email' => 'noname@clinic-a.test',
             'phone' => '+56911111111',
             'clinic_id' => 'clinic-a',
-            'rut' => '55555555-' . time(),
+            'rut' => '55555555-'.time(),
         ]);
 
         $this->assertEquals('Test Patient', $patient->name);
@@ -46,10 +45,10 @@ class ValidationTest extends TestCase
 
         $patient = Patient::create([
             'name' => 'Test Name',
-            'email' => 'test' . time() . '@clinic-a.test',
+            'email' => 'test'.time().'@clinic-a.test',
             'phone' => '+56911111111',
             'clinic_id' => 'clinic-a',
-            'rut' => '55555556-' . time(),
+            'rut' => '55555556-'.time(),
         ]);
 
         $this->assertStringContainsString('@clinic-a.test', $patient->email);
@@ -64,7 +63,7 @@ class ValidationTest extends TestCase
             'email' => 'noclinic@clinic-a.test',
             'phone' => '+56911111111',
             'clinic_id' => 'clinic-a',
-            'rut' => '55555557-' . time(),
+            'rut' => '55555557-'.time(),
         ]);
 
         $this->assertEquals('clinic-a', $patient->clinic_id);
@@ -149,7 +148,7 @@ class ValidationTest extends TestCase
     {
         $this->switchTenant('clinic-a');
 
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
 
         Odontogram::create([
             'clinic_id' => 'clinic-a',
@@ -192,7 +191,7 @@ class ValidationTest extends TestCase
     public function test_clinic_name_required(): void
     {
         $clinic = Clinic::create([
-            'id' => 'test-clinic-' . time(),
+            'id' => 'test-clinic-'.time(),
             'name' => 'Test Clinic',
         ]);
 
@@ -203,7 +202,7 @@ class ValidationTest extends TestCase
     {
         Clinic::create(['id' => 'unique-clinic', 'name' => 'Clínica Única']);
 
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
 
         Clinic::create(['id' => 'unique-clinic', 'name' => 'Otra Clínica']);
     }
@@ -227,7 +226,7 @@ class ValidationTest extends TestCase
 
         $user = User::create([
             'name' => 'Test User',
-            'email' => 'testuser' . time() . '@clinic-a.test',
+            'email' => 'testuser'.time().'@clinic-a.test',
             'password' => bcrypt('password'),
             'clinic_id' => 'clinic-a',
         ]);

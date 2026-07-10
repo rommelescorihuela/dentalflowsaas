@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\ProcedurePrice;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ProcedurePrice>
+ * @extends Factory<ProcedurePrice>
  */
 class ProcedurePriceFactory extends Factory
 {

@@ -6,48 +6,51 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\ServiceProvider;
-use Stancl\JobPipeline\JobPipeline;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 use Stancl\Tenancy\Events;
-use Stancl\Tenancy\Jobs;
 use Stancl\Tenancy\Listeners;
-use Stancl\Tenancy\Middleware;
+use Stancl\Tenancy\TenancyServiceProvider as BaseTenancyServiceProvider;
 
-class TenancyServiceProvider extends ServiceProvider
+class TenancyServiceProvider extends BaseTenancyServiceProvider
 {
-    // By default, no namespace is used to support the callable array syntax.
     public static string $controllerNamespace = '';
 
-    public function events()
+    public function register(): void
+    {
+        // Ensure Stancl uses the shared-DB column name everywhere.
+        BelongsToTenant::$tenantIdColumn = 'clinic_id';
+
+        parent::register();
+    }
+
+    public function boot(): void
+    {
+        parent::boot();
+
+        $this->bootEvents();
+        $this->mapRoutes();
+    }
+
+    /**
+     * Override the package's default event listeners.
+     *
+     * The app uses a single shared PostgreSQL database (clinic_id scoped),
+     * so the CreateDatabase / MigrateDatabase / DeleteDatabase jobs are
+     * intentionally omitted. DatabaseTenancyBootstrapper is also disabled
+     * in config/tenancy.php.
+     */
+    public function events(): array
     {
         return [
             // Tenant events
             Events\CreatingTenant::class => [],
-            Events\TenantCreated::class => [
-                JobPipeline::make([
-                    Jobs\CreateDatabase::class ,
-                    Jobs\MigrateDatabase::class ,
-                    // Jobs\SeedDatabase::class,
-
-                    // Your own jobs to prepare the tenant.
-                    // Provision API keys, create S3 buckets, anything you want!
-
-                ])->send(function (Events\TenantCreated $event) {
-            return $event->tenant;
-        })->shouldBeQueued(false), // `false` by default, but you probably want to make this `true` for production.
-            ],
+            Events\TenantCreated::class => [],
             Events\SavingTenant::class => [],
             Events\TenantSaved::class => [],
             Events\UpdatingTenant::class => [],
             Events\TenantUpdated::class => [],
             Events\DeletingTenant::class => [],
-            Events\TenantDeleted::class => [
-                JobPipeline::make([
-                    Jobs\DeleteDatabase::class ,
-                ])->send(function (Events\TenantDeleted $event) {
-            return $event->tenant;
-        })->shouldBeQueued(false), // `false` by default, but you probably want to make this `true` for production.
-            ],
+            Events\TenantDeleted::class => [],
 
             // Domain events
             Events\CreatingDomain::class => [],
@@ -69,14 +72,12 @@ class TenancyServiceProvider extends ServiceProvider
             // Tenancy events
             Events\InitializingTenancy::class => [],
             Events\TenancyInitialized::class => [
-                Listeners\BootstrapTenancy::class ,
+                Listeners\BootstrapTenancy::class,
             ],
-
             Events\EndingTenancy::class => [],
             Events\TenancyEnded::class => [
-                Listeners\RevertToCentralContext::class ,
+                Listeners\RevertToCentralContext::class,
             ],
-
             Events\BootstrappingTenancy::class => [],
             Events\TenancyBootstrapped::class => [],
             Events\RevertingToCentralContext::class => [],
@@ -84,65 +85,26 @@ class TenancyServiceProvider extends ServiceProvider
 
             // Resource syncing
             Events\SyncedResourceSaved::class => [
-                Listeners\UpdateSyncedResource::class ,
+                Listeners\UpdateSyncedResource::class,
             ],
-
-            // Fired only when a synced resource is changed in a different DB than the origin DB (to avoid infinite loops)
             Events\SyncedResourceChangedInForeignDatabase::class => [],
         ];
     }
 
-    public function register()
-    {
-    //
-    }
-
-    public function boot()
-    {
-        \Stancl\Tenancy\Database\Concerns\BelongsToTenant::$tenantIdColumn = 'clinic_id';
-
-        $this->bootEvents();
-        $this->mapRoutes();
-
-        $this->makeTenancyMiddlewareHighestPriority();
-    }
-
-    protected function bootEvents()
+    protected function bootEvents(): void
     {
         foreach ($this->events() as $event => $listeners) {
             foreach ($listeners as $listener) {
-                if ($listener instanceof JobPipeline) {
-                    $listener = $listener->toListener();
-                }
-
                 Event::listen($event, $listener);
             }
         }
     }
 
-    protected function mapRoutes()
+    protected function mapRoutes(): void
     {
         if (file_exists(base_path('routes/tenant.php'))) {
-            Route::namespace (static::$controllerNamespace)
+            Route::namespace(static::$controllerNamespace)
                 ->group(base_path('routes/tenant.php'));
-        }
-    }
-
-    protected function makeTenancyMiddlewareHighestPriority()
-    {
-        $tenancyMiddleware = [
-            // Even higher priority than the initialization middleware
-            Middleware\PreventAccessFromCentralDomains::class ,
-
-            Middleware\InitializeTenancyByDomain::class ,
-            Middleware\InitializeTenancyBySubdomain::class ,
-            Middleware\InitializeTenancyByDomainOrSubdomain::class ,
-            Middleware\InitializeTenancyByPath::class ,
-            Middleware\InitializeTenancyByRequestData::class ,
-        ];
-
-        foreach (array_reverse($tenancyMiddleware) as $middleware) {
-            $this->app[\Illuminate\Contracts\Http\Kernel::class]->prependToMiddlewarePriority($middleware);
         }
     }
 }

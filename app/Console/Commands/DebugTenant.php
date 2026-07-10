@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Clinic;
+use Illuminate\Console\Command;
 
 class DebugTenant extends Command
 {
@@ -26,18 +26,18 @@ class DebugTenant extends Command
      */
     public function handle()
     {
-        $this->info("--- Debugging Clinic Data Persistence ---");
+        $this->info('--- Debugging Clinic Data Persistence ---');
 
         // 1. Create or Get Clinic
         $clinic = Clinic::first();
-        if (!$clinic) {
-            $this->info("Creating new clinic...");
+        if (! $clinic) {
+            $this->info('Creating new clinic...');
             $clinic = Clinic::create([
-                'id' => 'debug-clinic-' . time(),
+                'id' => 'debug-clinic-'.time(),
                 'name' => 'Debug Clinic',
             ]);
         }
-        $this->info("Using Clinic ID: " . $clinic->id);
+        $this->info('Using Clinic ID: '.$clinic->id);
 
         // 2. Set Data via Explicit Array Update
         $this->info("Setting schedule_start via 'data' array...");
@@ -46,24 +46,24 @@ class DebugTenant extends Command
         $clinic->update(['data' => $currentData]);
 
         // 3. Refresh from DB
-        $this->info("Refreshing from DB...");
+        $this->info('Refreshing from DB...');
         $clinic->refresh();
-        $this->info("Clinic->data after refresh: " . json_encode($clinic->data));
+        $this->info('Clinic->data after refresh: '.json_encode($clinic->data));
 
         // 4. Fetch Fresh instance
-        $this->info("Fetching fresh instance...");
+        $this->info('Fetching fresh instance...');
         $fresh = Clinic::find($clinic->id);
-        $this->info("Fresh->data: " . json_encode($fresh->data));
+        $this->info('Fresh->data: '.json_encode($fresh->data));
 
         // 5. Initialize Tenancy
-        $this->info("Initializing Tenancy...");
+        $this->info('Initializing Tenancy...');
         tenancy()->initialize($clinic);
-        $this->info("tenant()->data: " . json_encode(tenant()->data));
+        $this->info('tenant()->data: '.json_encode(tenant()->data));
 
         if (isset($clinic->data['schedule_start']) && $clinic->data['schedule_start'] === '10:00') {
-            $this->info("✅ Success: Data persistence works.");
+            $this->info('✅ Success: Data persistence works.');
         } else {
-            $this->error("❌ Fail: Data persistence broken.");
+            $this->error('❌ Fail: Data persistence broken.');
         }
     }
 }

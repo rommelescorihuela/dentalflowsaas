@@ -2,15 +2,14 @@
 
 namespace App\Filament\App\Resources\SystemActivities;
 
-use App\Filament\App\Resources\SystemActivities\Pages;
 use App\Models\SystemActivity;
-use Filament\Schemas\Schema;
+use Filament\Actions\ViewAction;
+use Filament\Forms;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms;
-
 
 class SystemActivityResource extends Resource
 {
@@ -38,65 +37,63 @@ class SystemActivityResource extends Resource
     {
         return $schema
             ->components([
-            Forms\Components\KeyValue::make('payload')
-            ->label('Datos de la Petición')
-            ->columnSpanFull(),
-            Forms\Components\KeyValue::make('old_values')
-            ->label('Valores Anteriores')
-            ->columnSpanFull(),
-            Forms\Components\KeyValue::make('new_values')
-            ->label('Nuevos Valores')
-            ->columnSpanFull(),
-        ]);
+                Forms\Components\KeyValue::make('payload')
+                    ->label('Datos de la Petición')
+                    ->columnSpanFull(),
+                Forms\Components\KeyValue::make('old_values')
+                    ->label('Valores Anteriores')
+                    ->columnSpanFull(),
+                Forms\Components\KeyValue::make('new_values')
+                    ->label('Nuevos Valores')
+                    ->columnSpanFull(),
+            ]);
     }
-
-
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-            Tables\Columns\TextColumn::make('user.name')
-            ->label('Usuario')
-            ->searchable(),
-            Tables\Columns\TextColumn::make('action')
-            ->label('Acción')
-            ->badge()
-            ->colors([
-                'success' => 'create',
-                'warning' => 'update',
-                'danger' => 'delete',
-                'gray' => 'login',
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Usuario')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('action')
+                    ->label('Acción')
+                    ->badge()
+                    ->colors([
+                        'success' => 'create',
+                        'warning' => 'update',
+                        'danger' => 'delete',
+                        'gray' => 'login',
+                    ])
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'create' => 'Creación',
+                        'update' => 'Actualización',
+                        'delete' => 'Eliminación',
+                        'login' => 'Inicio de Sesión',
+                        default => ucfirst($state),
+                    }),
+                Tables\Columns\TextColumn::make('subject_type')
+                    ->label('Entidad')
+                    ->formatStateUsing(fn ($state) => class_basename($state))
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('description')
+                    ->label('Descripción')
+                    ->limit(50)
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Fecha')
+                    ->dateTime('d/m/Y H:i:s')
+                    ->sortable(),
             ])
-            ->formatStateUsing(fn(string $state): string => match ($state) {
-            'create' => 'Creación',
-            'update' => 'Actualización',
-            'delete' => 'Eliminación',
-            'login' => 'Inicio de Sesión',
-            default => ucfirst($state),
-        }),
-            Tables\Columns\TextColumn::make('subject_type')
-            ->label('Entidad')
-            ->formatStateUsing(fn($state) => class_basename($state))
-            ->searchable(),
-            Tables\Columns\TextColumn::make('description')
-            ->label('Descripción')
-            ->limit(50)
-            ->searchable(),
-            Tables\Columns\TextColumn::make('created_at')
-            ->label('Fecha')
-            ->dateTime('d/m/Y H:i:s')
-            ->sortable(),
-        ])
             ->filters([
-            //
-        ])
+                //
+            ])
             ->actions([
-            \Filament\Actions\ViewAction::make(),
-        ])
+                ViewAction::make(),
+            ])
             ->bulkActions([
-            //
-        ]);
+                //
+            ]);
     }
 
     public static function getEloquentQuery(): Builder

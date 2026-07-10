@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-use App\Traits\BelongsToClinic;
 use App\Traits\ActivityLogger;
+use App\Traits\BelongsToClinic;
+use Illuminate\Database\Eloquent\Model;
 
 class Treatment extends Model
 {
-    use BelongsToClinic, ActivityLogger;
+    use ActivityLogger, BelongsToClinic;
 
     protected $fillable = [
         'clinic_id',

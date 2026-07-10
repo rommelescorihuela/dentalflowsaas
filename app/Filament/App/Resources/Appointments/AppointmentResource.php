@@ -6,11 +6,15 @@ use App\Helpers\ClinicHelper;
 use App\Models\Appointment;
 use BackedEnum;
 use Carbon\Carbon;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class AppointmentResource extends Resource
 {
@@ -137,16 +141,16 @@ class AppointmentResource extends Resource
                 Tables\Columns\TextColumn::make('type'),
             ])
             ->filters([
-                            //
-                        ])
+                //
+            ])
             ->actions([
-                            \Filament\Actions\EditAction::make(),
-                        ])
+                EditAction::make(),
+            ])
             ->bulkActions([
-                            \Filament\Actions\BulkActionGroup::make([
-                                \Filament\Actions\DeleteBulkAction::make(),
-                            ]),
-                        ]);
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
+            ]);
     }
 
     public static function getRelations(): array
@@ -165,7 +169,7 @@ class AppointmentResource extends Resource
         ];
     }
 
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
 
