@@ -46,6 +46,7 @@ class AuthorizationPolicyTest extends TestCase
         $patient = Patient::create([
             'clinic_id' => 'clinic-a',
             'name' => 'To Delete',
+            'doctor_id' => $this->doctorA->id,
         ]);
 
         $this->actingAs($this->adminA);
