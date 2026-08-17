@@ -8,6 +8,7 @@ use App\Services\PlanLimits;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
+use Illuminate\Database\Eloquent\Model;
 
 class TopProceduresWidget extends TableWidget
 {
@@ -53,9 +54,19 @@ class TopProceduresWidget extends TableWidget
                     ->alignCenter(),
             ])
             ->paginated(false)
+            ->defaultKeySort(false)
             ->emptyStateHeading('Sin procedimientos registrados')
             ->emptyStateDescription('Los procedimientos realizados aparecerán aquí.')
             ->emptyStateIcon('heroicon-o-document-text');
+    }
+
+    public function getTableRecordKey(Model|array $record): string
+    {
+        if (is_array($record)) {
+            return parent::getTableRecordKey($record);
+        }
+
+        return (string) ($record->procedure_name ?? $record->getKey());
     }
 
     protected function getHeader(): ?string

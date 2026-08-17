@@ -15,9 +15,9 @@ class SystemActivityInfolist
                 Section::make('Detalles de Actividad')
                     ->columns(2)
                     ->schema([
-                        TextEntry::make('user.name')->label('Usuario'),
+                        TextEntry::make('causer.name')->label('Usuario'),
                         TextEntry::make('clinic.name')->label('Clínica'),
-                        TextEntry::make('action')->badge(),
+                        TextEntry::make('event')->badge(),
                         TextEntry::make('created_at')->dateTime(),
                         TextEntry::make('description')->columnSpanFull(),
                     ]),
@@ -32,15 +32,15 @@ class SystemActivityInfolist
                     ]),
                 Section::make('Cambios de Datos')
                     ->schema([
-                        TextEntry::make('old_values')
+                        TextEntry::make('properties.old')
                             ->label('Valores Anteriores')
                             ->html()
                             ->formatStateUsing(fn ($state) => '<pre style="font-size: 0.75rem; overflow-x: auto;">'.json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES).'</pre>'),
-                        TextEntry::make('new_values')
+                        TextEntry::make('properties.attributes')
                             ->label('Valores Nuevos')
                             ->html()
                             ->formatStateUsing(fn ($state) => '<pre style="font-size: 0.75rem; overflow-x: auto;">'.json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES).'</pre>'),
-                        TextEntry::make('payload')
+                        TextEntry::make('properties.payload')
                             ->label('Datos de Solicitud')
                             ->html()
                             ->formatStateUsing(fn ($state) => '<pre style="font-size: 0.75rem; overflow-x: auto;">'.json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES).'</pre>'),

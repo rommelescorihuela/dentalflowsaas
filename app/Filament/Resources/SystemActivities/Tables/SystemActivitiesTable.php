@@ -13,18 +13,31 @@ class SystemActivitiesTable
     {
         return $table
             ->columns([
-                TextColumn::make('user.name')
+                TextColumn::make('causer.name')
                     ->label('Usuario')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('action')
+                TextColumn::make('event')
                     ->label('Accion')
                     ->badge()
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->colors([
+                        'success' => 'created',
+                        'warning' => 'updated',
+                        'danger' => 'deleted',
+                        'gray' => 'restored',
+                    ])
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'created' => 'Creación',
+                        'updated' => 'Actualización',
+                        'deleted' => 'Eliminación',
+                        'restored' => 'Restauración',
+                        default => ucfirst($state),
+                    }),
                 TextColumn::make('subject_type')
                     ->label('Asunto')
-                    ->formatStateUsing(fn ($state) => class_basename($state))
+                    ->formatStateUsing(fn ($state) => class_basename((string) $state))
                     ->searchable(),
                 TextColumn::make('description')
                     ->label('Descripcion')
@@ -39,19 +52,19 @@ class SystemActivitiesTable
                     ->sortable(),
             ])
             ->filters([
-                SelectFilter::make('action')
+                SelectFilter::make('event')
                     ->options([
-                        'create' => 'Crear',
-                        'update' => 'Actualizar',
-                        'delete' => 'Eliminar',
-                        'login' => 'Iniciar Sesión',
+                        'created' => 'Creación',
+                        'updated' => 'Actualización',
+                        'deleted' => 'Eliminación',
+                        'restored' => 'Restauración',
                     ]),
             ])
             ->actions([
                 ViewAction::make(),
             ])
             ->bulkActions([
-                // No bulk delete for audit logs mostly
+                // No bulk delete for audit logs
             ]);
     }
 }

@@ -2,8 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\SystemActivity;
-use Filament\Tables\Columns\BadgeColumn;
+use App\Models\Activity;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
@@ -20,30 +19,31 @@ class RecentSystemActivities extends TableWidget
     {
         return $table
             ->query(
-                SystemActivity::query()
-                    ->with('user', 'clinic')
+                Activity::query()
+                    ->with(['causer', 'clinic'])
                     ->latest()
                     ->limit(10)
             )
             ->columns([
-                TextColumn::make('user.name')
+                TextColumn::make('causer.name')
                     ->label('Usuario')
                     ->searchable()
                     ->limit(20),
-                BadgeColumn::make('action')
+                TextColumn::make('event')
                     ->label('Accion')
+                    ->badge()
                     ->colors([
-                        'success' => 'create',
-                        'info' => 'update',
-                        'danger' => 'delete',
-                        'warning' => 'login',
+                        'success' => 'created',
+                        'warning' => 'updated',
+                        'danger' => 'deleted',
+                        'gray' => 'restored',
                     ])
                     ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'create' => 'Crear',
-                        'update' => 'Actualizar',
-                        'delete' => 'Eliminar',
-                        'login' => 'Inicio Sesion',
-                        default => $state,
+                        'created' => 'Crear',
+                        'updated' => 'Actualizar',
+                        'deleted' => 'Eliminar',
+                        'restored' => 'Restaurar',
+                        default => ucfirst($state),
                     }),
                 TextColumn::make('clinic.name')
                     ->label('Clinica')

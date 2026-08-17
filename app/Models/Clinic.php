@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Traits\ActivityLogger;
+use App\Traits\LogsTenantActivity;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +13,7 @@ use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 
 class Clinic extends BaseTenant
 {
-    use ActivityLogger, HasDomains;
+    use HasDomains, LogsTenantActivity;
 
     public function domains(): HasMany
     {

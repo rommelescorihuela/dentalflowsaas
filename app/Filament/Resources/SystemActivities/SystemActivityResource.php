@@ -7,14 +7,14 @@ use App\Filament\Resources\SystemActivities\Pages\ViewSystemActivity;
 use App\Filament\Resources\SystemActivities\Schemas\SystemActivityForm;
 use App\Filament\Resources\SystemActivities\Schemas\SystemActivityInfolist;
 use App\Filament\Resources\SystemActivities\Tables\SystemActivitiesTable;
-use App\Models\SystemActivity;
+use App\Models\Activity;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 
 class SystemActivityResource extends Resource
 {
-    protected static ?string $model = SystemActivity::class;
+    protected static ?string $model = Activity::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
 
@@ -25,6 +25,21 @@ class SystemActivityResource extends Resource
     protected static ?string $modelLabel = 'Actividad';
 
     protected static ?string $pluralModelLabel = 'Registro de Actividades';
+
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return false;
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -54,10 +69,5 @@ class SystemActivityResource extends Resource
             'index' => ListSystemActivities::route('/'),
             'view' => ViewSystemActivity::route('/{record}'),
         ];
-    }
-
-    public static function canCreate(): bool
-    {
-        return false;
     }
 }

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Traits\ActivityLogger;
 use App\Traits\BelongsToClinic;
+use App\Traits\LogsTenantActivity;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasTenants;
@@ -21,7 +21,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements FilamentUser, HasTenants
 {
     /** @use HasFactory<UserFactory> */
-    use ActivityLogger, BelongsToClinic, HasFactory, HasRoles, Notifiable;
+    use BelongsToClinic, HasFactory, HasRoles, LogsTenantActivity, Notifiable;
 
     public function canAccessPanel(Panel $panel): bool
     {

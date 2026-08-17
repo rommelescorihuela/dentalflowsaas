@@ -38,8 +38,10 @@ class UserForm
                     ->options(function () {
                         $clinicId = tenant('id') ?? auth()->user()?->clinic_id;
 
-                        return Role::where('clinic_id', $clinicId)
-                            ->pluck('name', 'id');
+                        return Role::where(function ($query) use ($clinicId) {
+                            $query->whereNull('clinic_id')
+                                ->orWhere('clinic_id', $clinicId);
+                        })->pluck('name', 'id');
                     })
                     ->saveRelationshipsUsing(function ($record, $state) {
                         $clinicId = tenant('id') ?? auth()->user()?->clinic_id;

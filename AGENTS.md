@@ -1,94 +1,96 @@
 # AGENTS.md — DentalFlow SaaS
 
 ## Stack
-- **Laravel 12, Filament 4.x, Livewire 3.x, Tailwind 4** via `@tailwindcss/vite`.
-- `resources/css/app.css` uses v4 `@import 'tailwindcss'` + `@source`/`@theme`. `tailwind.config.js` exists but is **unused** by the build (IDE only).
-- **PostgreSQL ≥14 only** — `.env.example` defaults `DB_CONNECTION=pgsql`.
-- **Multi-tenancy**: Stancl Tenancy 3.9, **single shared DB** isolated via `clinic_id` global scope (`ClinicScope`). No connection switching.
-- **Auth/RBAC**: Spatie Permissions 6.0 with `teams => true`, `team_foreign_key => 'clinic_id'`. Custom `Permission`/`Role` model classes (configured in `config/permission.php`, registered in `AppServiceProvider::boot()`). 4 roles: `super-admin`, `admin`, `doctor`, `assistant`. Permission naming: `<Action>:<Model>`.
-- **Payments**: manual only (Venezuela). `laravel/cashier` in `composer.json` but **NOT used**.
-- **Queue**: `database` driver (`.env.example` defaults). `composer run dev` runs `queue:listen`.
-- **E2E**: Playwright in `tests/e2e/` (3 spec files).
-- **Linting**: Laravel Pint defaults — no `pint.json`. **Static analysis**: PHPStan level 5 — no `phpstan.neon`.
+- **Laravel 12, Filament 4.x, Livewire 3.x, Tailwind 4** vía `@tailwindcss/vite`.
+- `resources/css/app.css` usa v4 `@import 'tailwindcss'` + `@source`/`@theme`. `tailwind.config.js` existe pero **no lo usa el build** (solo IDE).
+- **Solo PostgreSQL ≥14** — `.env.example` trae `DB_CONNECTION=pgsql` por defecto.
+- **Multi-tenancy**: Stancl Tenancy 3.9, **una sola base de datos compartida** aislada por `clinic_id` con scope global (`ClinicScope`). No hay cambio de conexión.
+- **Auth/RBAC**: Spatie Permissions 6.0 con `teams => true`, `team_foreign_key => 'clinic_id'`. Clases `Permission`/`Role` personalizadas (en `config/permission.php`, registradas en `AppServiceProvider::boot()`). 4 roles: `super-admin`, `admin`, `doctor`, `assistant`. Nombrado de permisos: `<Action>:<Model>`.
+- **Pagos**: solo manuales (Venezuela — transferencia, Pago móvil, Zelle, Binance). Sin pasarela; `subscriptions:process` maneja el ciclo de pago/suspensión manual.
+- **Colas**: driver `database` (por defecto en `.env.example`). `composer run dev` ejecuta `queue:listen`.
+- **E2E**: Playwright en `tests/e2e/` (3 spec files). Ejecutar con `npx playwright test` — `playwright.config.ts` levanta `php artisan serve` en :8000 automáticamente; requiere Postgres + datos sembrados.
+- **Linting**: Laravel Pint por defecto — no hay `pint.json`. **Análisis estático**: `composer run analyse` (PHPStan, `app` @ level 5) **no funciona** — `larastan`/`phpstan` NO están en `composer.json`/`composer.lock`, así que `vendor/bin/phpstan` no existe; CI lo enmascara con `|| true` (no bloqueante).
 
-## Artisan Commands
+## Comandos de Artisan
 
 ```bash
-composer run setup       # install + copy .env + key:generate + migrate + npm install + build (no seed)
+composer run setup       # install + copiar .env + key:generate + migrate + npm install + build (sin seed)
 composer run dev         # serve + queue:listen --tries=1 + pail --timeout=0 + npm run dev (concurrently)
 composer run test        # config:clear + php artisan test
 composer run lint        # vendor/bin/pint
 composer run analyse     # vendor/bin/phpstan analyse app --level=5
 
-php artisan migrate:fresh --seed           # reset DB + seed 4 demo clinics
-php artisan diagnostic:all [--skip-tests]  # system health check
-php artisan test:routes                    # route-generation diagnostic for tenant URLs
-php artisan subscriptions:process          # daily subscription lifecycle
-php artisan appointments:send-reminders    # appointment reminders
-php artisan debug:tenant                   # tenant debug dump
-php artisan debug:check-schema {table}     # schema inspection
+php artisan migrate:fresh --seed           # reset DB + seed 4 clínicas demo
+php artisan diagnostic:all [--skip-tests]  # chequeo de salud del sistema
+php artisan test:routes                    # diagnóstico de generación de rutas para URLs de tenant
+php artisan subscriptions:process          # ciclo de vida diario de suscripciones
+php artisan appointments:send-reminders    # recordatorios de citas
+php artisan debug:tenant                   # dump de depuración del tenant
+php artisan debug:check-schema {table}     # inspección de esquema
 ```
 
-## Database & Test Setup
-- **PostgreSQL required**. `.env.example` sets `DB_CONNECTION=pgsql`; copy to `.env`, fill `DB_USERNAME`/`DB_PASSWORD`.
-- **Test DB**: `dentalflow_test` on `127.0.0.1:5432` (hardcoded in `phpunit.xml`). Credentials from `.env.testing` (gitignored) or env injection. CI uses `postgres`/`postgres`.
-- 34 test files (33 Feature + 1 Unit stub). Base class `Tests\TestCase` provides:
-  - `setUpTenants()` — creates clinics `clinic-a`/`clinic-b`, Pro subscriptions, 4 roles, permissions, patients. **Call in `setUp()`** for tests needing tenants.
+## Setup de Base de Datos y Tests
+- **Requiere PostgreSQL**. `.env.example` trae `DB_CONNECTION=pgsql`; copiar a `.env`, completar `DB_USERNAME`/`DB_PASSWORD`.
+- **DB de test**: `dentalflow_test` en `127.0.0.1:5432` (hardcodeada en `phpunit.xml`). Credenciales desde `.env.testing` (gitignored) o inyección por env. CI usa `postgres`/`postgres`.
+- 34 archivos de test (33 Feature + 1 Unit stub). La clase base `Tests\TestCase` ofrece:
+  - `setUpTenants()` — crea clínicas `clinic-a`/`clinic-b`, suscripciones Pro, 4 roles, permisos, pacientes. **Llamar en `setUp()`** para tests que necesiten tenant.
   - `switchTenant($id)`, `actingAsDoctor/Admin/Assistant($user)`, `actingAsSuperAdmin()`
-  - Factory helpers: `createOdontogram()`, `createClinicalRecord()`, `createBudget()`, `createBudgetWithItems()`, `createAppointment()`, `createPayment()`, `createProcedurePrice()`, `createInventoryItem()`
-- Tests use `RefreshDatabase`. Portal tests require `signed` URLs.
-- Super-admin bypasses all authorization via `Gate::before` in `AppServiceProvider::boot()`.
+  - Helpers de factory: `createOdontogram()`, `createClinicalRecord()`, `createBudget()`, `createBudgetWithItems()`, `createAppointment()`, `createPayment()`, `createProcedurePrice()`, `createInventoryItem()`
+- Los tests usan `RefreshDatabase`. Los del portal requieren URLs `signed`.
+- Super-admin omite toda autorización vía `Gate::before` en `AppServiceProvider::boot()`.
 
-## Tenancy Architecture
+## Arquitectura de Tenancy
 
-| Route group | Middleware | How tenant is identified |
+| Grupo de rutas | Middleware | Cómo se identifica el tenant |
 |---|---|---|
-| Filament app panel (`/app`) | `InitializeTenancyBySubdomainId` | First host segment split on `.` → tenant ID. Skips `localhost`/`127`. |
-| Patient portal | `InitializeTenancyByPath` | URL path: `/{tenant}/portal/{patient}` |
-| Central admin (`/admin`) | none | No tenant — central domain only |
+| Panel app de Filament (`/app`) | `InitializeTenancyBySubdomainId` | Primer segmento del host al partir por `.` → ID de tenant. Omite `localhost`/`127`. |
+| Portal del paciente | `InitializeTenancyByPath` | Ruta: `/{tenant}/portal/{patient}` |
+| Admin central (`/admin`) | ninguno | Sin tenant — solo dominio central |
 
-- **Local dev (`localhost`)**: App panel at `http://127.0.0.1:8000/app`. Tenancy resolved from logged-in user's `clinic_id` via `ClinicScope`.
-- `config('tenancy.central_domains')` = `['localhost', '127.0.0.1']` + `TENANCY_CENTRAL_DOMAINS` env. **Must set in production** (e.g. `dentalflow.digitalwebsolution.info`).
-- **Custom `TenancyServiceProvider`** registered in `bootstrap/providers.php`. Stancl's package provider is in `composer.json` `dont-discover` so our provider runs instead. Overrides `BelongsToTenant::$tenantIdColumn = 'clinic_id'`, omits `CreateDatabase`/`MigrateDatabase`/`DeleteDatabase` jobs.
-- **Tenant isolation**: 15 models use `BelongsToClinic` trait → adds `ClinicScope`. No-op when `tenancy()->initialized` is false. Bypass with `->withoutTenancy()` or `->withoutGlobalScope(ClinicScope::class)`.
-- **Bootstrappers**: `DatabaseTenancyBootstrapper` **commented out** in `config/tenancy.php`. `CacheTenancyBootstrapper`, `FilesystemTenancyBootstrapper`, `QueueTenancyBootstrapper` enabled: `storage_path()` suffixed with `tenant{clinic_id}` when tenancy is initialized.
-- **Tenant timezone**: set on `TenancyInitialized` event, reset on `TenancyEnded` (`AppServiceProvider`).
-- **Custom models**: `App\Models\Domain` (overrides package `Domain`, uses `clinic_id`), `App\Models\Clinic` (extends `BaseTenant` with `VirtualColumn`).
-- **Key enums**: `app/Enums/Plan.php`, `app/Enums/SubscriptionStatus.php`.
-- **Clinic IDs**: string-based (not Stancl UUIDs). Tests use `clinic-a`, `clinic-b`.
+- **Dev local (`localhost`)**: Panel app en `http://127.0.0.1:8000/app`. Tenancy se resuelve desde el `clinic_id` del usuario logueado vía `ClinicScope`.
+- `config('tenancy.central_domains')` = `['localhost', '127.0.0.1']` + env `TENANCY_CENTRAL_DOMAINS`. **Hay que configurarlo en producción** (ej. `dentalflow.digitalwebsolution.info`).
+- **`TenancyServiceProvider` personalizado** registrado en `bootstrap/providers.php`. El provider del paquete Stancl está en `composer.json` `dont-discover` para que corra el nuestro. Overridea `BelongsToTenant::$tenantIdColumn = 'clinic_id'`, omite los jobs `CreateDatabase`/`MigrateDatabase`/`DeleteDatabase`.
+- **Aislamiento de tenant**: 15 modelos usan el trait `BelongsToClinic` → agrega `ClinicScope`. No-op cuando `tenancy()->initialized` es false. Se sortea con `->withoutTenancy()` o `->withoutGlobalScope(ClinicScope::class)`.
+- **Bootstrappers**: `DatabaseTenancyBootstrapper` **comentado** en `config/tenancy.php`. `CacheTenancyBootstrapper`, `FilesystemTenancyBootstrapper`, `QueueTenancyBootstrapper` habilitados: `storage_path()` se sufija con `tenant{clinic_id}` cuando tenancy está inicializado.
+- **Timezone por tenant**: se setea en el evento `TenancyInitialized`, se restablece en `TenancyEnded` (`AppServiceProvider`).
+- **Modelos personalizados**: `App\Models\Domain` (overridea el `Domain` del paquete, usa `clinic_id`), `App\Models\Clinic` (extiende `BaseTenant` con `VirtualColumn`).
+- **Enums clave**: `app/Enums/Plan.php`, `app/Enums/SubscriptionStatus.php`.
+- **IDs de clínica**: basados en strings (no UUIDs de Stancl). Los tests usan `clinic-a`, `clinic-b`.
 
-## Stancl VirtualColumn — Critical
-- `Clinic` uses `VirtualColumn` trait. On load, `data` JSON is decoded into individual attributes then **set to `null`**.
-- After loading: `$clinic->data` returns `null`. Read/write virtual attributes directly: `$clinic->currency = 'USD'`.
-- **Never set `$clinic->data = [...]`** — `encodeAttributes()` on save will overwrite it.
-- `$clinic->onboarding_step` accessor falls back to raw `DB::table('tenants')` query when `data` is empty.
+## Stancl VirtualColumn — Crítico
+- `Clinic` usa el trait `VirtualColumn`. Al cargar, el JSON `data` se decodifica en atributos individuales y luego se **setea a `null`**.
+- Tras cargar: `$clinic->data` devuelve `null`. Leer/escribir atributos virtuales directo: `$clinic->currency = 'USD'`.
+- **Nunca setear `$clinic->data = [...]`** — `encodeAttributes()` al guardar lo sobreescribiría.
+- El accessor `$clinic->onboarding_step` cae a un query crudo de `DB::table('tenants')` cuando `data` está vacío.
 
-## Filament Panels
+## Paneles Filament
 
-| Panel | ID | Path | Resources dir |
+| Panel | ID | Ruta | Dir de recursos |
 |---|---|---|---|
 | Admin (central, default) | `admin` | `/admin` | `app/Filament/Resources/` |
 | App (tenant) | `app` | `/app` | `app/Filament/App/Resources/` |
 
-- Both: dark mode, collapsible sidebar. App=Cyan primary, Admin=Indigo.
-- **Filament 4 `Section`** → `Filament\Schemas\Components\Section` (not `Filament\Forms\Components\Section`).
-- Resource schemas live in `Schemas/` subdirs (e.g., `Clinics/Schemas/ClinicForm.php`).
+- Ambos: dark mode, sidebar colapsable. App=Cyan primario, Admin=Indigo.
+- **`Section` en Filament 4** → `Filament\Schemas\Components\Section` (no `Filament\Forms\Components\Section`).
+- Los schemas de recursos viven en subcarpetas `Schemas/` (ej. `Clinics/Schemas/ClinicForm.php`).
 
-## Middleware Chain
-- **App panel**: `InitializeTenancyBySubdomainId → SetTenancyUrlDefaults → SyncSpatiePermissionsTeamId → Authenticate → EnsureSubscriptionActive`
-- **Admin panel**: standard Filament + `SyncSpatiePermissionsTeamId` (no tenancy)
-- All users log in at `/admin/login` (central Filament). The user's `clinic_id` + `SyncSpatiePermissionsTeamId` scope them to their tenant after login.
-- `AppServiceProvider::boot()` sets `URL::defaults(['tenant' => ...])` from path segment 1 and initializes tenancy for Livewire updates via referer header.
+## Cadena de Middleware
+- **Panel app**: `InitializeTenancyBySubdomainId → SetTenancyUrlDefaults → SyncSpatiePermissionsTeamId → Authenticate → EnsureSubscriptionActive`
+- **Panel admin**: Filament estándar + `SyncSpatiePermissionsTeamId` (sin tenancy)
+- Todos los usuarios entran por `/admin/login` (Filament central). El `clinic_id` del usuario + `SyncSpatiePermissionsTeamId` los marcan a su tenant después del login.
+- `AppServiceProvider::boot()` setea `URL::defaults(['tenant' => ...])` desde el segmento 1 de la ruta e inicializa tenancy para updates de Livewire vía header `referer`.
+- **`SetLocale`** + **`SyncSpatiePermissionsTeamId`** se agregan al grupo global `web` en `bootstrap/app.php`, no solo a los paneles. `SetLocale` lee la key `locale` de sesión (solo `en`/`es`, default `es`).
 
 ## Gotchas
-- No `database/migrations/tenant/` directory; all shared-DB migrations are in `database/migrations/`. `config/tenancy.php:196` points to a dir that doesn't exist.
-- Portal routes use `signed` URLs + `throttle:portal` (30 req/min per IP).
-- `tailwind.config.js` exists but **not used by build** (Tailwind v4 via `@tailwindcss/vite` reads CSS `@source` directives).
-- `config/permission.php` has `'teams' => true` and `'team_foreign_key' => 'clinic_id'`.
-- **`ActivityLogger` trait** (used by User, Clinic, Appointment, etc.) logs every `created`/`updated`/`deleted` to `system_activities` table. Generates DB records on every mutation.
-- **`InitializeTenancyBySubdomainId`** is custom middleware (not Stancl's). It uses the subdomain **as the tenant ID directly** (string match on `tenants.id`), not via the `domains` table.
-- **Observers**: `OdontogramObserver` auto-generates a budget on `completed` status. `AppointmentObserver` deducts inventory on `completed` status (registered inline in `Appointment::boot()`, not in `AppServiceProvider`).
-- **`SubscriptionService::syncClinicDenormalized()`** writes `plan` + `subscription_status` directly to `tenants` table (duplicated data beyond the `Subscription` model).
-- **`ClinicSettingsController::save()`** writes directly to `DB::table('tenants')` bypassing Eloquent.
-- **Real `.env` defaults**: `APP_LOCALE=es`, `SESSION_DRIVER=file`, `TENANCY_CENTRAL_DOMAINS=localhost:8000,127.0.0.1:8000` (differs from `.env.example`).
-- **`PermissionSeeder`** auto-discovers Filament Resources to generate permissions (7 per model: `ViewAny`..`ForceDelete`). Run `setPermissionsTeamId($clinic->id)` before seeding within tenant context.
+- No existe `database/migrations/tenant/`; todas las migraciones de DB compartida están en `database/migrations/`, y los params `tenants:migrate`/`tenants:seed` de `config/tenancy.php` apuntan a ese mismo directorio. Es un único esquema compartido — los jobs por-tenant están deshabilitados, no confiar en ellos.
+- Las rutas del portal usan URLs `signed` + `throttle:portal` (30 req/min por IP).
+- `tailwind.config.js` existe pero **el build no lo usa** (Tailwind v4 vía `@tailwindcss/vite` lee las directivas `@source` del CSS).
+- `config/permission.php` tiene `'teams' => true` y `'team_foreign_key' => 'clinic_id'`.
+- **Auditoría (`spatie/laravel-activitylog` ^4.12)**: los 9 modelos (User, Clinic, Patient, Appointment, Budget, Payment, Odontogram, Treatment, SubscriptionPayment) usan el trait `App\Traits\LogsTenantActivity` → registra `created`/`updated`/`deleted` en la tabla `activity_log`. `clinic_id` se inyecta vía `tapActivity()`; IP/método/URL/UA vía el evento `creating` de `App\Models\Activity` (no guarda payload del request). El modelo `Activity` es inmutable (`updating`/`deleting` retornan false).
+- **`activity_log` es especial**: `subject_id`/`causer_id` son columnas `string` (no bigint de `nullableMorphs`)** — los IDs de tenant (`clinic-a`) son strings. `DatabaseSeeder` usa `WithoutModelEvents`, así que el seed NO genera auditoría.
+- **`InitializeTenancyBySubdomainId`** es middleware propio (no el de Stancl). Usa el subdominio **como ID de tenant directamente** (match por string contra `tenants.id`), no vía la tabla `domains`.
+- **Observers**: `OdontogramObserver` (auto-presupuesto en `completed`) y `ClinicObserver` (al crear, registra una fila `{clinic.id}.localhost` en `domains` — habilita tenancy local por subdominio) se registran en `AppServiceProvider::boot()`. `AppointmentObserver` (descuenta inventario en `completed`) se registra inline en `Appointment::boot()` vía `self::observe()`.
+- **`SubscriptionService::syncClinicDenormalized()`** escribe `plan` + `subscription_status` directo en la tabla `tenants` (datos duplicados más allá del modelo `Subscription`).
+- **`ClinicSettingsController::save()`** escribe directo a `DB::table('tenants')` saltándose Eloquent.
+- **`.env` real (dev local)**: `APP_URL=http://clinic1.localhost:8000` — los subdominios `{tenant}.localhost` resuelven a 127.0.0.1 y obtienen tenancy real por subdominio. En `127.0.0.1:8000/app` tenancy NO se inicializa vía middleware; las páginas `Dashboard`/`Billing` llaman `tenancy()->initialize($user->clinic_id)` de forma perezosa. `FILESYSTEM_DISK=public`. `APP_LOCALE=es`, `SESSION_DRIVER=file` y `TENANCY_CENTRAL_DOMAINS` ahora coinciden con `.env.example`.
+- **`PermissionSeeder`** auto-descubre los recursos de Filament para generar permisos (7 por modelo: `ViewAny`..`ForceDelete`). Correr `setPermissionsTeamId($clinic->id)` antes de sembrar dentro del contexto del tenant.

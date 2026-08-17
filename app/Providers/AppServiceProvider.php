@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Helpers\ClinicHelper;
+use App\Models\Activity;
 use App\Models\Appointment;
 use App\Models\Budget;
 use App\Models\Clinic;
@@ -16,10 +17,10 @@ use App\Models\Prescription;
 use App\Models\ProcedurePrice;
 use App\Models\Role;
 use App\Models\SubscriptionPayment;
-use App\Models\SystemActivity;
 use App\Models\User;
 use App\Observers\ClinicObserver;
 use App\Observers\OdontogramObserver;
+use App\Policies\ActivityPolicy;
 use App\Policies\AppointmentPolicy;
 use App\Policies\BudgetPolicy;
 use App\Policies\ClinicalRecordPolicy;
@@ -32,7 +33,6 @@ use App\Policies\PrescriptionPolicy;
 use App\Policies\ProcedurePricePolicy;
 use App\Policies\RolePolicy;
 use App\Policies\SubscriptionPaymentPolicy;
-use App\Policies\SystemActivityPolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -114,7 +114,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Odontogram::class, OdontogramPolicy::class);
         Gate::policy(ClinicalRecord::class, ClinicalRecordPolicy::class);
         Gate::policy(SubscriptionPayment::class, SubscriptionPaymentPolicy::class);
-        Gate::policy(SystemActivity::class, SystemActivityPolicy::class);
+        Gate::policy(Activity::class, ActivityPolicy::class);
         Gate::policy(PatientMedicalHistory::class, PatientMedicalHistoryPolicy::class);
         Gate::policy(Prescription::class, PrescriptionPolicy::class);
 

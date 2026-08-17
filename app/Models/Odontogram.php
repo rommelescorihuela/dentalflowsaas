@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Traits\ActivityLogger;
 use App\Traits\BelongsToClinic;
+use App\Traits\LogsTenantActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Odontogram extends Model
 {
-    use ActivityLogger, BelongsToClinic;
+    use BelongsToClinic, LogsTenantActivity;
 
     protected $fillable = [
         'clinic_id',

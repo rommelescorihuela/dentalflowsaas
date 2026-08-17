@@ -2,7 +2,7 @@
 
 namespace App\Filament\App\Resources\SystemActivities;
 
-use App\Models\SystemActivity;
+use App\Models\Activity;
 use Filament\Actions\ViewAction;
 use Filament\Forms;
 use Filament\Resources\Resource;
@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class SystemActivityResource extends Resource
 {
-    protected static ?string $model = SystemActivity::class;
+    protected static ?string $model = Activity::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
 
@@ -37,14 +37,14 @@ class SystemActivityResource extends Resource
     {
         return $schema
             ->components([
-                Forms\Components\KeyValue::make('payload')
-                    ->label('Datos de la Petición')
+                Forms\Components\KeyValue::make('properties.attributes')
+                    ->label('Nuevos Valores')
                     ->columnSpanFull(),
-                Forms\Components\KeyValue::make('old_values')
+                Forms\Components\KeyValue::make('properties.old')
                     ->label('Valores Anteriores')
                     ->columnSpanFull(),
-                Forms\Components\KeyValue::make('new_values')
-                    ->label('Nuevos Valores')
+                Forms\Components\KeyValue::make('properties.payload')
+                    ->label('Datos de la Petición')
                     ->columnSpanFull(),
             ]);
     }
@@ -53,28 +53,28 @@ class SystemActivityResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user.name')
+                Tables\Columns\TextColumn::make('causer.name')
                     ->label('Usuario')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('action')
+                Tables\Columns\TextColumn::make('event')
                     ->label('Acción')
                     ->badge()
                     ->colors([
-                        'success' => 'create',
-                        'warning' => 'update',
-                        'danger' => 'delete',
-                        'gray' => 'login',
+                        'success' => 'created',
+                        'warning' => 'updated',
+                        'danger' => 'deleted',
+                        'gray' => 'restored',
                     ])
                     ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'create' => 'Creación',
-                        'update' => 'Actualización',
-                        'delete' => 'Eliminación',
-                        'login' => 'Inicio de Sesión',
+                        'created' => 'Creación',
+                        'updated' => 'Actualización',
+                        'deleted' => 'Eliminación',
+                        'restored' => 'Restauración',
                         default => ucfirst($state),
                     }),
                 Tables\Columns\TextColumn::make('subject_type')
                     ->label('Entidad')
-                    ->formatStateUsing(fn ($state) => class_basename($state))
+                    ->formatStateUsing(fn ($state) => class_basename((string) $state))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('description')
                     ->label('Descripción')
@@ -86,7 +86,12 @@ class SystemActivityResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('event')
+                    ->options([
+                        'created' => 'Creación',
+                        'updated' => 'Actualización',
+                        'deleted' => 'Eliminación',
+                    ]),
             ])
             ->actions([
                 ViewAction::make(),
@@ -102,6 +107,16 @@ class SystemActivityResource extends Resource
     }
 
     public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return false;
+    }
+
+    public static function canDelete($record): bool
     {
         return false;
     }
