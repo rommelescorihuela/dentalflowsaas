@@ -1,73 +1,75 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\Patient;
-use App\Models\User;
-use App\Services\PlanLimits;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class PatientPolicy
 {
-    public function __construct(
-        protected PlanLimits $planLimits
-    ) {}
-
-    public function viewAny(User $user): bool
+    use HandlesAuthorization;
+    
+    public function viewAny(AuthUser $authUser): bool
     {
-        return true;
+        return $authUser->can('ViewAny:Patient');
     }
 
-    public function view(User $user, Patient $patient): bool
+    public function view(AuthUser $authUser, Patient $patient): bool
     {
-        return true;
+        return $authUser->can('View:Patient');
     }
 
-    public function create(User $user): bool
+    public function create(AuthUser $authUser): bool
     {
-        if ($user->hasRole('super-admin')) {
-            return true;
-        }
-
-        $clinic = $user->tenant;
-
-        if (! $clinic) {
-            return true;
-        }
-
-        return $this->planLimits->canCreatePatient($clinic);
+        return $authUser->can('Create:Patient');
     }
 
-    public function update(User $user, Patient $patient): bool
+    public function update(AuthUser $authUser, Patient $patient): bool
     {
-        if ($user->hasRole('super-admin')) {
-            return true;
-        }
-
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-
-        if (is_null($patient->doctor_id)) {
-            return true;
-        }
-
-        return $user->id === $patient->doctor_id;
+        return $authUser->can('Update:Patient');
     }
 
-    public function delete(User $user, Patient $patient): bool
+    public function delete(AuthUser $authUser, Patient $patient): bool
     {
-        if ($user->hasRole('super-admin')) {
-            return true;
-        }
-
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-
-        if (is_null($patient->doctor_id)) {
-            return true;
-        }
-
-        return $user->id === $patient->doctor_id;
+        return $authUser->can('Delete:Patient');
     }
+
+    public function deleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('DeleteAny:Patient');
+    }
+
+    public function restore(AuthUser $authUser, Patient $patient): bool
+    {
+        return $authUser->can('Restore:Patient');
+    }
+
+    public function forceDelete(AuthUser $authUser, Patient $patient): bool
+    {
+        return $authUser->can('ForceDelete:Patient');
+    }
+
+    public function forceDeleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('ForceDeleteAny:Patient');
+    }
+
+    public function restoreAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('RestoreAny:Patient');
+    }
+
+    public function replicate(AuthUser $authUser, Patient $patient): bool
+    {
+        return $authUser->can('Replicate:Patient');
+    }
+
+    public function reorder(AuthUser $authUser): bool
+    {
+        return $authUser->can('Reorder:Patient');
+    }
+
 }

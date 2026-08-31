@@ -4,8 +4,13 @@ namespace App\Filament\App\Resources\Prescriptions;
 
 use App\Models\Prescription;
 use BackedEnum;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -35,7 +40,7 @@ class PrescriptionResource extends Resource
                     ->label('Diagnóstico')
                     ->rows(3)
                     ->columnSpanFull(),
-                Forms\Components\Section::make('Medicamentos')
+                Section::make('Medicamentos')
                     ->description('Lista de medicamentos recetados')
                     ->schema([
                         Forms\Components\Repeater::make('items')
@@ -152,12 +157,12 @@ class PrescriptionResource extends Resource
                     ]),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

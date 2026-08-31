@@ -3,6 +3,49 @@
 @section('title', 'Inicio')
 
 @section('content')
+<!-- Banners -->
+@if($banners->isNotEmpty())
+<div class="space-y-3 mb-8">
+    @foreach($banners as $banner)
+        @php
+            $colorMap = [
+                'blue' => 'bg-blue-50 border-blue-400 text-blue-800',
+                'green' => 'bg-green-50 border-green-400 text-green-800',
+                'yellow' => 'bg-yellow-50 border-yellow-400 text-yellow-800',
+                'red' => 'bg-red-50 border-red-400 text-red-800',
+                'purple' => 'bg-purple-50 border-purple-400 text-purple-800',
+                'cyan' => 'bg-cyan-50 border-cyan-400 text-cyan-800',
+            ];
+            $color = $colorMap[$banner->color] ?? $colorMap['blue'];
+
+            $iconMap = [
+                'info' => 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                'success' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+                'warning' => 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
+                'error' => 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z',
+                'promo' => 'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z',
+            ];
+            $iconPath = $iconMap[$banner->type] ?? $iconMap['info'];
+        @endphp
+
+        <div class="flex items-start gap-3 rounded-lg border-l-4 p-4 {{ $color }}">
+            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $iconPath }}"/></svg>
+            <div class="flex-1">
+                <h4 class="text-sm font-semibold">{{ $banner->title }}</h4>
+                @if($banner->message)
+                    <p class="mt-1 text-sm opacity-90">{{ $banner->message }}</p>
+                @endif
+                @if($banner->link)
+                    <a href="{{ $banner->link }}" class="mt-2 inline-block text-sm font-medium underline" target="_blank">
+                        Ver más
+                    </a>
+                @endif
+            </div>
+        </div>
+    @endforeach
+</div>
+@endif
+
 <!-- Stats -->
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 portal-reveal">
     <div class="bg-white rounded-3xl border border-teal-500/10 shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
@@ -138,6 +181,7 @@
     </div>
 </div>
 
+@if($patient->status === 'active')
 <!-- Recent Budgets -->
 <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden portal-reveal portal-reveal-delay-3">
     <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-transparent">
@@ -191,4 +235,5 @@
         @endforelse
     </div>
 </div>
+@endif
 @endsection

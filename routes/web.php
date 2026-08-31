@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\ClinicSettingsController;
+use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\LegalController;
 use App\Http\Controllers\PatientPortalController;
 use App\Http\Controllers\PdfController;
+use App\Http\Controllers\PublicBookingController;
 use App\Http\Middleware\InitializeTenancyBySubdomainId;
 use App\Http\Middleware\SetTenancyUrlDefaults;
 use App\Livewire\Auth\RegisterTenant;
@@ -50,6 +52,10 @@ Route::get('/login', function () {
 
 Route::get('/terms', [LegalController::class, 'terms'])->name('legal.terms');
 Route::get('/privacy', [LegalController::class, 'privacy'])->name('legal.privacy');
+Route::get('/landing/{clinic}', [LandingPageController::class, 'show'])->name('landing.show');
+Route::get('/landing/{clinic}/book', [PublicBookingController::class, 'show'])->name('landing.book');
+Route::get('/landing/{clinic}/book/slots', [PublicBookingController::class, 'slots'])->name('landing.book.slots');
+Route::post('/landing/{clinic}/book', [PublicBookingController::class, 'store'])->name('landing.book.store');
 Route::get('/lang/{locale}', function ($locale) {
     if (in_array($locale, ['en', 'es'])) {
         session(['locale' => $locale]);

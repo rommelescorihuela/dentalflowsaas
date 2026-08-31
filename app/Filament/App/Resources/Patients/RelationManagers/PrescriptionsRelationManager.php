@@ -3,9 +3,12 @@
 namespace App\Filament\App\Resources\Patients\RelationManagers;
 
 use App\Models\Prescription;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
-use Filament\Forms\Components\Section;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -150,7 +153,7 @@ class PrescriptionsRelationManager extends RelationManager
             ])
             ->defaultSort('created_at', 'desc')
             ->headerActions([
-                Tables\Actions\CreateAction::make()
+                CreateAction::make()
                     ->label('Nueva Receta')
                     ->icon('heroicon-o-plus')
                     ->mutateFormDataUsing(function (array $data): array {
@@ -161,8 +164,8 @@ class PrescriptionsRelationManager extends RelationManager
                     }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ]);
     }
 }

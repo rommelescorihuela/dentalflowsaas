@@ -1,60 +1,75 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\Payment;
-use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class PaymentPolicy
 {
-    public function viewAny(User $user): bool
+    use HandlesAuthorization;
+    
+    public function viewAny(AuthUser $authUser): bool
     {
-        return true;
+        return $authUser->can('ViewAny:Payment');
     }
 
-    public function view(User $user, Payment $payment): bool
+    public function view(AuthUser $authUser, Payment $payment): bool
     {
-        return true;
+        return $authUser->can('View:Payment');
     }
 
-    public function create(User $user): bool
+    public function create(AuthUser $authUser): bool
     {
-        return true;
+        return $authUser->can('Create:Payment');
     }
 
-    public function update(User $user, Payment $payment): bool
+    public function update(AuthUser $authUser, Payment $payment): bool
     {
-        if ($user->hasRole('super-admin')) {
-            return true;
-        }
-
-        $patient = $payment->patient;
-        if (! $patient) {
-            return false;
-        }
-
-        if (is_null($patient->doctor_id)) {
-            return true;
-        }
-
-        return $user->id === $patient->doctor_id;
+        return $authUser->can('Update:Payment');
     }
 
-    public function delete(User $user, Payment $payment): bool
+    public function delete(AuthUser $authUser, Payment $payment): bool
     {
-        if ($user->hasRole('super-admin')) {
-            return true;
-        }
-
-        $patient = $payment->patient;
-        if (! $patient) {
-            return false;
-        }
-
-        if (is_null($patient->doctor_id)) {
-            return true;
-        }
-
-        return $user->id === $patient->doctor_id;
+        return $authUser->can('Delete:Payment');
     }
+
+    public function deleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('DeleteAny:Payment');
+    }
+
+    public function restore(AuthUser $authUser, Payment $payment): bool
+    {
+        return $authUser->can('Restore:Payment');
+    }
+
+    public function forceDelete(AuthUser $authUser, Payment $payment): bool
+    {
+        return $authUser->can('ForceDelete:Payment');
+    }
+
+    public function forceDeleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('ForceDeleteAny:Payment');
+    }
+
+    public function restoreAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('RestoreAny:Payment');
+    }
+
+    public function replicate(AuthUser $authUser, Payment $payment): bool
+    {
+        return $authUser->can('Replicate:Payment');
+    }
+
+    public function reorder(AuthUser $authUser): bool
+    {
+        return $authUser->can('Reorder:Payment');
+    }
+
 }

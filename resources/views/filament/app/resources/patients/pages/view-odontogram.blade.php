@@ -1,6 +1,20 @@
 <x-filament-panels::page>
     {{ $this->form }}
 
+    <div class="mt-6">
+        @livewire(\App\Filament\App\Resources\Patients\RelationManagers\ToothImagesRelationManager::class, [
+            'ownerRecord' => $this->odontogram,
+            'pageClass' => static::class,
+        ])
+    </div>
+
+    <div class="mt-6">
+        @livewire(\App\Filament\App\Resources\Patients\RelationManagers\ToothNotesRelationManager::class, [
+            'ownerRecord' => $this->odontogram,
+            'pageClass' => static::class,
+        ])
+    </div>
+
     @if($this->budget)
     <div class="mt-6">
         <x-filament::section>

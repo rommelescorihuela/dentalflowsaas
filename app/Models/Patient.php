@@ -18,6 +18,7 @@ class Patient extends Model
 
     protected $fillable = [
         'clinic_id',
+        'status',
         'doctor_id',
         'name',
         'email',
@@ -37,6 +38,21 @@ class Patient extends Model
     public function doctor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'doctor_id');
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status === 'active';
+    }
+
+    public function activate(): void
+    {
+        $this->update(['status' => 'active']);
+    }
+
+    public function deactivate(): void
+    {
+        $this->update(['status' => 'inactive']);
     }
 
     public function odontograms(): HasMany
@@ -72,5 +88,30 @@ class Patient extends Model
     public function prescriptions(): HasMany
     {
         return $this->hasMany(Prescription::class);
+    }
+
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    public function serviceFeedbacks(): HasMany
+    {
+        return $this->hasMany(ServiceFeedback::class);
+    }
+
+    public function toothImages(): HasMany
+    {
+        return $this->hasMany(ToothImage::class);
+    }
+
+    public function toothNotes(): HasMany
+    {
+        return $this->hasMany(ToothNote::class);
     }
 }

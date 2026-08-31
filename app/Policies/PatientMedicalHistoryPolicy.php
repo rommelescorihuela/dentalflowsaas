@@ -1,77 +1,75 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\PatientMedicalHistory;
-use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class PatientMedicalHistoryPolicy
 {
-    public function viewAny(User $user): bool
+    use HandlesAuthorization;
+    
+    public function viewAny(AuthUser $authUser): bool
     {
-        return true;
+        return $authUser->can('ViewAny:PatientMedicalHistory');
     }
 
-    public function view(User $user, PatientMedicalHistory $record): bool
+    public function view(AuthUser $authUser, PatientMedicalHistory $patientMedicalHistory): bool
     {
-        if ($user->hasRole('super-admin')) {
-            return true;
-        }
-
-        if ($user->hasRole('doctor')) {
-            $patient = $record->patient;
-            if (! $patient) {
-                return false;
-            }
-
-            if (is_null($patient->doctor_id)) {
-                return true;
-            }
-
-            return $user->id === $patient->doctor_id;
-        }
-
-        return true;
+        return $authUser->can('View:PatientMedicalHistory');
     }
 
-    public function create(User $user): bool
+    public function create(AuthUser $authUser): bool
     {
-        return true;
+        return $authUser->can('Create:PatientMedicalHistory');
     }
 
-    public function update(User $user, PatientMedicalHistory $record): bool
+    public function update(AuthUser $authUser, PatientMedicalHistory $patientMedicalHistory): bool
     {
-        if ($user->hasRole('super-admin')) {
-            return true;
-        }
-
-        $patient = $record->patient;
-        if (! $patient) {
-            return false;
-        }
-
-        if (is_null($patient->doctor_id)) {
-            return true;
-        }
-
-        return $user->id === $patient->doctor_id;
+        return $authUser->can('Update:PatientMedicalHistory');
     }
 
-    public function delete(User $user, PatientMedicalHistory $record): bool
+    public function delete(AuthUser $authUser, PatientMedicalHistory $patientMedicalHistory): bool
     {
-        if ($user->hasRole('super-admin')) {
-            return true;
-        }
-
-        $patient = $record->patient;
-        if (! $patient) {
-            return false;
-        }
-
-        if (is_null($patient->doctor_id)) {
-            return true;
-        }
-
-        return $user->id === $patient->doctor_id;
+        return $authUser->can('Delete:PatientMedicalHistory');
     }
+
+    public function deleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('DeleteAny:PatientMedicalHistory');
+    }
+
+    public function restore(AuthUser $authUser, PatientMedicalHistory $patientMedicalHistory): bool
+    {
+        return $authUser->can('Restore:PatientMedicalHistory');
+    }
+
+    public function forceDelete(AuthUser $authUser, PatientMedicalHistory $patientMedicalHistory): bool
+    {
+        return $authUser->can('ForceDelete:PatientMedicalHistory');
+    }
+
+    public function forceDeleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('ForceDeleteAny:PatientMedicalHistory');
+    }
+
+    public function restoreAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('RestoreAny:PatientMedicalHistory');
+    }
+
+    public function replicate(AuthUser $authUser, PatientMedicalHistory $patientMedicalHistory): bool
+    {
+        return $authUser->can('Replicate:PatientMedicalHistory');
+    }
+
+    public function reorder(AuthUser $authUser): bool
+    {
+        return $authUser->can('Reorder:PatientMedicalHistory');
+    }
+
 }

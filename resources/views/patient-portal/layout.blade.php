@@ -78,6 +78,11 @@
                         <p class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Menú</p>
                     </div>
                     <div class="p-3 space-y-1">
+                        <a href="{{ URL::signedRoute('portal.book', ['patient' => $patient]) }}"
+                            class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md shadow-primary-500/20 mb-2 transition-all duration-200 hover:from-primary-700 hover:to-primary-700">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                            Reservar Cita
+                        </a>
                         <a href="{{ URL::signedRoute('portal.dashboard', ['patient' => $patient]) }}"
                             class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('portal.dashboard') ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-stone-600 hover:bg-stone-50 hover:text-stone-800' }}">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
@@ -113,6 +118,16 @@
                 <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-6 py-4 rounded-2xl flex items-center gap-3">
                     <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
                     <span class="font-medium">{{ session('success') }}</span>
+                </div>
+                @endif
+
+                @if($patient->status === 'inactive')
+                <div class="mb-6 bg-amber-50 border border-amber-200 text-amber-800 px-6 py-4 rounded-2xl flex items-center gap-3">
+                    <svg class="w-5 h-5 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <div>
+                        <p class="font-medium">Tu tratamiento ha finalizado.</p>
+                        <p class="text-sm">Puedes agendar una nueva cita en cualquier momento con el botón "Reservar Cita".</p>
+                    </div>
                 </div>
                 @endif
 

@@ -1,77 +1,75 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\Prescription;
-use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class PrescriptionPolicy
 {
-    public function viewAny(User $user): bool
+    use HandlesAuthorization;
+    
+    public function viewAny(AuthUser $authUser): bool
     {
-        return true;
+        return $authUser->can('ViewAny:Prescription');
     }
 
-    public function view(User $user, Prescription $prescription): bool
+    public function view(AuthUser $authUser, Prescription $prescription): bool
     {
-        if ($user->hasRole('super-admin')) {
-            return true;
-        }
-
-        if ($user->hasRole('doctor')) {
-            $patient = $prescription->patient;
-            if (! $patient) {
-                return false;
-            }
-
-            if (is_null($patient->doctor_id)) {
-                return true;
-            }
-
-            return $user->id === $patient->doctor_id;
-        }
-
-        return true;
+        return $authUser->can('View:Prescription');
     }
 
-    public function create(User $user): bool
+    public function create(AuthUser $authUser): bool
     {
-        return true;
+        return $authUser->can('Create:Prescription');
     }
 
-    public function update(User $user, Prescription $prescription): bool
+    public function update(AuthUser $authUser, Prescription $prescription): bool
     {
-        if ($user->hasRole('super-admin')) {
-            return true;
-        }
-
-        $patient = $prescription->patient;
-        if (! $patient) {
-            return false;
-        }
-
-        if (is_null($patient->doctor_id)) {
-            return true;
-        }
-
-        return $user->id === $patient->doctor_id;
+        return $authUser->can('Update:Prescription');
     }
 
-    public function delete(User $user, Prescription $prescription): bool
+    public function delete(AuthUser $authUser, Prescription $prescription): bool
     {
-        if ($user->hasRole('super-admin')) {
-            return true;
-        }
-
-        $patient = $prescription->patient;
-        if (! $patient) {
-            return false;
-        }
-
-        if (is_null($patient->doctor_id)) {
-            return true;
-        }
-
-        return $user->id === $patient->doctor_id;
+        return $authUser->can('Delete:Prescription');
     }
+
+    public function deleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('DeleteAny:Prescription');
+    }
+
+    public function restore(AuthUser $authUser, Prescription $prescription): bool
+    {
+        return $authUser->can('Restore:Prescription');
+    }
+
+    public function forceDelete(AuthUser $authUser, Prescription $prescription): bool
+    {
+        return $authUser->can('ForceDelete:Prescription');
+    }
+
+    public function forceDeleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('ForceDeleteAny:Prescription');
+    }
+
+    public function restoreAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('RestoreAny:Prescription');
+    }
+
+    public function replicate(AuthUser $authUser, Prescription $prescription): bool
+    {
+        return $authUser->can('Replicate:Prescription');
+    }
+
+    public function reorder(AuthUser $authUser): bool
+    {
+        return $authUser->can('Reorder:Prescription');
+    }
+
 }

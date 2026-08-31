@@ -42,4 +42,14 @@ class Odontogram extends Model
     {
         return $this->hasOne(Budget::class);
     }
+
+    public function toothImages(): HasMany
+    {
+        return $this->hasMany(ToothImage::class);
+    }
+
+    public function toothNotes(): HasMany
+    {
+        return $this->hasMany(ToothNote::class);
+    }
 }

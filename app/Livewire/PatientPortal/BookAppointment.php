@@ -137,6 +137,8 @@ class BookAppointment extends Component
             'procedure_price_id' => $this->selectedProcedureId,
         ]);
 
+        $this->patient->activate();
+
         return redirect()->to(URL::signedRoute('portal.dashboard', ['patient' => $this->patient]))
             ->with('success', '¡Cita reservada con éxito! Espera nuestra confirmación.');
     }

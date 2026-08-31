@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Appointment;
 use App\Models\Budget;
+use App\Models\DashboardBanner;
 use App\Models\Patient;
 use App\Services\PlanLimits;
 
@@ -25,8 +26,11 @@ class PatientPortalController extends Controller
 
         $patient->load(['appointments', 'budgets', 'clinicalRecords']);
 
+        $banners = DashboardBanner::active()->get();
+
         return view('patient-portal.dashboard', [
             'patient' => $patient,
+            'banners' => $banners,
         ]);
     }
 

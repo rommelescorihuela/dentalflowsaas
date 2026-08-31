@@ -94,3 +94,46 @@ php artisan debug:check-schema {table}     # inspección de esquema
 - **`ClinicSettingsController::save()`** escribe directo a `DB::table('tenants')` saltándose Eloquent.
 - **`.env` real (dev local)**: `APP_URL=http://clinic1.localhost:8000` — los subdominios `{tenant}.localhost` resuelven a 127.0.0.1 y obtienen tenancy real por subdominio. En `127.0.0.1:8000/app` tenancy NO se inicializa vía middleware; las páginas `Dashboard`/`Billing` llaman `tenancy()->initialize($user->clinic_id)` de forma perezosa. `FILESYSTEM_DISK=public`. `APP_LOCALE=es`, `SESSION_DRIVER=file` y `TENANCY_CENTRAL_DOMAINS` ahora coinciden con `.env.example`.
 - **`PermissionSeeder`** auto-descubre los recursos de Filament para generar permisos (7 por modelo: `ViewAny`..`ForceDelete`). Correr `setPermissionsTeamId($clinic->id)` antes de sembrar dentro del contexto del tenant.
+
+## Features Integradas desde rmdc_dental (v2.0)
+
+### Comunicación
+- **Mensajería**: Sistema de mensajes entre staff y pacientes (`Message` model, `MessageResource`)
+- **Notificaciones**: Sistema de notificaciones con tipos (info, success, warning, error, appointment, payment) (`Notification` model, `NotificationResource`)
+- **Calificaciones**: Pacientes pueden calificar servicios (1-5 estrellas, comentarios, destacados) (`Rating` model, `RatingResource`)
+- **Feedback de Servicios**: Feedback categorizado por tipo de servicio (`ServiceFeedback` model, `ServiceFeedbackResource`)
+
+### Odontograma Mejorado
+- **Imágenes Dentales**: Subir fotos de dientes (clínicas, radiografías, antes/después) (`ToothImage` model, `ToothImagesRelationManager`)
+- **Notas Dentales**: Notas por diente (observación, diagnóstico, tratamiento, seguimiento) (`ToothNote` model, `ToothNotesRelationManager`)
+
+### Personalización
+- **Configuración de Clínica**: Tema (colores), landing page, notificaciones (`ClinicSetting` model, `ClinicSettingsPage`)
+- **Landing Page Pública**: Página pública personalizable por clínica (`LandingPageController`, vista `landing.show`)
+- **Dashboard Banners**: Banners informativos/promocionales en dashboard (`DashboardBanner` model, `DashboardBannerResource`)
+
+### Nuevas Tablas (Migraciones 23-30)
+- `messages` - Mensajería paciente-staff
+- `ratings` - Calificaciones de servicios
+- `service_feedbacks` - Feedback categorizado
+- `notifications` - Notificaciones del sistema
+- `tooth_images` - Imágenes de dientes
+- `tooth_notes` - Notas en dientes
+- `dashboard_banners` - Banners del dashboard
+- `clinic_settings` - Configuración por clínica
+
+### Nuevos Filament Resources
+- `MessageResource` - Grupo "Comunicación"
+- `RatingResource` - Grupo "Comunicación"
+- `ServiceFeedbackResource` - Grupo "Comunicación"
+- `NotificationResource` - Grupo "Sistema"
+- `DashboardBannerResource` - Grupo "Sistema"
+- `ClinicSettingsPage` - Página de configuración (singleton)
+- `ToothImagesRelationManager` - En vista de Odontograma
+- `ToothNotesRelationManager` - En vista de Odontograma
+
+### Rutas Nuevas
+- `GET /landing/{clinic}` - Landing page pública de la clínica
+
+### Factories Nuevas
+- `MessageFactory`, `RatingFactory`, `ServiceFeedbackFactory`, `NotificationFactory`, `DashboardBannerFactory`, `ClinicSettingFactory`, `ToothImageFactory`, `ToothNoteFactory`

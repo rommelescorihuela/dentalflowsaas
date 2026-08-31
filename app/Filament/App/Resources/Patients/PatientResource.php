@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources\Patients;
 
+use App\Mail\PortalWelcome;
 use App\Models\Patient;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -9,10 +10,12 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 
 class PatientResource extends Resource
@@ -72,6 +75,19 @@ class PatientResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('rut')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->label('Estado')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'active' => 'success',
+                        'inactive' => 'gray',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'active' => 'Activo',
+                        'inactive' => 'Inactivo',
+                        default => ucfirst($state),
+                    }),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -98,6 +114,54 @@ class PatientResource extends Resource
                         }
                     })
                     ->openUrlInNewTab(),
+                Action::make('send_portal_access')
+                    ->label('Enviar acceso')
+                    ->icon('heroicon-o-envelope')
+                    ->action(function (Patient $record) {
+                        try {
+                            $portalUrl = URL::signedRoute('portal.dashboard', ['tenant' => tenant('id') ?: request()->segment(1), 'patient' => $record]);
+                            Mail::to($record->email)->send(new PortalWelcome($record, $portalUrl));
+                            Notification::make()
+                                ->title('Email enviado')
+                                ->body('Se envió el enlace del portal a '.$record->email)
+                                ->success()
+                                ->send();
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('Error')
+                                ->body('No se pudo enviar el email.')
+                                ->danger()
+                                ->send();
+                        }
+                    })
+                    ->visible(fn (Patient $record) => $record->status === 'active'),
+                Action::make('deactivate')
+                    ->label('Finalizar tratamiento')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('Finalizar tratamiento')
+                    ->modalDescription('El paciente pasará a estado inactivo y dejará de ver presupuestos y pagos activos.')
+                    ->action(function (Patient $record) {
+                        $record->deactivate();
+                        Notification::make()
+                            ->title('Tratamiento finalizado')
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(fn (Patient $record) => $record->status === 'active'),
+                Action::make('activate')
+                    ->label('Reactivar')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('success')
+                    ->action(function (Patient $record) {
+                        $record->activate();
+                        Notification::make()
+                            ->title('Paciente reactivado')
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(fn (Patient $record) => $record->status !== 'active'),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
