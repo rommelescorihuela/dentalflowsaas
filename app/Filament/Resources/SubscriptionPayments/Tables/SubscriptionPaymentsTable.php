@@ -24,6 +24,7 @@ class SubscriptionPaymentsTable
             ->columns([
                 TextColumn::make('clinic.name')
                     ->label('Clínica')
+                    ->weight('semibold')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('amount')
@@ -79,11 +80,11 @@ class SubscriptionPaymentsTable
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('paid_at')
                     ->label('Fecha de Pago')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->label('Fecha de Creación')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

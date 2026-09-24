@@ -19,18 +19,19 @@ class ClinicsTable
                     ->searchable(),
                 TextColumn::make('name')
                     ->label('Nombre')
+                    ->weight('semibold')
                     ->searchable(),
                 TextColumn::make('plan')
                     ->label('Plan')
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->label('Fecha de Creación')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->label('Fecha de Actualización')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

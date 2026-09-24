@@ -42,13 +42,13 @@ class ClinicSettingsPage extends Page implements HasForms
                     ->schema([
                         Forms\Components\ColorPicker::make('primary_color')
                             ->label('Color Primario')
-                            ->default('#06b6d4'),
+                            ->default('#1f9e8f'),
                         Forms\Components\ColorPicker::make('secondary_color')
                             ->label('Color Secundario')
-                            ->default('#0891b2'),
+                            ->default('#157e73'),
                         Forms\Components\ColorPicker::make('accent_color')
                             ->label('Color de Acento')
-                            ->default('#0e7490'),
+                            ->default('#c3672f'),
                         Forms\Components\Toggle::make('dark_mode')
                             ->label('Modo Oscuro')
                             ->default(false),

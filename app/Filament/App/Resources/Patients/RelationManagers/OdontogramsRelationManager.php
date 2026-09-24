@@ -82,11 +82,12 @@ class OdontogramsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('name')
                     ->label('Nombre')
+                    ->weight('semibold')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('date')
                     ->label('Fecha')
-                    ->date()
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('status')
                     ->label('Estado')
@@ -106,7 +107,7 @@ class OdontogramsRelationManager extends RelationManager
                     ->label('Registros'),
                 TextColumn::make('created_at')
                     ->label('Fecha de Creación')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

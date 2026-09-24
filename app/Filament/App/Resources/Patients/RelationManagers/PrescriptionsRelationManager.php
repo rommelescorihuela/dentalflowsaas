@@ -146,10 +146,10 @@ class PrescriptionsRelationManager extends RelationManager
                     }),
                 Tables\Columns\TextColumn::make('signed_at')
                     ->label('Firmada')
-                    ->dateTime(),
+                    ->dateTime('d/m/Y H:i'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Creada')
-                    ->dateTime(),
+                    ->dateTime('d/m/Y H:i'),
             ])
             ->defaultSort('created_at', 'desc')
             ->headerActions([

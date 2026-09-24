@@ -14,7 +14,7 @@
                 'yellow' => 'bg-yellow-50 border-yellow-400 text-yellow-800',
                 'red' => 'bg-red-50 border-red-400 text-red-800',
                 'purple' => 'bg-purple-50 border-purple-400 text-purple-800',
-                'cyan' => 'bg-cyan-50 border-cyan-400 text-cyan-800',
+                'cyan' => 'bg-primary-50 border-primary-400 text-primary-700',
             ];
             $color = $colorMap[$banner->color] ?? $colorMap['blue'];
 
@@ -86,17 +86,17 @@
 <!-- Action Button -->
 <div class="mb-8 flex justify-end portal-reveal portal-reveal-delay-1">
     <a href="{{ URL::signedRoute('portal.book', ['patient' => $patient]) }}"
-        class="inline-flex items-center px-6 py-3 border border-transparent rounded-xl shadow-lg text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 transform hover:scale-105">
+        class="inline-flex items-center px-6 py-3 border border-transparent rounded-xl shadow-lg text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 transform hover:scale-105">
         <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
         Reservar Cita
     </a>
 </div>
 
 <!-- Patient Profile Card -->
-<div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 mb-8 overflow-hidden portal-reveal portal-reveal-delay-1">
-    <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-primary-50 to-primary-50/50">
+<div class="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 mb-8 overflow-hidden portal-reveal portal-reveal-delay-1">
+    <div class="px-6 py-5 border-b border-gray-100 bg-primary-50">
         <h3 class="text-lg font-bold text-gray-900 flex items-center">
-            <span class="bg-gradient-to-r from-primary-600 to-primary-700 text-white p-2 rounded-lg mr-3 shadow-lg shadow-primary-500/20">
+            <span class="bg-primary-600 text-white p-2 rounded-lg mr-3 shadow-lg shadow-primary-500/20">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
             </span>
             Mi Perfil
@@ -105,13 +105,13 @@
     <div class="p-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div class="space-y-5">
-                <div><dt class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Nombre Completo</dt><dd class="mt-1 text-stone-800 font-semibold text-lg">{{ $patient->name }}</dd></div>
-                @if($patient->email)<div><dt class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Email</dt><dd class="mt-1 text-stone-700">{{ $patient->email }}</dd></div>@endif
-                @if($patient->phone)<div><dt class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Teléfono</dt><dd class="mt-1 text-stone-700">{{ $patient->phone }}</dd></div>@endif
+                <div><dt class="text-xs font-semibold text-sand-500 uppercase tracking-wide">Nombre Completo</dt><dd class="mt-1 text-stone-800 font-semibold text-lg">{{ $patient->name }}</dd></div>
+                @if($patient->email)<div><dt class="text-xs font-semibold text-sand-500 uppercase tracking-wide">Email</dt><dd class="mt-1 text-stone-700">{{ $patient->email }}</dd></div>@endif
+                @if($patient->phone)<div><dt class="text-xs font-semibold text-sand-500 uppercase tracking-wide">Teléfono</dt><dd class="mt-1 text-stone-700">{{ $patient->phone }}</dd></div>@endif
             </div>
             <div class="space-y-5">
-                @if($patient->rut)<div><dt class="text-xs font-semibold text-stone-400 uppercase tracking-wide">RUT / DNI</dt><dd class="mt-1 text-stone-700">{{ $patient->rut }}</dd></div>@endif
-                @if($patient->birth_date)<div><dt class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Fecha de Nacimiento</dt><dd class="mt-1 text-stone-700">{{ $patient->birth_date->format('d/m/Y') }}</dd></div>@endif
+                @if($patient->rut)<div><dt class="text-xs font-semibold text-sand-500 uppercase tracking-wide">RUT / DNI</dt><dd class="mt-1 text-stone-700">{{ $patient->rut }}</dd></div>@endif
+                @if($patient->birth_date)<div><dt class="text-xs font-semibold text-sand-500 uppercase tracking-wide">Fecha de Nacimiento</dt><dd class="mt-1 text-stone-700">{{ $patient->birth_date->format('d/m/Y') }}</dd></div>@endif
                 @if($patient->allergies && count($patient->allergies) > 0)
                 <div>
                     <dt class="text-xs font-semibold text-rose-600 uppercase tracking-wide flex items-center gap-1">
@@ -131,11 +131,11 @@
 </div>
 
 <!-- Recent Appointments -->
-<div class="bg-white/80 backdrop-blur-md overflow-hidden shadow-xl shadow-gray-200/50 sm:rounded-2xl border border-gray-100 mb-8 portal-reveal portal-reveal-delay-2">
-    <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-primary-50 to-primary-50/50">
+<div class="bg-white overflow-hidden shadow-xl shadow-gray-200/50 sm:rounded-2xl border border-gray-100 mb-8 portal-reveal portal-reveal-delay-2">
+    <div class="px-6 py-5 border-b border-gray-100 bg-primary-50">
         <div class="flex justify-between items-center">
             <h3 class="text-lg font-bold text-gray-900 flex items-center">
-                <span class="bg-gradient-to-r from-primary-600 to-primary-700 text-white p-2.5 rounded-xl mr-3 shadow-lg shadow-primary-500/20">
+                <span class="bg-primary-600 text-white p-2.5 rounded-xl mr-3 shadow-lg shadow-primary-500/20">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 </span>
                 Próximas Citas
@@ -148,7 +148,7 @@
             @forelse($patient->appointments()->where('start_time', '>=', now())->orderBy('start_time')->take(3)->get() as $appointment)
             <div class="bg-white border border-gray-100 rounded-2xl shadow-lg shadow-gray-100/50 hover:shadow-xl transition-all duration-300 p-5 flex justify-between items-center">
                 <div class="flex items-center gap-4">
-                    <div class="flex-shrink-0 bg-gradient-to-br from-primary-500 to-primary-600 text-white rounded-2xl p-3 shadow-lg shadow-primary-500/20">
+                    <div class="flex-shrink-0 bg-primary-600 text-white rounded-2xl p-3 shadow-lg shadow-primary-500/20">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
                     </div>
                     <div>
@@ -171,7 +171,7 @@
                 </span>
             </div>
             @empty
-            <div class="text-center py-12 text-stone-400">
+            <div class="text-center py-12 text-sand-500">
                 <svg class="mx-auto h-14 w-14 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 <p class="font-display font-semibold text-lg">Sin citas programadas</p>
                 <p class="text-sm mt-1"><a href="{{ URL::signedRoute('portal.book', ['patient' => $patient]) }}" class="text-primary-600 hover:text-primary-700 font-medium">Reserva tu primera cita</a></p>
@@ -183,7 +183,7 @@
 
 @if($patient->status === 'active')
 <!-- Recent Budgets -->
-<div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden portal-reveal portal-reveal-delay-3">
+<div class="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden portal-reveal portal-reveal-delay-3">
     <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-transparent">
         <div class="flex justify-between items-center">
             <h3 class="text-lg font-bold text-gray-900 flex items-center">
@@ -196,7 +196,7 @@
     </div>
     <div class="p-6 space-y-3">
         @forelse($patient->budgets()->orderBy('created_at', 'desc')->take(5)->get() as $budget)
-        <a href="{{ URL::signedRoute('portal.budgets.view', ['patient' => $patient, 'budget' => $budget]) }}" class="block bg-[#FFFBF5] border border-stone-100 rounded-2xl p-5 hover:border-teal-200 hover:shadow-md transition-all duration-200 group">
+        <a href="{{ URL::signedRoute('portal.budgets.view', ['patient' => $patient, 'budget' => $budget]) }}" class="block bg-[#faf9f6] border border-stone-100 rounded-2xl p-5 hover:border-teal-200 hover:shadow-md transition-all duration-200 group">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4">
                     <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-200 transition-colors flex-shrink-0">
@@ -227,7 +227,7 @@
             </div>
         </a>
         @empty
-        <div class="text-center py-12 text-stone-400">
+        <div class="text-center py-12 text-sand-500">
             <svg class="mx-auto h-14 w-14 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             <p class="font-display font-semibold text-lg">Sin presupuestos</p>
             <p class="text-sm mt-1">Aparecerán cuando tu clínica los envíe</p>

@@ -8,13 +8,10 @@
 
     <title>{{ $title ?? config('app.name', 'DentalFlow') }}</title>
 
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700|noto-sans:300,400,500,700&display=swap" rel="stylesheet" />
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="font-sans text-gray-900 antialiased bg-cyan-50/30">
+<body class="font-sans text-sand-900 antialiased df-canvas">
     <div class="min-h-screen">
         {{ $slot }}
     </div>

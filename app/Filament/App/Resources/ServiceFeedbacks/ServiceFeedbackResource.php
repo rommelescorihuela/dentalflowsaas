@@ -78,6 +78,7 @@ class ServiceFeedbackResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('patient.name')
                     ->label('Paciente')
+                    ->weight('semibold')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('category')
@@ -90,6 +91,15 @@ class ServiceFeedbackResource extends Resource
                         'instalaciones' => 'orange',
                         'tiempo_espera' => 'yellow',
                         default => 'gray',
+                    })
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'atencion' => 'Atención',
+                        'limpieza' => 'Limpieza',
+                        'procedimiento' => 'Procedimiento',
+                        'instalaciones' => 'Instalaciones',
+                        'tiempo_espera' => 'Tiempo de espera',
+                        'otro' => 'Otro',
+                        default => ucfirst(str_replace('_', ' ', (string) $state)),
                     }),
                 Tables\Columns\TextColumn::make('rating')
                     ->label('Calificación')
@@ -99,7 +109,8 @@ class ServiceFeedbackResource extends Resource
                     ->label('Comentario')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Creado')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
             ])
             ->filters([

@@ -16,22 +16,23 @@ class UsersTable
             ->columns([
                 TextColumn::make('name')
                     ->label('Nombre')
+                    ->weight('semibold')
                     ->searchable(),
                 TextColumn::make('email')
                     ->label('Correo Electronico')
                     ->searchable(),
                 TextColumn::make('email_verified_at')
                     ->label('Verificado')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->label('Creado')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->label('Actualizado')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('clinic.name')

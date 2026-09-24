@@ -41,10 +41,9 @@ class AppPanelProvider extends PanelProvider
             })
             ->brandLogoHeight('2.2rem')
             ->favicon(asset('images/favicon.svg'))
-            ->font('Open Sans')
             ->darkMode(true)
             ->colors([
-                'primary' => Color::Cyan,
+                'primary' => Color::hex('#1f9e8f'),
             ])
             ->sidebarCollapsibleOnDesktop()
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\Filament\App\Resources')

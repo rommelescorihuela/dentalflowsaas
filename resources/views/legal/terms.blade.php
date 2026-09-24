@@ -7,10 +7,10 @@
     <style>
         body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
         h1 { color: #164e63; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
-        h2 { color: #0891b2; margin-top: 2rem; }
+        h2 { color: #1f9e8f; margin-top: 2rem; }
         p { margin-bottom: 1rem; }
         ul { margin-bottom: 1rem; }
-        a { color: #0891b2; text-decoration: none; }
+        a { color: #1f9e8f; text-decoration: none; }
         a:hover { text-decoration: underline; }
     </style>
 </head>

@@ -94,6 +94,7 @@ class DashboardBannerResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->label('Título')
+                    ->weight('semibold')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('type')
                     ->label('Tipo')
@@ -105,10 +106,27 @@ class DashboardBannerResource extends Resource
                         'error' => 'red',
                         'promo' => 'purple',
                         default => 'gray',
+                    })
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'info' => 'Información',
+                        'success' => 'Éxito',
+                        'warning' => 'Advertencia',
+                        'error' => 'Error',
+                        'promo' => 'Promoción',
+                        default => ucfirst(str_replace('_', ' ', (string) $state)),
                     }),
                 Tables\Columns\TextColumn::make('color')
                     ->label('Color')
-                    ->badge(),
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'blue' => 'Azul',
+                        'green' => 'Verde',
+                        'yellow' => 'Amarillo',
+                        'red' => 'Rojo',
+                        'purple' => 'Púrpura',
+                        'cyan' => 'Cian',
+                        default => ucfirst(str_replace('_', ' ', (string) $state)),
+                    }),
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Activo')
                     ->boolean(),
@@ -116,11 +134,13 @@ class DashboardBannerResource extends Resource
                     ->label('Orden')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('starts_at')
-                    ->dateTime()
+                    ->label('Inicia')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('ends_at')
-                    ->dateTime()
+                    ->label('Termina')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(),
             ])

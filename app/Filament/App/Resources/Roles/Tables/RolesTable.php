@@ -18,6 +18,7 @@ class RolesTable
             ->columns([
                 TextColumn::make('name')
                     ->label('Nombre del Rol')
+                    ->weight('semibold')
                     ->searchable()
                     ->sortable(),
 
@@ -44,12 +45,14 @@ class RolesTable
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Creado')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Actualizado')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

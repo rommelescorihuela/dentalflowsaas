@@ -6,6 +6,7 @@ use App\Mail\PortalWelcome;
 use App\Models\Patient;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -68,12 +69,17 @@ class PatientResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nombre')
+                    ->weight('semibold')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
+                    ->label('Email')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone')
+                    ->label('Teléfono')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('rut')
+                    ->label('RUT / DNI')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status')
                     ->label('Estado')
@@ -89,7 +95,8 @@ class PatientResource extends Resource
                         default => ucfirst($state),
                     }),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Creado')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
@@ -98,6 +105,7 @@ class PatientResource extends Resource
             ])
             ->actions([
                 EditAction::make(),
+                ActionGroup::make([
                 Action::make('health_progress')
                     ->label('Progreso de Salud')
                     ->icon('heroicon-o-chart-bar')
@@ -162,6 +170,11 @@ class PatientResource extends Resource
                             ->send();
                     })
                     ->visible(fn (Patient $record) => $record->status !== 'active'),
+                ])
+                    ->label('Más')
+                    ->icon('heroicon-m-ellipsis-horizontal')
+                    ->color('gray')
+                    ->button(),
             ])
             ->bulkActions([
                 BulkActionGroup::make([

@@ -9,8 +9,8 @@
     <link href="https://fonts.bunny.net/css?family=outfit:300,400,500,600,700,800|work-sans:300,400,500,600,700&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        :root { --teal: #0D9488; --gold: #F59E0B; --ink: #292524; }
-        body { font-family: 'Work Sans', sans-serif; background: #FFFBF5; color: var(--ink); }
+        :root { --teal: #1f9e8f; --gold: #F59E0B; --ink: #292524; }
+        body { font-family: 'Work Sans', sans-serif; background: #faf9f6; color: var(--ink); }
         .font-display { font-family: 'Outfit', sans-serif; letter-spacing: -0.02em; }
         .portal-reveal { opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         .portal-reveal.visible { opacity: 1; transform: translateY(0); }
@@ -23,15 +23,15 @@
     </style>
 </head>
 
-<body class="bg-gradient-to-br from-cyan-50 via-white to-primary-50/50 font-sans antialiased min-h-screen">
+<body class="df-canvas font-sans antialiased min-h-screen">
     <!-- Decorative background elements -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
         <div class="absolute -top-40 -right-40 w-80 h-80 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
     </div>
 
     <div class="relative min-h-screen">
-        <header class="sticky top-0 z-40 bg-[#FFFBF5]/80 backdrop-blur-xl border-b border-teal-500/10">
+        <header class="sticky top-0 z-40 bg-[#faf9f6]/80 backdrop-blur-xl border-b border-primary-900/10">
             <div class="max-w-4xl mx-auto py-5 px-6 lg:px-12 flex justify-between items-center">
                 <div>
                     <a href="{{ URL::signedRoute('portal.dashboard', ['patient' => $budget->patient]) }}"
@@ -56,15 +56,15 @@
 
         <main class="max-w-4xl mx-auto py-8 px-6 lg:px-12">
             <!-- Budget Info -->
-            <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden mb-6 portal-reveal">
-                <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-primary-50 to-primary-50/50">
+            <div class="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden mb-6 portal-reveal">
+                <div class="px-6 py-5 border-b border-gray-100 bg-primary-50">
                     <h3 class="text-lg font-bold text-gray-900">Información del Presupuesto</h3>
                 </div>
                 <div class="p-8">
                     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div><dt class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Paciente</dt><dd class="mt-1 text-stone-800 font-semibold text-lg">{{ $budget->patient->name }}</dd></div>
-                        <div><dt class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Fecha de Emision</dt><dd class="mt-1 text-stone-700">{{ $budget->created_at->format('d/m/Y') }}</dd></div>
-                        <div><dt class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Valido Hasta</dt>
+                        <div><dt class="text-xs font-semibold text-sand-500 uppercase tracking-wide">Paciente</dt><dd class="mt-1 text-stone-800 font-semibold text-lg">{{ $budget->patient->name }}</dd></div>
+                        <div><dt class="text-xs font-semibold text-sand-500 uppercase tracking-wide">Fecha de Emision</dt><dd class="mt-1 text-stone-700">{{ $budget->created_at->format('d/m/Y') }}</dd></div>
+                        <div><dt class="text-xs font-semibold text-sand-500 uppercase tracking-wide">Valido Hasta</dt>
                             <dd class="mt-1 text-stone-700">
                                 @if($budget->expires_at) {{ $budget->expires_at->format('d/m/Y') }}
                                     @if($budget->expires_at->isPast() && $budget->status === 'sent') <span class="ml-2 text-rose-600 text-xs font-semibold">(Vencido)</span> @endif
@@ -73,15 +73,15 @@
                         </div>
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Total</dt>
-                            <dd class="mt-1 text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                            <dd class="mt-1 text-2xl font-bold bg-primary-600 bg-clip-text text-transparent">
                                 ${{ number_format($budget->total, 0, ',', '.') }}
                             </dd>
                         </div>
                     </dl>
                     @if($budget->notes)
                     <div class="mt-8 pt-6 border-t border-stone-100">
-                        <dt class="text-xs font-semibold text-stone-400 uppercase tracking-wide mb-2">Notas</dt>
-                        <dd class="text-stone-700 bg-[#FFFBF5] rounded-2xl p-5 border border-stone-100">{{ $budget->notes }}</dd>
+                        <dt class="text-xs font-semibold text-sand-500 uppercase tracking-wide mb-2">Notas</dt>
+                        <dd class="text-stone-700 bg-[#faf9f6] rounded-2xl p-5 border border-stone-100">{{ $budget->notes }}</dd>
                     </div>
                     @endif
                 </div>
@@ -97,12 +97,12 @@
                 </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full">
-                        <thead class="bg-[#FFFBF5]/80">
+                        <thead class="bg-[#faf9f6]/80">
                             <tr>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-stone-400 uppercase tracking-wider">Tratamiento</th>
-                                <th class="px-6 py-4 text-center text-xs font-semibold text-stone-400 uppercase tracking-wider">Cant.</th>
-                                <th class="px-6 py-4 text-right text-xs font-semibold text-stone-400 uppercase tracking-wider">Precio Unit.</th>
-                                <th class="px-6 py-4 text-right text-xs font-semibold text-stone-400 uppercase tracking-wider">Subtotal</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-sand-500 uppercase tracking-wider">Tratamiento</th>
+                                <th class="px-6 py-4 text-center text-xs font-semibold text-sand-500 uppercase tracking-wider">Cant.</th>
+                                <th class="px-6 py-4 text-right text-xs font-semibold text-sand-500 uppercase tracking-wider">Precio Unit.</th>
+                                <th class="px-6 py-4 text-right text-xs font-semibold text-sand-500 uppercase tracking-wider">Subtotal</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-stone-100">
@@ -114,13 +114,13 @@
                                 <td class="px-6 py-4 text-sm font-semibold text-stone-800 text-right">${{ number_format($item->cost * $item->quantity, 0, ',', '.') }}</td>
                             </tr>
                             @empty
-                            <tr><td colspan="4" class="px-6 py-12 text-center text-stone-400">Sin tratamientos en este presupuesto.</td></tr>
+                            <tr><td colspan="4" class="px-6 py-12 text-center text-sand-500">Sin tratamientos en este presupuesto.</td></tr>
                             @endforelse
                         </tbody>
-                        <tfoot class="bg-[#FFFBF5]/80">
+                        <tfoot class="bg-[#faf9f6]/80">
                             <tr>
                                 <td colspan="3" class="px-6 py-4 text-right text-sm font-bold text-gray-900">Total:</td>
-                                <td class="px-6 py-4 text-right text-lg font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                                <td class="px-6 py-4 text-right text-lg font-bold bg-primary-600 bg-clip-text text-transparent">
                                     ${{ number_format($budget->total, 0, ',', '.') }}
                                 </td>
                             </tr>

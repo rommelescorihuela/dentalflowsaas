@@ -15,6 +15,7 @@ class SystemActivitiesTable
             ->columns([
                 TextColumn::make('causer.name')
                     ->label('Usuario')
+                    ->weight('semibold')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('event')
@@ -48,7 +49,7 @@ class SystemActivitiesTable
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Fecha')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
             ])
             ->filters([

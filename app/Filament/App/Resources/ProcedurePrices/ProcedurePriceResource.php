@@ -86,12 +86,18 @@ class ProcedurePriceResource extends Resource
                     ->label('Imagen')
                     ->circular(),
                 TextColumn::make('procedure_name')
+                    ->label('Procedimiento')
+                    ->weight('semibold')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('price')
+                    ->label('Precio')
+                    ->numeric()
                     ->formatStateUsing(fn ($state) => ClinicHelper::formatMoney((float) $state))
+                    ->alignEnd()
                     ->sortable(),
-                TextColumn::make('duration'),
+                TextColumn::make('duration')
+                    ->label('Duración'),
             ])
             ->filters([
                 //

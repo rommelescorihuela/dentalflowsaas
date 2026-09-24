@@ -14,6 +14,10 @@ class HealthProgress extends Page
 
     protected static string $resource = PatientResource::class;
 
+    protected static ?string $title = 'Progreso de Salud';
+
+    protected static ?string $navigationLabel = 'Progreso de Salud';
+
     protected string $view = 'filament.app.resources.patients.pages.health-progress';
 
     public function mount(int|string $record): void

@@ -11,7 +11,7 @@
                 <!-- Step 1 -->
                 <div class="flex flex-col items-center relative">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300
-                        @if($step >= 1) bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg shadow-primary-500/20 @else bg-gray-200 text-gray-500 @endif">
+                        @if($step >= 1) bg-primary-600 text-white shadow-lg shadow-primary-500/20 @else bg-gray-200 text-gray-500 @endif">
                         @if($step > 1)
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -21,11 +21,11 @@
                     <span class="text-xs mt-2 font-medium @if($step >= 1) text-primary-600 @else text-gray-400 @endif">Tratamiento</span>
                 </div>
                 <!-- Line 1-2 -->
-                <div class="flex-1 h-1 mx-4 rounded-full transition-all duration-300 @if($step > 1) bg-gradient-to-r from-primary-600 to-primary-700 @else bg-gray-200 @endif"></div>
+                <div class="flex-1 h-1 mx-4 rounded-full transition-all duration-300 @if($step > 1) bg-primary-600 @else bg-gray-200 @endif"></div>
                 <!-- Step 2 -->
                 <div class="flex flex-col items-center relative">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300
-                        @if($step >= 2) bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg shadow-primary-500/20 @else bg-gray-200 text-gray-500 @endif">
+                        @if($step >= 2) bg-primary-600 text-white shadow-lg shadow-primary-500/20 @else bg-gray-200 text-gray-500 @endif">
                         @if($step > 2)
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -35,21 +35,21 @@
                     <span class="text-xs mt-2 font-medium @if($step >= 2) text-primary-600 @else text-gray-400 @endif">Fecha y Hora</span>
                 </div>
                 <!-- Line 2-3 -->
-                <div class="flex-1 h-1 mx-4 rounded-full transition-all duration-300 @if($step > 2) bg-gradient-to-r from-primary-600 to-primary-700 @else bg-gray-200 @endif"></div>
+                <div class="flex-1 h-1 mx-4 rounded-full transition-all duration-300 @if($step > 2) bg-primary-600 @else bg-gray-200 @endif"></div>
                 <!-- Step 3 -->
                 <div class="flex flex-col items-center relative">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300
-                        @if($step >= 3) bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg shadow-primary-500/20 @else bg-gray-200 text-gray-500 @endif">
+                        @if($step >= 3) bg-primary-600 text-white shadow-lg shadow-primary-500/20 @else bg-gray-200 text-gray-500 @endif">
                         3
                     </div>
                     <span class="text-xs mt-2 font-medium @if($step >= 3) text-primary-600 @else text-gray-400 @endif">Confirmar</span>
                 </div>
-                <span class="text-xs mt-2 font-semibold @if($step >= 2) text-teal-600 @else text-stone-400 @endif" style="font-family:'Work Sans',sans-serif">Fecha y Hora</span>
+                <span class="text-xs mt-2 font-semibold @if($step >= 2) text-teal-600 @else text-sand-500 @endif" style="font-family:'Work Sans',sans-serif">Fecha y Hora</span>
             </div>
             <div class="flex-1 h-0.5 mx-3 rounded-full transition-all duration-300 @if($step > 2) bg-teal-600 @else bg-stone-200 @endif"></div>
             <div class="flex flex-col items-center">
                 <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm transition-all duration-300 @if($step >= 3) bg-gradient-to-br from-teal-600 to-teal-700 text-white shadow-lg shadow-teal-600/20 @else bg-stone-200 text-stone-500 @endif" style="font-family:'Outfit',sans-serif">3</div>
-                <span class="text-xs mt-2 font-semibold @if($step >= 3) text-teal-600 @else text-stone-400 @endif" style="font-family:'Work Sans',sans-serif">Confirmar</span>
+                <span class="text-xs mt-2 font-semibold @if($step >= 3) text-teal-600 @else text-sand-500 @endif" style="font-family:'Work Sans',sans-serif">Confirmar</span>
             </div>
         </div>
     </div>
@@ -105,7 +105,7 @@
                     @endforeach
                 </div>
                 @else
-                <div class="text-center py-12 bg-[#FFFBF5] rounded-2xl text-stone-400">
+                <div class="text-center py-12 bg-[#faf9f6] rounded-2xl text-sand-500">
                     <svg class="mx-auto h-12 w-12 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                     <p class="font-semibold">Sin tratamientos disponibles</p>
                     <p class="text-sm mt-1">Contacta a tu clinica.</p>
@@ -135,14 +135,14 @@
                     <div class="grid grid-cols-3 sm:grid-cols-4 gap-3">
                         @foreach($availableSlots as $slot)
                         <button type="button" wire:click="$set('selectedTimeSlot', '{{ $slot }}')"
-                            class="{{ $selectedTimeSlot === $slot ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg shadow-primary-500/20 border-transparent' : 'bg-white text-gray-700 border-gray-200 hover:border-primary-300 hover:bg-primary-50' }} border-2 rounded-xl py-3 text-sm font-medium transition-all duration-200">
+                            class="{{ $selectedTimeSlot === $slot ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20 border-transparent' : 'bg-white text-gray-700 border-gray-200 hover:border-primary-300 hover:bg-primary-50' }} border-2 rounded-xl py-3 text-sm font-medium transition-all duration-200">
                             {{ $slot }}
                         </button>
                         @endforeach
                     </div>
                     @error('selectedTimeSlot') <p class="text-rose-500 text-sm mt-2">{{ $message }}</p> @enderror
                     @else
-                    <div class="text-center py-12 bg-[#FFFBF5] rounded-2xl text-stone-400">
+                    <div class="text-center py-12 bg-[#faf9f6] rounded-2xl text-sand-500">
                         <svg class="mx-auto h-12 w-12 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         <p class="font-semibold">Sin horarios disponibles</p>
                         <p class="text-sm mt-1">Intenta seleccionar otro dia.</p>
@@ -165,13 +165,13 @@
                         <p class="text-sm text-emerald-700 mt-1">Revisa los detalles antes de confirmar tu cita.</p>
                     </div>
                 </div>
-                <div class="bg-[#FFFBF5] border border-stone-100 rounded-2xl p-6">
-                    <h4 class="text-xs font-semibold text-stone-400 uppercase tracking-wide mb-5">Resumen de la Cita</h4>
+                <div class="bg-[#faf9f6] border border-stone-100 rounded-2xl p-6">
+                    <h4 class="text-xs font-semibold text-sand-500 uppercase tracking-wide mb-5">Resumen de la Cita</h4>
                     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div><dt class="text-xs text-stone-400 uppercase tracking-wide font-semibold">Tratamiento</dt><dd class="mt-1 text-lg font-bold text-stone-800" style="font-family:'Outfit',sans-serif">{{ \App\Models\ProcedurePrice::find($selectedProcedureId)?->procedure_name }}</dd></div>
-                        <div><dt class="text-xs text-stone-400 uppercase tracking-wide font-semibold">Fecha</dt><dd class="mt-1 text-lg font-bold text-stone-800" style="font-family:'Outfit',sans-serif">{{ \Carbon\Carbon::parse($selectedDate)->format('d/m/Y') }}</dd></div>
-                        <div><dt class="text-xs text-stone-400 uppercase tracking-wide font-semibold">Hora</dt><dd class="mt-1 text-lg font-bold text-stone-800" style="font-family:'Outfit',sans-serif">{{ $selectedTimeSlot }} hrs</dd></div>
-                        <div><dt class="text-xs text-stone-400 uppercase tracking-wide font-semibold">Paciente</dt><dd class="mt-1 text-lg font-bold text-stone-800" style="font-family:'Outfit',sans-serif">{{ $patient->name }}</dd></div>
+                        <div><dt class="text-xs text-sand-500 uppercase tracking-wide font-semibold">Tratamiento</dt><dd class="mt-1 text-lg font-bold text-stone-800" style="font-family:'Outfit',sans-serif">{{ \App\Models\ProcedurePrice::find($selectedProcedureId)?->procedure_name }}</dd></div>
+                        <div><dt class="text-xs text-sand-500 uppercase tracking-wide font-semibold">Fecha</dt><dd class="mt-1 text-lg font-bold text-stone-800" style="font-family:'Outfit',sans-serif">{{ \Carbon\Carbon::parse($selectedDate)->format('d/m/Y') }}</dd></div>
+                        <div><dt class="text-xs text-sand-500 uppercase tracking-wide font-semibold">Hora</dt><dd class="mt-1 text-lg font-bold text-stone-800" style="font-family:'Outfit',sans-serif">{{ $selectedTimeSlot }} hrs</dd></div>
+                        <div><dt class="text-xs text-sand-500 uppercase tracking-wide font-semibold">Paciente</dt><dd class="mt-1 text-lg font-bold text-stone-800" style="font-family:'Outfit',sans-serif">{{ $patient->name }}</dd></div>
                     </dl>
                 </div>
             </div>
@@ -179,7 +179,7 @@
         </div>
 
         <!-- Actions -->
-        <div class="bg-[#FFFBF5] px-6 py-5 sm:px-8 flex justify-between items-center border-t border-stone-100">
+        <div class="bg-[#faf9f6] px-6 py-5 sm:px-8 flex justify-between items-center border-t border-stone-100">
             @if($step > 1)
             <button wire:click="previousStep" type="button"
                 class="inline-flex items-center py-2.5 px-5 border border-gray-300 shadow-sm text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
@@ -200,7 +200,7 @@
 
             @if($step < 3)
             <button wire:click="nextStep" type="button"
-                class="inline-flex items-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-medium rounded-xl text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all shadow-lg shadow-primary-500/20">
+                class="inline-flex items-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-medium rounded-xl text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all shadow-lg shadow-primary-500/20">
                 Siguiente
                 <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </button>

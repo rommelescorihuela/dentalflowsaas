@@ -72,6 +72,7 @@ class RatingResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('patient.name')
                     ->label('Paciente')
+                    ->weight('semibold')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('rating')
@@ -85,7 +86,8 @@ class RatingResource extends Resource
                     ->label('Destacado')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Creado')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
             ])
             ->filters([

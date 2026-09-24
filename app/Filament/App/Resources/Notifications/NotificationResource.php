@@ -100,9 +100,19 @@ class NotificationResource extends Resource
                         'appointment' => 'purple',
                         'payment' => 'emerald',
                         default => 'gray',
+                    })
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'info' => 'Información',
+                        'success' => 'Éxito',
+                        'warning' => 'Advertencia',
+                        'error' => 'Error',
+                        'appointment' => 'Cita',
+                        'payment' => 'Pago',
+                        default => ucfirst(str_replace('_', ' ', (string) $state)),
                     }),
                 Tables\Columns\TextColumn::make('title')
                     ->label('Título')
+                    ->weight('semibold')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('message')
                     ->label('Mensaje')
@@ -114,9 +124,15 @@ class NotificationResource extends Resource
                         'unread' => 'warning',
                         'read' => 'success',
                         default => 'gray',
+                    })
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'unread' => 'No leído',
+                        'read' => 'Leído',
+                        default => ucfirst(str_replace('_', ' ', (string) $state)),
                     }),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Creado')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
             ])
             ->filters([

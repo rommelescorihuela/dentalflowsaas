@@ -77,19 +77,51 @@ class PaymentResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('patient.name')->searchable()->sortable(),
-                TextColumn::make('amount')->formatStateUsing(fn ($state) => ClinicHelper::formatMoney((float) $state))->sortable(),
-                TextColumn::make('method')->badge(),
+                TextColumn::make('patient.name')
+                    ->label('Paciente')
+                    ->weight('semibold')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('amount')
+                    ->label('Monto')
+                    ->numeric()
+                    ->formatStateUsing(fn ($state) => ClinicHelper::formatMoney((float) $state))
+                    ->alignEnd()
+                    ->sortable(),
+                TextColumn::make('method')
+                    ->label('Método')
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'cash' => 'Efectivo',
+                        'card' => 'Tarjeta',
+                        'transfer' => 'Transferencia',
+                        'insurance' => 'Seguro',
+                        default => ucfirst(str_replace('_', ' ', (string) $state)),
+                    }),
                 TextColumn::make('status')
+                    ->label('Estado')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'paid' => 'success',
                         'pending' => 'warning',
                         'refunded' => 'danger',
                         default => 'gray',
+                    })
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'pending' => 'Pendiente',
+                        'paid' => 'Pagado',
+                        'refunded' => 'Reembolsado',
+                        default => ucfirst(str_replace('_', ' ', (string) $state)),
                     }),
-                TextColumn::make('paid_at')->dateTime()->sortable(),
-                TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('paid_at')
+                    ->label('Fecha de Pago')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable(),
+                TextColumn::make('created_at')
+                    ->label('Creado')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

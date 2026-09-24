@@ -172,7 +172,7 @@ class ClinicalHistoryRelationManager extends RelationManager
                     ->suffix(' m'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Creado')
-                    ->dateTime(),
+                    ->dateTime('d/m/Y H:i'),
             ])
             ->headerActions([
                 CreateAction::make()

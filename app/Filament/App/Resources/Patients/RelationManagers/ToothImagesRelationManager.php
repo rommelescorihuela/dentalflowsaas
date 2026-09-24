@@ -83,13 +83,20 @@ class ToothImagesRelationManager extends RelationManager
                         'before' => 'gray',
                         'after' => 'green',
                         default => 'gray',
+                    })
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'clinical' => 'Clínica',
+                        'radiograph' => 'Radiografía',
+                        'before' => 'Antes',
+                        'after' => 'Después',
+                        default => ucfirst(str_replace('_', ' ', (string) $state)),
                     }),
                 TextColumn::make('description')
                     ->label('Descripción')
                     ->limit(30),
                 TextColumn::make('image_date')
                     ->label('Fecha')
-                    ->date()
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('uploader.name')
                     ->label('Subido por')

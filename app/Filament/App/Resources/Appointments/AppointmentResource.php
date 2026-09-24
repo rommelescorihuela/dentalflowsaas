@@ -124,12 +124,16 @@ class AppointmentResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('patient.name')
+                    ->label('Paciente')
+                    ->weight('semibold')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('start_time')
-                    ->dateTime()
+                    ->label('Inicio')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
+                    ->label('Estado')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'scheduled' => 'gray',
@@ -137,8 +141,24 @@ class AppointmentResource extends Resource
                         'completed' => 'success',
                         'cancelled' => 'danger',
                         default => 'gray',
+                    })
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'scheduled' => 'Programada',
+                        'confirmed' => 'Confirmada',
+                        'completed' => 'Completada',
+                        'cancelled' => 'Cancelada',
+                        default => ucfirst(str_replace('_', ' ', (string) $state)),
                     }),
-                Tables\Columns\TextColumn::make('type'),
+                Tables\Columns\TextColumn::make('type')
+                    ->label('Tipo')
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'consultation' => 'Consulta',
+                        'control' => 'Control',
+                        'urgent' => 'Urgencia',
+                        'cleaning' => 'Limpieza',
+                        'surgery' => 'Cirugía',
+                        default => ucfirst(str_replace('_', ' ', (string) $state)),
+                    }),
             ])
             ->filters([
                 //

@@ -5,27 +5,35 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Helvetica', 'Arial', sans-serif; color: #1f2937; font-size: 12px; }
-        .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0891b2; padding-bottom: 15px; margin-bottom: 20px; }
-        .clinic-info h1 { font-size: 18px; color: #0891b2; margin-bottom: 4px; }
+        .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1f9e8f; padding-bottom: 15px; margin-bottom: 20px; }
+        .clinic-info h1 { font-size: 18px; color: #1f9e8f; margin-bottom: 4px; }
         .clinic-info p { font-size: 11px; color: #6b7280; line-height: 1.4; }
         .odo-meta { text-align: right; }
         .odo-meta h2 { font-size: 20px; color: #1f2937; }
         .odo-meta p { font-size: 11px; color: #6b7280; margin-top: 2px; }
         .section { margin-bottom: 20px; }
-        .section-title { font-size: 13px; font-weight: bold; color: #0891b2; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .section-title { font-size: 13px; font-weight: bold; color: #1f9e8f; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
         .patient-card { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px 16px; }
         .patient-card .row { display: flex; justify-content: space-between; margin-bottom: 4px; }
         .patient-card .label { color: #6b7280; font-size: 10px; }
         .patient-card .value { font-weight: 600; }
-        .odontogram-svg { text-align: center; margin: 20px 0; }
         .arch-label { font-size: 10px; color: #6b7280; text-align: center; margin: 4px 0 8px; font-weight: bold; }
+        .arch { width: 100%; border-collapse: collapse; margin: 0 0 4px; }
+        .arch td.tooth-cell { text-align: center; vertical-align: top; padding: 0 1px; border: none; }
+        .tooth-num { font-size: 7px; font-weight: bold; color: #4b5563; line-height: 1.2; }
+        table.tooth { width: 24px; margin: 0 auto; border-collapse: collapse; }
+        table.tooth td { padding: 0; border: 0.5px solid #9ca3af; }
+        table.tooth td.s-top, table.tooth td.s-bottom { height: 5px; }
+        table.tooth td.s-left, table.tooth td.s-center, table.tooth td.s-right { height: 11px; }
+        table.tooth td.s-left, table.tooth td.s-right { width: 4px; }
+        table.tooth td.s-center { width: 16px; font-size: 7px; font-weight: bold; color: #ffffff; line-height: 11px; }
         .legend { margin-top: 20px; }
         .legend-title { font-size: 11px; font-weight: bold; margin-bottom: 6px; color: #374151; }
         .legend-items { display: flex; flex-wrap: wrap; gap: 6px; }
         .legend-item { display: flex; align-items: center; gap: 4px; font-size: 9px; }
         .legend-swatch { width: 12px; height: 12px; border-radius: 2px; border: 1px solid #d1d5db; }
         table.records { width: 100%; border-collapse: collapse; margin-top: 12px; }
-        table.records thead { background: #0891b2; color: white; }
+        table.records thead { background: #1f9e8f; color: white; }
         table.records th { text-align: left; padding: 6px 10px; font-size: 10px; }
         table.records td { padding: 6px 10px; border-bottom: 1px solid #e5e7eb; font-size: 10px; }
         table.records tbody tr:nth-child(even) { background: #f9fafb; }
@@ -34,6 +42,38 @@
     </style>
 </head>
 <body>
+    @php
+        $statusLabels = [
+            'draft' => 'Borrador',
+            'in_progress' => 'En progreso',
+            'completed' => 'Completado',
+        ];
+        $diagnosisLabels = [
+            'caries' => 'Caries', 'filled' => 'Obturación', 'endodontic' => 'Endodoncia',
+            'missing' => 'Ausente', 'healthy' => 'Sano', 'crown' => 'Corona',
+            'prophylaxis' => 'Profilaxis', 'sealant' => 'Sellante', 'fluoride' => 'Flúor',
+            'inlay' => 'Incrustación', 'scaling' => 'Detartraje', 'gingivectomy' => 'Gingivectomía',
+            'flap_surgery' => 'Cirugía de colgajo', 'surgical_extraction' => 'Extracción quirúrgica',
+            'wisdom_tooth' => 'Cordal', 'implant' => 'Implante', 'implant_crown' => 'Corona sobre implante',
+            'braces_metal' => 'Brackets metálicos', 'braces_aesthetic' => 'Brackets estéticos',
+            'retainer_fixed' => 'Contención fija', 'retainer_removable' => 'Contención removible',
+            'crown_pfm' => 'Corona metal-porcelana', 'crown_zirconia' => 'Corona de zirconio',
+            'bridge' => 'Puente', 'partial_denture' => 'Prótesis parcial', 'full_denture' => 'Prótesis total',
+            'whitening' => 'Blanqueamiento', 'veneer_composite' => 'Carilla de composite',
+            'veneer_ceramic' => 'Carilla cerámica', 'consultation' => 'Consulta',
+            'xray_periapical' => 'Radiografía periapical', 'xray_panoramic' => 'Radiografía panorámica',
+            'cbct' => 'Tomografía CBCT',
+        ];
+        $surfaceLabels = [
+            'top' => 'Superior', 'bottom' => 'Inferior', 'left' => 'Izquierda',
+            'right' => 'Derecha', 'center' => 'Centro', 'root' => 'Raíz',
+        ];
+        $treatmentLabels = [
+            'planned' => 'Planificado', 'pending' => 'Pendiente', 'in_progress' => 'En progreso',
+            'completed' => 'Completado', 'cancelled' => 'Cancelado',
+        ];
+        $label = fn ($map, $key) => $map[$key] ?? ucfirst(str_replace('_', ' ', (string) $key));
+    @endphp
     <div class="header">
         <div class="clinic-info">
             @if ($logo)
@@ -44,7 +84,7 @@
         <div class="odo-meta">
             <h2>Odontograma #{{ $odontogram->id }}</h2>
             <p>Fecha: {{ $odontogram->date->format('d/m/Y') }}</p>
-            <p>Estado: {{ ucfirst($odontogram->status) }}</p>
+            <p>Estado: {{ $label($statusLabels, $odontogram->status) }}</p>
             @if ($odontogram->name)
                 <p>{{ $odontogram->name }}</p>
             @endif
@@ -75,39 +115,35 @@
 
     <div class="section">
         <div class="section-title">Diagrama Dental</div>
-        <div class="odontogram-svg">
-            {{-- Arcada Superior --}}
-            <div class="arch-label">SUPERIOR</div>
-            <svg width="640" height="70" xmlns="http://www.w3.org/2000/svg">
-                @php $x = 5; @endphp
-                @foreach ($upperRight as $tooth)
-                    @php $surfaces = $toothMap[$tooth] ?? []; @endphp
-                    @include('pdf.partials.tooth-svg', ['tooth' => $tooth, 'surfaces' => $surfaces, 'x' => $x, 'colors' => $colors])
-                    @php $x += 40; @endphp
-                @endforeach
-                @foreach ($upperLeft as $tooth)
-                    @php $surfaces = $toothMap[$tooth] ?? []; @endphp
-                    @include('pdf.partials.tooth-svg', ['tooth' => $tooth, 'surfaces' => $surfaces, 'x' => $x, 'colors' => $colors])
-                    @php $x += 40; @endphp
-                @endforeach
-            </svg>
-
-            {{-- Arcada Inferior --}}
-            <div class="arch-label" style="margin-top: 12px;">INFERIOR</div>
-            <svg width="640" height="70" xmlns="http://www.w3.org/2000/svg">
-                @php $x = 5; @endphp
-                @foreach ($lowerRight as $tooth)
-                    @php $surfaces = $toothMap[$tooth] ?? []; @endphp
-                    @include('pdf.partials.tooth-svg', ['tooth' => $tooth, 'surfaces' => $surfaces, 'x' => $x, 'colors' => $colors])
-                    @php $x += 40; @endphp
-                @endforeach
-                @foreach ($lowerLeft as $tooth)
-                    @php $surfaces = $toothMap[$tooth] ?? []; @endphp
-                    @include('pdf.partials.tooth-svg', ['tooth' => $tooth, 'surfaces' => $surfaces, 'x' => $x, 'colors' => $colors])
-                    @php $x += 40; @endphp
-                @endforeach
-            </svg>
-        </div>
+        @foreach ([
+            ['label' => 'ARCADA SUPERIOR', 'teeth' => array_merge($upperRight, $upperLeft)],
+            ['label' => 'ARCADA INFERIOR', 'teeth' => array_merge($lowerRight, $lowerLeft)],
+        ] as $arch)
+            <div class="arch-label">{{ $arch['label'] }}</div>
+            <table class="arch">
+                <tr>
+                    @foreach ($arch['teeth'] as $tooth)
+                        @php
+                            $surfaces = $toothMap[$tooth] ?? [];
+                            $surfaceColor = fn ($key) => isset($surfaces[$key]) && isset($colors[$surfaces[$key]]) ? $colors[$surfaces[$key]] : '#ffffff';
+                            $isMissing = in_array($surfaces['center'] ?? null, ['missing', 'surgical_extraction', 'wisdom_tooth'], true);
+                        @endphp
+                        <td class="tooth-cell">
+                            <div class="tooth-num">{{ $tooth }}</div>
+                            <table class="tooth">
+                                <tr><td colspan="3" class="s-top" style="background-color: {{ $surfaceColor('top') }};"></td></tr>
+                                <tr>
+                                    <td class="s-left" style="background-color: {{ $surfaceColor('left') }};"></td>
+                                    <td class="s-center" style="background-color: {{ $surfaceColor('center') }};">{{ $isMissing ? 'X' : '' }}</td>
+                                    <td class="s-right" style="background-color: {{ $surfaceColor('right') }};"></td>
+                                </tr>
+                                <tr><td colspan="3" class="s-bottom" style="background-color: {{ $surfaceColor('bottom') }};"></td></tr>
+                            </table>
+                        </td>
+                    @endforeach
+                </tr>
+            </table>
+        @endforeach
     </div>
 
     {{-- Leyenda de colores --}}
@@ -120,7 +156,7 @@
                     @if (isset($colors[$code]))
                         <div class="legend-item">
                             <div class="legend-swatch" style="background: {{ $colors[$code] }};"></div>
-                            <span>{{ ucfirst(str_replace('_', ' ', $code)) }}</span>
+                            <span>{{ $label($diagnosisLabels, $code) }}</span>
                         </div>
                     @endif
                 @endforeach
@@ -146,9 +182,9 @@
                     @foreach ($odontogram->clinicalRecords as $record)
                         <tr>
                             <td>{{ $record->tooth_number }}</td>
-                            <td>{{ ucfirst($record->surface) }}</td>
-                            <td>{{ ucfirst(str_replace('_', ' ', $record->diagnosis_code ?? '')) }}</td>
-                            <td>{{ ucfirst(str_replace('_', ' ', $record->treatment_status)) }}</td>
+                            <td>{{ $label($surfaceLabels, $record->surface) }}</td>
+                            <td>{{ $label($diagnosisLabels, $record->diagnosis_code ?? '') }}</td>
+                            <td>{{ $label($treatmentLabels, $record->treatment_status) }}</td>
                             <td>{{ $record->notes ?? '' }}</td>
                         </tr>
                     @endforeach

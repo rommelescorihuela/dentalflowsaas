@@ -70,13 +70,20 @@ class ToothNotesRelationManager extends RelationManager
                         'treatment' => 'green',
                         'follow_up' => 'orange',
                         default => 'gray',
+                    })
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'observation' => 'Observación',
+                        'diagnosis' => 'Diagnóstico',
+                        'treatment' => 'Tratamiento',
+                        'follow_up' => 'Seguimiento',
+                        default => ucfirst(str_replace('_', ' ', (string) $state)),
                     }),
                 TextColumn::make('content')
                     ->label('Contenido')
                     ->limit(50),
                 TextColumn::make('note_date')
                     ->label('Fecha')
-                    ->date()
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('creator.name')
                     ->label('Creado por')

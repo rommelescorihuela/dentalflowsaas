@@ -36,10 +36,10 @@ class CalendarWidget extends Widget
                 'start' => $appointment->start_time->toIso8601String(),
                 'end' => $appointment->end_time->toIso8601String(),
                 'backgroundColor' => match ($appointment->status) {
-                    'confirmed' => '#10b981', // green
-                    'cancelled' => '#ef4444', // red
-                    'completed' => '#0891b2', // medical cyan
-                    default => '#6b7280', // gray
+                    'confirmed' => '#24a367', // success
+                    'cancelled' => '#cf4860', // danger
+                    'completed' => '#1f9e8f', // lagoon
+                    default => '#847d6f', // warm gray
                 },
                 'borderColor' => 'transparent',
             ])

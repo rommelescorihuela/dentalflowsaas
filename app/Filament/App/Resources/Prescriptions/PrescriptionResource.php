@@ -112,6 +112,7 @@ class PrescriptionResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('patient.name')
                     ->label('Paciente')
+                    ->weight('semibold')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('doctor.name')
@@ -138,11 +139,11 @@ class PrescriptionResource extends Resource
                     }),
                 Tables\Columns\TextColumn::make('signed_at')
                     ->label('Firmada')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Creada')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

@@ -92,13 +92,29 @@ class InventoryResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('category')->sortable(),
-                TextColumn::make('supplier')->searchable(),
-                TextColumn::make('quantity')->sortable()
+                TextColumn::make('name')
+                    ->label('Nombre')
+                    ->weight('semibold')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('category')
+                    ->label('Categoría')
+                    ->sortable(),
+                TextColumn::make('supplier')
+                    ->label('Proveedor')
+                    ->searchable(),
+                TextColumn::make('quantity')
+                    ->label('Cantidad')
+                    ->sortable()
                     ->color(fn (Inventory $record) => $record->quantity <= $record->low_stock_threshold ? 'danger' : 'success'),
-                TextColumn::make('price')->formatStateUsing(fn ($state) => ClinicHelper::formatMoney((float) $state)),
-                TextColumn::make('expiration_date')->date(),
+                TextColumn::make('price')
+                    ->label('Precio')
+                    ->numeric()
+                    ->formatStateUsing(fn ($state) => ClinicHelper::formatMoney((float) $state))
+                    ->alignEnd(),
+                TextColumn::make('expiration_date')
+                    ->label('Fecha de Caducidad')
+                    ->date('d/m/Y'),
             ])
             ->filters([
                 //

@@ -32,10 +32,9 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(asset('images/logo.svg'))
             ->brandLogoHeight('2.2rem')
             ->favicon(asset('images/favicon.svg'))
-            ->font('Open Sans')
             ->darkMode(true)
             ->colors([
-                'primary' => Color::Indigo,
+                'primary' => Color::hex('#1f9e8f'),
             ])
             ->sidebarCollapsibleOnDesktop()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')

@@ -68,7 +68,7 @@ class AdminStatsOverview extends BaseWidget
                 ->descriptionIcon('heroicon-o-arrow-right-circle')
                 ->color($conversionRate > 50 ? 'success' : 'warning'),
 
-            Stat::make('Churn Rate', $churnRate.'%')
+            Stat::make('Tasa de Cancelación', $churnRate.'%')
                 ->description("{$churnedClinics} clínicas perdidas")
                 ->descriptionIcon('heroicon-o-arrow-trending-down')
                 ->color($churnRate < 10 ? 'success' : ($churnRate < 20 ? 'warning' : 'danger')),

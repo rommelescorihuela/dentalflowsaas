@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
+@import './fonts.css';
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -6,104 +6,174 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+/* =========================================================
+   DENTALFLOW — SISTEMA "LAGOON CLINIC"
+   Paleta calma y desaturada, superficies cálidas tipo hueso.
+   Un solo acento (lagoon) + arena cálida como neutro.
+   ========================================================= */
+
 @theme {
-    --font-sans: 'Open Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-    --font-display: 'Outfit', 'Open Sans', ui-sans-serif, system-ui, sans-serif;
-    --color-primary-50: #ecfeff;
-    --color-primary-100: #cffafe;
-    --color-primary-200: #a5f3fc;
-    --color-primary-300: #67e8f9;
-    --color-primary-400: #22d3ee;
-    --color-primary-500: #06b6d4;
-    --color-primary-600: #0891b2;
-    --color-primary-700: #0e7490;
-    --color-primary-800: #155e75;
-    --color-primary-900: #164e63;
-    --color-primary-950: #083344;
+    --font-sans: 'Onest', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+    --font-display: 'Outfit', 'Onest', ui-sans-serif, system-ui, sans-serif;
+
+    /* Acento principal: Lagoon (teal desaturado, vibrante pero descansado) */
+    --color-primary-50: #eefaf7;
+    --color-primary-100: #d3f2eb;
+    --color-primary-200: #a7e5da;
+    --color-primary-300: #73d1c3;
+    --color-primary-400: #40b6a8;
+    --color-primary-500: #1f9e8f;
+    --color-primary-600: #157e73;
+    --color-primary-700: #14645c;
+    --color-primary-800: #14504b;
+    --color-primary-900: #14423e;
+    --color-primary-950: #052724;
+
+    /* Secundario: Arena / Clay (usado con moderación) */
+    --color-secondary-50: #fbf4ee;
+    --color-secondary-100: #f6e6d7;
+    --color-secondary-200: #ecc9a9;
+    --color-secondary-300: #dfa678;
+    --color-secondary-400: #d3844e;
+    --color-secondary-500: #c3672f;
+    --color-secondary-600: #a85024;
+    --color-secondary-700: #873d20;
+    --color-secondary-800: #6d321e;
+    --color-secondary-900: #592b1d;
+    --color-secondary-950: #30150e;
+
+    /* Neutro cálido "sand" */
+    --color-sand-50: #faf9f6;
+    --color-sand-100: #f4f1ea;
+    --color-sand-200: #e8e4da;
+    --color-sand-300: #d6d0c2;
+    --color-sand-400: #b0a99a;
+    --color-sand-500: #847d6f;
+    --color-sand-600: #625c51;
+    --color-sand-700: #4a453d;
+    --color-sand-800: #322f29;
+    --color-sand-900: #211f1b;
+    --color-sand-950: #141310;
+
+    /* Semánticos suavizados */
+    --color-success-50: #eefbf3;
+    --color-success-100: #d4f5e0;
+    --color-success-200: #a9e9c4;
+    --color-success-300: #74d6a2;
+    --color-success-400: #41bd7f;
+    --color-success-500: #24a367;
+    --color-success-600: #178254;
+    --color-success-700: #146845;
+    --color-success-800: #14533a;
+    --color-success-900: #124432;
+
+    --color-warning-50: #fdf8ec;
+    --color-warning-100: #faeccc;
+    --color-warning-200: #f4d894;
+    --color-warning-300: #ecc05a;
+    --color-warning-400: #e3a72f;
+    --color-warning-500: #d08f18;
+    --color-warning-600: #ab6f12;
+    --color-warning-700: #875312;
+    --color-warning-800: #6f4416;
+    --color-warning-900: #5d3917;
+
+    --color-danger-50: #fdf2f3;
+    --color-danger-100: #fbe3e6;
+    --color-danger-200: #f6c9cf;
+    --color-danger-300: #ee9fab;
+    --color-danger-400: #e26d80;
+    --color-danger-500: #cf4860;
+    --color-danger-600: #b02f4a;
+    --color-danger-700: #92233d;
+    --color-danger-800: #7a2037;
+    --color-danger-900: #681f34;
+
+    --color-info-50: #eef6fb;
+    --color-info-100: #d6e9f5;
+    --color-info-200: #b0d3ea;
+    --color-info-300: #7fb6db;
+    --color-info-400: #4f96c7;
+    --color-info-500: #2f7aad;
+    --color-info-600: #226291;
+    --color-info-700: #1e4f76;
+    --color-info-800: #1d4361;
+    --color-info-900: #1c3a52;
 }
 
-/* ========== AURORA ANIMATIONS ========== */
-@keyframes blob {
+:root {
+    --df-canvas: #faf9f6;
+    --df-surface: #ffffff;
+    --df-surface-soft: #f4f1ea;
+    --df-border: #e8e4da;
+    --df-border-strong: #d6d0c2;
+    --df-text: #211f1b;
+    --df-text-muted: #6b6459;
+    --df-text-subtle: #948e82;
+    --df-accent: #1f9e8f;
+    --df-shadow-soft: 0 1px 2px rgba(35, 40, 42, 0.04), 0 8px 24px -12px rgba(21, 100, 92, 0.14);
+    --df-shadow-lift: 0 2px 4px rgba(35, 40, 42, 0.05), 0 18px 40px -18px rgba(21, 100, 92, 0.22);
+    --df-ease: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--df-canvas);
+    color: var(--df-text);
+}
+
+::selection {
+    background-color: rgba(31, 158, 143, 0.2);
+    color: var(--df-text);
+}
+
+/* ========== ANIMACIONES (sutiles, respetan reduced-motion) ========== */
+@keyframes dfBlob {
     0%, 100% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(30px, -50px) scale(1.1); }
-    66% { transform: translate(-20px, 20px) scale(0.9); }
+    33% { transform: translate(24px, -36px) scale(1.08); }
+    66% { transform: translate(-16px, 16px) scale(0.94); }
 }
 
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-12px); }
+@keyframes dfFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
 }
 
-@keyframes shimmer {
+@keyframes dfShimmer {
     0% { background-position: -1000px 0; }
     100% { background-position: 1000px 0; }
 }
 
-@keyframes gradientShift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
+@keyframes dfFadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes pulseGlow {
-    0%, 100% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); }
-    50% { box-shadow: 0 0 40px rgba(6, 182, 212, 0.5); }
-}
-
-@keyframes slideInRight {
-    from { opacity: 0; transform: translateX(30px); }
-    to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes scaleIn {
-    from { opacity: 0; transform: scale(0.92); }
+@keyframes dfScaleIn {
+    from { opacity: 0; transform: scale(0.96); }
     to { opacity: 1; transform: scale(1); }
 }
 
-.animate-blob {
-    animation: blob 20s infinite;
+@keyframes dfSlideInRight {
+    from { opacity: 0; transform: translateX(24px); }
+    to { opacity: 1; transform: translateX(0); }
 }
 
-.animate-float {
-    animation: float 6s ease-in-out infinite;
-}
-
+.animate-blob { animation: dfBlob 22s var(--df-ease) infinite; }
+.animate-float { animation: dfFloat 7s ease-in-out infinite; }
 .animate-shimmer {
-    animation: shimmer 3s infinite linear;
-    background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+    animation: dfShimmer 3s infinite linear;
+    background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.25) 50%, transparent 100%);
     background-size: 1000px 100%;
 }
-
-.animate-gradient {
-    background-size: 200% 200%;
-    animation: gradientShift 4s ease infinite;
-}
-
-.animate-fade-in-up {
-    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-.animate-pulse-glow {
-    animation: pulseGlow 2s ease-in-out infinite;
-}
-
-.animate-slide-in-right {
-    animation: slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-.animate-scale-in {
-    animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
+.animate-gradient { background-size: 200% 200%; }
+.animate-fade-in-up { animation: dfFadeUp 0.6s var(--df-ease) forwards; }
+.animate-pulse-glow { animation: dfFloat 3s ease-in-out infinite; }
+.animate-slide-in-right { animation: dfSlideInRight 0.5s var(--df-ease) forwards; }
+.animate-scale-in { animation: dfScaleIn 0.4s var(--df-ease) forwards; }
 
 .animation-delay-200 { animation-delay: 0.2s; }
 .animation-delay-400 { animation-delay: 0.4s; }
@@ -112,129 +182,145 @@
 .animation-delay-1000 { animation-delay: 1s; }
 .animation-delay-2000 { animation-delay: 2s; }
 .animation-delay-4000 { animation-delay: 4s; }
-.animation-delay-2000 { animation-delay: 2s; }
-.animation-delay-4000 { animation-delay: 4s; }
 
-/* ========== GLASS MORPHISM ========== */
+/* ========== SUPERFICIES ========== */
 .glass {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--df-border);
 }
 
 .glass-strong {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--df-border);
 }
 
 .glass-dark {
-    background: rgba(15, 23, 42, 0.8);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(15, 21, 19, 0.82);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(232, 228, 218, 0.1);
 }
 
-/* ========== GRADIENT TEXT ========== */
+.df-surface {
+    background: var(--df-surface);
+    border: 1px solid var(--df-border);
+    border-radius: 1rem;
+    box-shadow: var(--df-shadow-soft);
+}
+
+/* ========== TEXTO CON DEGRADADO (sobrio) ========== */
 .gradient-text {
-    background: linear-gradient(135deg, #06b6d4, #0ea5e9, #6366f1);
+    background: linear-gradient(120deg, #14645c, #1f9e8f 60%, #40b6a8);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
 .gradient-text-warm {
-    background: linear-gradient(135deg, #f59e0b, #f97316, #ef4444);
+    background: linear-gradient(120deg, #a85024, #c3672f 60%, #dfa678);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
 .gradient-text-green {
-    background: linear-gradient(135deg, #059669, #10b981, #34d399);
+    background: linear-gradient(120deg, #146845, #24a367 60%, #74d6a2);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
-/* ========== GRADIENT BACKGROUNDS ========== */
+/* ========== FONDOS DE MARCA ========== */
 .bg-gradient-aurora {
-    background: linear-gradient(135deg, #06b6d4 0%, #0ea5e9 40%, #6366f1 100%);
+    background: linear-gradient(135deg, #14645c 0%, #1f9e8f 55%, #40b6a8 100%);
 }
 
 .bg-gradient-ocean {
-    background: linear-gradient(135deg, #0891b2 0%, #0e7490 50%, #164e63 100%);
+    background: linear-gradient(150deg, #14423e 0%, #14645c 55%, #157e73 100%);
 }
 
 .bg-gradient-sunset {
-    background: linear-gradient(135deg, #f59e0b 0%, #f97316 50%, #ef4444 100%);
+    background: linear-gradient(135deg, #a85024 0%, #c3672f 55%, #dfa678 100%);
 }
 
 .bg-gradient-mint {
-    background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+    background: linear-gradient(135deg, #146845 0%, #24a367 55%, #74d6a2 100%);
 }
 
-/* ========== CARD HOVER EFFECTS ========== */
+.df-canvas {
+    background-color: var(--df-canvas);
+    background-image:
+        radial-gradient(ellipse 70% 50% at 12% -10%, rgba(31, 158, 143, 0.08), transparent 60%),
+        radial-gradient(ellipse 55% 45% at 100% 8%, rgba(195, 103, 47, 0.05), transparent 60%);
+}
+
+/* ========== TARJETAS ========== */
 .card-hover {
-    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.4s var(--df-ease), box-shadow 0.4s var(--df-ease), border-color 0.4s var(--df-ease);
 }
 
 .card-hover:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06);
+    transform: translateY(-4px);
+    box-shadow: var(--df-shadow-lift);
 }
 
 .card-glow:hover {
-    box-shadow: 0 0 30px rgba(6, 182, 212, 0.2);
+    box-shadow: 0 0 0 4px rgba(31, 158, 143, 0.08), var(--df-shadow-soft);
 }
 
-/* ========== CUSTOM SCROLLBAR ========== */
+/* ========== SCROLLBAR ========== */
 ::-webkit-scrollbar {
-    width: 7px;
-    height: 7px;
+    width: 8px;
+    height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #ecfeff;
-    border-radius: 10px;
+    background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #06b6d4, #0891b2);
-    border-radius: 10px;
+    background: #d6d0c2;
+    border-radius: 999px;
+    border: 2px solid var(--df-canvas);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #0891b2, #0e7490);
+    background: #b0a99a;
 }
 
-/* ========== PAGE TRANSITIONS ========== */
+/* ========== TRANSICIONES / SKELETON ========== */
 .page-enter {
-    animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: dfFadeUp 0.5s var(--df-ease);
 }
 
-/* ========== SKELETON LOADING ========== */
 .skeleton {
-    background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+    background: linear-gradient(90deg, #ece8df 25%, #f4f1ea 50%, #ece8df 75%);
     background-size: 200% 100%;
-    animation: shimmer 2s infinite;
-    border-radius: 8px;
+    animation: dfShimmer 2s infinite;
+    border-radius: 0.75rem;
 }
 
-/* ========== FOCUS RING ENHANCEMENT ========== */
+/* ========== FOCUS ========== */
 .focus-ring-cyan:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.4);
+    box-shadow: 0 0 0 3px rgba(31, 158, 143, 0.28);
+}
+
+*:focus-visible {
+    outline: 2px solid rgba(31, 158, 143, 0.55);
+    outline-offset: 2px;
 }
 
 /* ========== STAT CARDS ========== */
 .stat-card {
     position: relative;
     overflow: hidden;
-    border-radius: 16px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 1rem;
+    transition: transform 0.35s var(--df-ease), box-shadow 0.35s var(--df-ease);
 }
 
 .stat-card::after {
@@ -243,21 +329,21 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #06b6d4, #0ea5e9, #6366f1);
+    height: 3px;
+    background: linear-gradient(90deg, #1f9e8f, #40b6a8);
 }
 
 .stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 32px rgba(6, 182, 212, 0.12);
+    transform: translateY(-3px);
+    box-shadow: var(--df-shadow-lift);
 }
 
 /* ========== PULSE DOT ========== */
 .pulse-dot {
-    width: 10px;
-    height: 10px;
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
-    background: #10b981;
+    background: #24a367;
     display: inline-block;
     position: relative;
 }
@@ -267,15 +353,19 @@
     position: absolute;
     inset: -4px;
     border-radius: 50%;
-    background: rgba(16, 185, 129, 0.4);
-    animation: pulseGlow 2s ease-in-out infinite;
+    background: rgba(36, 163, 103, 0.3);
+    animation: dfFloat 2.4s ease-in-out infinite;
 }
 
-/* ========== RESPONSIVE HELPER ========== */
+/* ========== NÚMEROS TABULARES ========== */
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* ========== ACCESIBILIDAD / MOVIMIENTO ========== */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
 }

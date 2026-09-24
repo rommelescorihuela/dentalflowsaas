@@ -119,12 +119,18 @@ class BudgetResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('patient.name')
+                    ->label('Paciente')
+                    ->weight('semibold')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('total')
+                    ->label('Total')
+                    ->numeric()
                     ->formatStateUsing(fn ($state) => ClinicHelper::formatMoney((float) $state))
+                    ->alignEnd()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
+                    ->label('Estado')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'draft' => 'gray',
@@ -132,19 +138,29 @@ class BudgetResource extends Resource
                         'accepted' => 'success',
                         'rejected' => 'danger',
                         default => 'gray',
+                    })
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'draft' => 'Borrador',
+                        'sent' => 'Enviado',
+                        'accepted' => 'Aceptado',
+                        'rejected' => 'Rechazado',
+                        default => ucfirst(str_replace('_', ' ', (string) $state)),
                     }),
                 Tables\Columns\TextColumn::make('odontogram.name')
                     ->label('Origen')
                     ->placeholder('Manual')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('notes')
+                    ->label('Notas')
                     ->limit(50)
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('expires_at')
-                    ->date()
+                    ->label('Vence')
+                    ->date('d/m/Y')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Creado')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

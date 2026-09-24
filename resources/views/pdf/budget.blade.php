@@ -5,29 +5,32 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Helvetica', 'Arial', sans-serif; color: #1f2937; font-size: 12px; }
-        .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0891b2; padding-bottom: 15px; margin-bottom: 20px; }
-        .clinic-info h1 { font-size: 18px; color: #0891b2; margin-bottom: 4px; }
+        .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1f9e8f; padding-bottom: 15px; margin-bottom: 20px; }
+        .clinic-info h1 { font-size: 18px; color: #1f9e8f; margin-bottom: 4px; }
         .clinic-info p { font-size: 11px; color: #6b7280; line-height: 1.4; }
         .budget-meta { text-align: right; }
         .budget-meta h2 { font-size: 20px; color: #1f2937; }
         .budget-meta p { font-size: 11px; color: #6b7280; margin-top: 2px; }
         .badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
-        .badge-{{ $budget->status }} { }
+        .badge-draft { background: #f4f1ea; color: #4a453d; }
+        .badge-sent { background: #d6e9f5; color: #1e4f76; }
+        .badge-accepted { background: #d4f5e0; color: #146845; }
+        .badge-rejected { background: #fbe3e6; color: #92233d; }
         .section { margin-bottom: 20px; }
-        .section-title { font-size: 13px; font-weight: bold; color: #0891b2; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .section-title { font-size: 13px; font-weight: bold; color: #1f9e8f; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
         .patient-card { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px 16px; }
         .patient-card .row { display: flex; justify-content: space-between; margin-bottom: 4px; }
         .patient-card .label { color: #6b7280; font-size: 10px; }
         .patient-card .value { font-weight: 600; }
         table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-        thead { background: #0891b2; color: white; }
+        thead { background: #1f9e8f; color: white; }
         th { text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 600; }
         th.right { text-align: right; }
         td { padding: 8px 12px; border-bottom: 1px solid #e5e7eb; font-size: 11px; }
         td.right { text-align: right; }
         tbody tr:nth-child(even) { background: #f9fafb; }
         .total-row { background: #f0fdfa !important; font-weight: bold; font-size: 13px; }
-        .total-row td { border-top: 2px solid #0891b2; border-bottom: none; padding: 12px; }
+        .total-row td { border-top: 2px solid #1f9e8f; border-bottom: none; padding: 12px; }
         .notes { background: #fefce8; border-left: 3px solid #eab308; padding: 10px 14px; margin-top: 16px; font-size: 11px; color: #422006; }
         .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e5e7eb; text-align: center; color: #9ca3af; font-size: 9px; }
         .expiry { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 4px; padding: 8px 12px; margin-top: 12px; font-size: 11px; color: #92400e; }
@@ -35,6 +38,9 @@
     </style>
 </head>
 <body>
+    @php
+        $statusLabels = ['draft' => 'Borrador', 'sent' => 'Enviado', 'accepted' => 'Aceptado', 'rejected' => 'Rechazado'];
+    @endphp
     <div class="header">
         <div class="clinic-info">
             @if ($logo)
@@ -51,7 +57,7 @@
         <div class="budget-meta">
             <h2>Presupuesto #{{ $budget->id }}</h2>
             <p>Fecha: {{ $budget->created_at->format('d/m/Y') }}</p>
-            <p>Estado: <span class="badge badge-{{ $budget->status }}">{{ ucfirst($budget->status) }}</span></p>
+            <p>Estado: <span class="badge badge-{{ $budget->status }}">{{ $statusLabels[$budget->status] ?? ucfirst($budget->status) }}</span></p>
         </div>
     </div>
 

@@ -55,6 +55,7 @@ class SystemActivityResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('causer.name')
                     ->label('Usuario')
+                    ->weight('semibold')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('event')
                     ->label('Acción')

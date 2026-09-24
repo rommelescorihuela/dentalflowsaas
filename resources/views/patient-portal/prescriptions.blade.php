@@ -6,10 +6,10 @@
 <h2 class="text-2xl font-display font-bold text-stone-800 mb-6 portal-reveal">Mis Recetas</h2>
 
 @forelse($prescriptions as $prescription)
-<div class="bg-white/80 backdrop-blur-md overflow-hidden shadow-xl shadow-gray-200/50 sm:rounded-2xl border border-gray-100 mb-6 portal-reveal portal-reveal-delay-1">
-    <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-primary-50 to-primary-50/50 flex justify-between items-center">
+<div class="bg-white overflow-hidden shadow-xl shadow-gray-200/50 sm:rounded-2xl border border-gray-100 mb-6 portal-reveal portal-reveal-delay-1">
+    <div class="px-6 py-5 border-b border-gray-100 bg-primary-50 flex justify-between items-center">
         <h3 class="text-lg font-bold text-gray-900 flex items-center">
-            <span class="bg-gradient-to-r from-primary-600 to-primary-700 text-white p-2.5 rounded-xl mr-3 shadow-lg shadow-primary-500/20">
+            <span class="bg-primary-600 text-white p-2.5 rounded-xl mr-3 shadow-lg shadow-primary-500/20">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             </span>
             Receta #{{ $prescription->id }}
@@ -36,14 +36,14 @@
 
         <div class="overflow-x-auto">
             <table class="min-w-full">
-                <thead class="bg-[#FFFBF5]/80">
+                <thead class="bg-[#faf9f6]/80">
                     <tr>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-stone-400 uppercase tracking-wider">Medicamento</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-stone-400 uppercase tracking-wider">Dosis</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-stone-400 uppercase tracking-wider">Frecuencia</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-stone-400 uppercase tracking-wider">Duración</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-stone-400 uppercase tracking-wider">Cantidad</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-stone-400 uppercase tracking-wider">Indicaciones</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-sand-500 uppercase tracking-wider">Medicamento</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-sand-500 uppercase tracking-wider">Dosis</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-sand-500 uppercase tracking-wider">Frecuencia</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-sand-500 uppercase tracking-wider">Duración</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-sand-500 uppercase tracking-wider">Cantidad</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-sand-500 uppercase tracking-wider">Indicaciones</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-stone-100">
@@ -85,10 +85,10 @@
     </div>
 </div>
 @empty
-<div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 p-12 text-center">
+<div class="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 p-12 text-center">
     <svg class="mx-auto h-16 w-16 mb-4 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
     <p class="font-display font-semibold text-lg text-stone-500">Sin recetas activas</p>
-    <p class="text-sm text-stone-400 mt-1">Las recetas que te recete tu doctor aparecerán aquí.</p>
+    <p class="text-sm text-sand-500 mt-1">Las recetas que te recete tu doctor aparecerán aquí.</p>
 </div>
 @endforelse
 

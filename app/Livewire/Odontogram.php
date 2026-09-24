@@ -37,7 +37,7 @@ class Odontogram extends Widget implements HasForms
     public array $statusColors = [
         // Core odontogram colors
         'caries' => '#ef4444', // Red
-        'filled' => '#0891b2', // Medical Cyan
+        'filled' => '#1f9e8f', // Medical Cyan
         'endodontic' => '#eab308', // Yellow
         'endodontic_multi' => '#eab308',
         'endo_retreatment' => '#eab308',
@@ -47,8 +47,8 @@ class Odontogram extends Widget implements HasForms
         // Additional procedure colors
         'prophylaxis' => '#22c55e', // Green
         'sealant' => '#14b8a6', // Teal
-        'fluoride' => '#0891b2', // Medical Cyan
-        'inlay' => '#6366f1', // Indigo
+        'fluoride' => '#1f9e8f', // Medical Cyan
+        'inlay' => '#2f7aad', // Indigo
         'scaling' => '#84cc16', // Lime
         'gingivectomy' => '#f97316', // Orange
         'gingival_contouring' => '#f97316',

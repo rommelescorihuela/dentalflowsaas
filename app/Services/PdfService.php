@@ -14,15 +14,15 @@ class PdfService
 {
     protected array $diagnosisColors = [
         'caries' => '#ef4444',
-        'filled' => '#0891b2',
+        'filled' => '#1f9e8f',
         'endodontic' => '#eab308',
         'missing' => '#1f2937',
         'healthy' => '#ffffff',
         'crown' => '#a855f7',
         'prophylaxis' => '#22c55e',
         'sealant' => '#14b8a6',
-        'fluoride' => '#0891b2',
-        'inlay' => '#6366f1',
+        'fluoride' => '#1f9e8f',
+        'inlay' => '#2f7aad',
         'scaling' => '#84cc16',
         'gingivectomy' => '#f97316',
         'flap_surgery' => '#dc2626',
