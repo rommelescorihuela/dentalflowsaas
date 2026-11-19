@@ -151,6 +151,19 @@ app/
 - Portal routes requieren `signed` URLs
 - Base de datos de test: `dentalflow_test` (hardcodeada en `phpunit.xml`)
 
+### Cómo correrlos
+
+```bash
+composer test        # limpia la config y ejecuta la suite (recomendado)
+```
+
+> **No ejecutes `vendor/bin/phpunit` directamente.** Si existe
+> `bootstrap/cache/config.php` (de un `php artisan config:cache` anterior), la
+> configuración cacheada **congela `APP_ENV=local`** y anula lo que declara
+> `phpunit.xml`. Laravel deja de reconocer el entorno de testing, aplica CSRF y
+> todos los POST fallan con **419**. `composer test` limpia ese cache primero;
+> si corres phpunit a mano y ves 419, ejecuta `php artisan config:clear`.
+
 ---
 
 ## CI/CD
