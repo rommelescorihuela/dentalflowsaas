@@ -2,9 +2,9 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\Plan;
 use App\Models\Clinic;
 use App\Models\Subscription;
-use App\Models\SubscriptionPayment;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -12,22 +12,28 @@ class AdminStatsOverview extends BaseWidget
 {
     protected function getStats(): array
     {
-        // MRR: suma de pagos aprobados del mes actual
-        $mrr = SubscriptionPayment::where('status', 'approved')
-            ->whereMonth('paid_at', now()->month)
-            ->whereYear('paid_at', now()->year)
-            ->sum('amount');
+        // MRR = ingreso recurrente de las suscripciones activas según su plan.
+        // (Antes se sumaban los pagos aprobados del mes: un mes sin cobros
+        // aprobados mostraba $0 y -100 %, aunque hubiera clientes de pago.)
+        $suscripcionesActivas = Subscription::where('status', 'active')->get();
 
-        // MRR del mes anterior para calcular tendencia
-        $lastMonth = now()->subMonth();
-        $mrrLastMonth = SubscriptionPayment::where('status', 'approved')
-            ->whereMonth('paid_at', $lastMonth->month)
-            ->whereYear('paid_at', $lastMonth->year)
-            ->sum('amount');
+        $mrr = $suscripcionesActivas->sum(function (Subscription $suscripcion): float {
+            $plan = $suscripcion->plan;
+            $clave = $plan instanceof Plan ? $plan->value : (string) $plan;
 
-        $mrrTrend = $mrrLastMonth > 0
-            ? round((($mrr - $mrrLastMonth) / $mrrLastMonth) * 100, 1)
+            return (float) (config("plans.{$clave}.price_usd") ?? 0);
+        });
+
+        $arpu = $suscripcionesActivas->count() > 0
+            ? round($mrr / $suscripcionesActivas->count(), 2)
             : 0;
+
+        // Clínicas en prueba y la que vence antes
+        $enPrueba = Subscription::where('status', 'trialing')->count();
+        $proximoVencimiento = Subscription::where('status', 'trialing')
+            ->whereNotNull('trial_ends_at')
+            ->orderBy('trial_ends_at')
+            ->first();
 
         // Clínicas activas vs totales
         $totalClinics = Clinic::count();
@@ -54,9 +60,9 @@ class AdminStatsOverview extends BaseWidget
 
         return [
             Stat::make('MRR', '$'.number_format($mrr, 2))
-                ->description($mrrTrend >= 0 ? "+{$mrrTrend}% vs mes anterior" : "{$mrrTrend}% vs mes anterior")
-                ->descriptionIcon($mrrTrend >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
-                ->color($mrrTrend >= 0 ? 'success' : 'danger'),
+                ->description($suscripcionesActivas->count().' clínicas de pago · ARPU $'.number_format($arpu, 0))
+                ->descriptionIcon('heroicon-m-banknotes')
+                ->color($mrr > 0 ? 'success' : 'gray'),
 
             Stat::make('Clínicas Activas', $activeClinics)
                 ->description("de {$totalClinics} totales")
@@ -77,6 +83,13 @@ class AdminStatsOverview extends BaseWidget
                 ->description("{$activatedClinics} clínicas con pacientes")
                 ->descriptionIcon('heroicon-o-check-circle')
                 ->color($activationRate > 70 ? 'success' : 'warning'),
+
+            Stat::make('En prueba', (string) $enPrueba)
+                ->description($proximoVencimiento
+                    ? 'La próxima vence el '.$proximoVencimiento->trial_ends_at->format('d/m/Y')
+                    : 'Sin pruebas activas')
+                ->descriptionIcon('heroicon-o-clock')
+                ->color($enPrueba > 0 ? 'info' : 'gray'),
         ];
     }
 }
