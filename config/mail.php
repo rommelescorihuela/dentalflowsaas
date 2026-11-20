@@ -110,6 +110,17 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Buzón de contacto
+    |--------------------------------------------------------------------------
+    |
+    | Recibe las solicitudes del plan Enterprise enviadas desde la landing.
+    |
+    */
+
+    'contact_address' => env('CONTACT_EMAIL'),
+
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
         'name' => env('MAIL_FROM_NAME', 'Example'),

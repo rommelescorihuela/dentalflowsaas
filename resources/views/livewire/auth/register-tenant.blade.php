@@ -1,91 +1,72 @@
-<div class="min-h-screen flex flex-col justify-center items-center pt-6 sm:pt-0 bg-gray-50">
-    <div
-        class="w-full sm:max-w-md mt-6 px-6 py-8 bg-white shadow-md overflow-hidden sm:rounded-lg border border-gray-100">
-        <div class="mb-8 text-center">
-            <h2 class="text-2xl font-bold text-gray-900">Create your Clinic</h2>
-            <p class="text-gray-600 text-sm">Start your 14-day free trial</p>
+<div class="ld-card p-6 sm:p-8">
+    <h1 class="ld-display text-[1.75rem]">Crea tu clínica</h1>
+    <p class="mt-2 text-[0.9375rem] text-sand-700">14 días de prueba. El registro no pide tarjeta.</p>
+
+    <form wire:submit.prevent="register" class="mt-6 grid gap-4">
+        <div>
+            <label for="company_name" class="ld-label">Nombre de la clínica</label>
+            <input wire:model.blur="company_name" id="company_name" type="text" required autofocus
+                   autocomplete="organization" class="ld-field mt-1.5"
+                   @error('company_name') aria-invalid="true" aria-describedby="company_name-error" @enderror>
+            @error('company_name') <p id="company_name-error" role="alert" class="ld-error">{{ $message }}</p> @enderror
         </div>
 
-        <form wire:submit.prevent="register">
-            <!-- Company Name -->
-            <div class="mb-4">
-                <label for="company_name" class="block font-medium text-sm text-gray-700">Clinic Name</label>
-                <input wire:model.blur="company_name" id="company_name" type="text"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm p-2.5 border"
-                    required autofocus>
-                @error('company_name') <span class="text-red-600 text-xs mt-1">{{ $message }}</span> @enderror
+        <div>
+            <label for="subdomain" class="ld-label">Dirección de la clínica</label>
+            <div class="mt-1.5 flex">
+                <input wire:model.blur="subdomain" id="subdomain" type="text" required
+                       placeholder="mi-clinica" inputmode="url" autocapitalize="none" spellcheck="false"
+                       class="ld-field !rounded-r-none"
+                       @error('subdomain') aria-invalid="true" aria-describedby="subdomain-error" @enderror>
+                <span class="inline-flex items-center border border-l-0 border-sand-300 bg-sand-50 px-3 text-[0.875rem] text-sand-600">.dentalflow.com</span>
             </div>
+            <p class="mt-1 text-[0.75rem] text-sand-600">Se usa para entrar al panel y para la página pública de tu clínica.</p>
+            @error('subdomain') <p id="subdomain-error" role="alert" class="ld-error">{{ $message }}</p> @enderror
+        </div>
 
-            <!-- Subdomain -->
-            <div class="mb-4">
-                <label for="subdomain" class="block font-medium text-sm text-gray-700">Clinic URL</label>
-                <div class="mt-1 flex rounded-md shadow-sm">
-                    <input wire:model.blur="subdomain" id="subdomain" type="text"
-                        class="flex-1 block w-full min-w-0 rounded-none rounded-l-md border-gray-300 focus:border-primary-500 focus:ring-primary-500 sm:text-sm p-2.5 border border-r-0"
-                        placeholder="myclinic" required>
-                    <span
-                        class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
-                        .dentalflow.com
-                    </span>
-                </div>
-                @error('subdomain') <span class="text-red-600 text-xs mt-1">{{ $message }}</span> @enderror
-            </div>
+        <hr class="border-sand-200">
 
-            <hr class="my-6 border-gray-100">
+        <div>
+            <label for="name" class="ld-label">Tu nombre</label>
+            <input wire:model="name" id="name" type="text" required autocomplete="name" class="ld-field mt-1.5"
+                   @error('name') aria-invalid="true" aria-describedby="name-error" @enderror>
+            @error('name') <p id="name-error" role="alert" class="ld-error">{{ $message }}</p> @enderror
+        </div>
 
-            <!-- Admin Name -->
-            <div class="mb-4">
-                <label for="name" class="block font-medium text-sm text-gray-700">Full Name</label>
-                <input wire:model="name" id="name" type="text"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm p-2.5 border"
-                    required>
-                @error('name') <span class="text-red-600 text-xs mt-1">{{ $message }}</span> @enderror
-            </div>
+        <div>
+            <label for="email" class="ld-label">Correo</label>
+            <input wire:model="email" id="email" type="email" required autocomplete="email" class="ld-field mt-1.5"
+                   @error('email') aria-invalid="true" aria-describedby="email-error" @enderror>
+            @error('email') <p id="email-error" role="alert" class="ld-error">{{ $message }}</p> @enderror
+        </div>
 
-            <!-- Email -->
-            <div class="mb-4">
-                <label for="email" class="block font-medium text-sm text-gray-700">Email</label>
-                <input wire:model="email" id="email" type="email"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm p-2.5 border"
-                    required>
-                @error('email') <span class="text-red-600 text-xs mt-1">{{ $message }}</span> @enderror
-            </div>
+        <div>
+            <label for="password" class="ld-label">Contraseña</label>
+            <input wire:model="password" id="password" type="password" required autocomplete="new-password" class="ld-field mt-1.5"
+                   @error('password') aria-invalid="true" aria-describedby="password-error" @enderror>
+            @error('password') <p id="password-error" role="alert" class="ld-error">{{ $message }}</p> @enderror
+        </div>
 
-            <!-- Password -->
-            <div class="mb-4">
-                <label for="password" class="block font-medium text-sm text-gray-700">Password</label>
-                <input wire:model="password" id="password" type="password"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm p-2.5 border"
-                    required autocomplete="new-password">
-                @error('password') <span class="text-red-600 text-xs mt-1">{{ $message }}</span> @enderror
-            </div>
+        <div>
+            <label for="password_confirmation" class="ld-label">Repite la contraseña</label>
+            <input wire:model="password_confirmation" id="password_confirmation" type="password" required autocomplete="new-password" class="ld-field mt-1.5">
+        </div>
 
-            <!-- Confirm Password -->
-            <div class="mb-6">
-                <label for="password_confirmation" class="block font-medium text-sm text-gray-700">Confirm
-                    Password</label>
-                <input wire:model="password_confirmation" id="password_confirmation" type="password"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm p-2.5 border"
-                    required>
-            </div>
+        @if ($errors->has('base'))
+            <p role="alert" class="ld-error">{{ $errors->first('base') }}</p>
+        @endif
 
-            @if ($errors->has('base'))
-                <div class="mb-4 text-red-600 text-sm text-center">
-                    {{ $errors->first('base') }}
-                </div>
-            @endif
+        <div class="mt-2 flex flex-wrap items-center justify-between gap-3">
+            <a class="text-[0.875rem] text-sand-600 underline underline-offset-4 hover:text-sand-900" href="{{ route('login') }}">
+                ¿Ya tienes cuenta? Entrar
+            </a>
 
-            <div class="flex items-center justify-end mt-4">
-                <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('login') }}">
-                    Already registered?
-                </a>
-
-                <button type="submit"
-                    class="ml-4 inline-flex items-center px-4 py-2 bg-primary-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-700 focus:bg-primary-700 active:bg-primary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
-                    <span wire:loading.remove wire:target="register">Register Clinic</span>
-                    <span wire:loading wire:target="register">Processing...</span>
-                </button>
-            </div>
-        </form>
-    </div>
+            <button type="submit"
+                    class="ld-btn ld-btn-primary"
+                    wire:loading.attr="disabled" wire:target="register">
+                <span wire:loading.remove wire:target="register">Crear mi clínica</span>
+                <span wire:loading wire:target="register">Creando…</span>
+            </button>
+        </div>
+    </form>
 </div>

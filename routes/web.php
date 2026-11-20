@@ -17,6 +17,10 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
 
 Route::view('/', 'landing')->name('home');
 
+Route::post('/contacto', [\App\Http\Controllers\AccessRequestController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('contact.store');
+
 Route::get('/register', RegisterTenant::class)->name('register');
 
 Route::get('/register/success', function (Request $request) {

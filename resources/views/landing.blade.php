@@ -42,7 +42,6 @@
         </nav>
 
         <div class="flex items-center gap-2 md:hidden">
-            <a href="{{ url('/register') }}" class="ld-btn ld-btn-primary !px-3.5 !text-sm">Crear clínica</a>
             <details class="ld-menu">
                 <summary class="ld-menu-toggle" aria-label="Abrir menú">
                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
@@ -50,6 +49,7 @@
                     </svg>
                 </summary>
                 <nav class="ld-menu-panel" aria-label="Secciones">
+                    <a href="{{ url('/register') }}"><strong>Crear mi clínica</strong></a>
                     <a href="#dia">El día a día</a>
                     <a href="#ficha">La ficha</a>
                     <a href="#planes">Planes</a>
@@ -104,7 +104,8 @@
                         </div>
                         <span class="ld-chip ld-chip-teal">
                             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                <path d="m3 8.5 3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.6"/>
+                                <path d="M8 5v3.2l2 1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                             </svg>
                             En tratamiento
                         </span>
@@ -184,7 +185,7 @@
                             <li>
                                 <span class="text-[0.875rem] font-semibold text-sand-900">10:30</span>
                                 <span class="text-[0.9375rem] text-sand-800">Luis M. · endodoncia, pieza 36</span>
-                                <span class="ld-chip ld-chip-amber">Por cobrar</span>
+                                <span class="ld-chip ld-chip-amber">En curso</span>
                             </li>
                             <li>
                                 <span class="text-[0.875rem] font-semibold text-sand-900">12:00</span>
@@ -199,7 +200,7 @@
                             <li>
                                 <span class="text-[0.875rem] font-semibold text-sand-900">17:00</span>
                                 <span class="text-[0.9375rem] text-sand-800">Elena V. · extracción, pieza 48</span>
-                                <span class="ld-chip ld-chip-red">Reprogramar</span>
+                                <span class="ld-chip ld-chip-red">Cancelada</span>
                             </li>
                         </ul>
                     </div>
@@ -245,11 +246,30 @@
                     <li class="grid grid-cols-[2rem_1fr] gap-3 border-y border-sand-200 py-4">
                         <span class="pt-0.5 text-[0.75rem] font-bold text-primary-700">04</span>
                         <div>
-                            <h3 class="font-semibold text-sand-900">El paciente lo ve</h3>
+                            <h3 class="font-semibold text-sand-900">El paciente lo ve <span class="ml-1 align-middle text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-primary-700">Plan Pro</span></h3>
                             <p class="mt-1 text-[0.9375rem] leading-[1.6] text-sand-700">Su portal muestra citas, presupuestos y pagos sin llamar a recepción.</p>
                         </div>
                     </li>
                 </ol>
+            </div>
+        </section>
+
+        {{-- Tres hechos que el dueño pregunta antes de probar --}}
+        <section class="border-y border-sand-200 bg-sand-50 py-12" aria-labelledby="hechos-titulo">
+            <h2 id="hechos-titulo" class="sr-only">Aislamiento, recordatorios y puesta en marcha</h2>
+            <div class="ld-wrap grid gap-6 sm:grid-cols-3">
+                <div>
+                    <p class="ld-label">Aislamiento</p>
+                    <p class="mt-1.5 text-[0.9375rem] leading-[1.6] text-sand-700">Cada clínica ve solo sus pacientes: el sistema filtra por clínica en cada consulta.</p>
+                </div>
+                <div>
+                    <p class="ld-label">Recordatorios</p>
+                    <p class="mt-1.5 text-[0.9375rem] leading-[1.6] text-sand-700">Avisos de cita antes de la fecha, para que la agenda no se caiga.</p>
+                </div>
+                <div>
+                    <p class="ld-label">Primer día</p>
+                    <p class="mt-1.5 text-[0.9375rem] leading-[1.6] text-sand-700">Cargas tus precios de procedimiento y tu agenda; no hay migración obligatoria.</p>
+                </div>
             </div>
         </section>
 
@@ -298,13 +318,51 @@
                         Qué incluye cada plan
                     </h2>
                     <p class="mt-4 max-w-[46ch] text-[0.9375rem] leading-[1.65] text-sand-700">
-                        Precios en USD por mes. La prueba de 14 días empieza al crear la clínica.
+                        Precios en USD por mes. Cambias de plan cuando quieras.
                     </p>
                 </div>
                 <p class="text-[0.8125rem] text-sand-600">Enterprise se cotiza según el tamaño de la clínica</p>
             </div>
 
-            <div class="mt-8 overflow-x-auto">
+            <div class="mt-8 grid gap-3 md:hidden">
+                <article class="ld-card p-5">
+                    <div class="flex items-baseline justify-between gap-3">
+                        <h3 class="text-[1.0625rem] font-semibold">Starter</h3>
+                        <p class="text-[1.25rem] font-bold">39 USD<span class="text-[0.75rem] font-semibold text-sand-600">/mes</span></p>
+                    </div>
+                    <ul class="mt-3 space-y-1.5 text-[0.9375rem] text-sand-700">
+                        <li>5 asientos · hasta 500 pacientes</li>
+                        <li>Odontograma, citas, presupuestos y pagos</li>
+                        <li>Sin portal del paciente ni reportes</li>
+                    </ul>
+                </article>
+
+                <article class="ld-card border-primary-300 p-5">
+                    <div class="flex items-baseline justify-between gap-3">
+                        <h3 class="text-[1.0625rem] font-semibold">Pro</h3>
+                        <p class="text-[1.25rem] font-bold text-primary-700">89 USD<span class="text-[0.75rem] font-semibold text-sand-600">/mes</span></p>
+                    </div>
+                    <ul class="mt-3 space-y-1.5 text-[0.9375rem] text-sand-700">
+                        <li>15 asientos · pacientes sin límite</li>
+                        <li>Todo lo de Starter</li>
+                        <li>Portal del paciente, reportes y alerta de inventario</li>
+                    </ul>
+                </article>
+
+                <article class="ld-card p-5">
+                    <div class="flex items-baseline justify-between gap-3">
+                        <h3 class="text-[1.0625rem] font-semibold">Enterprise</h3>
+                        <p class="text-[1.25rem] font-bold">A medida</p>
+                    </div>
+                    <ul class="mt-3 space-y-1.5 text-[0.9375rem] text-sand-700">
+                        <li>Sin límite de asientos ni pacientes</li>
+                        <li>Todo lo de Pro</li>
+                    </ul>
+                    <a href="#contacto" class="mt-4 inline-flex text-[0.875rem] font-semibold text-primary-700 underline underline-offset-4">Hablar con el equipo</a>
+                </article>
+            </div>
+
+            <div class="mt-8 hidden overflow-x-auto md:block">
                 <table class="ld-matrix">
                     <caption class="sr-only">Comparación de planes Starter, Pro y Enterprise</caption>
                     <thead>
@@ -312,7 +370,7 @@
                             <th scope="col">Incluye</th>
                             <th scope="col">Starter<br><span class="font-bold text-sand-900">39 USD</span></th>
                             <th scope="col" data-plan="pro">Pro<br><span class="font-bold text-primary-700">89 USD</span></th>
-                            <th scope="col">Enterprise<br><span class="font-bold text-sand-900">A medida</span></th>
+                            <th scope="col">Enterprise<br><span class="font-bold text-sand-900">A medida</span><br><a href="#contacto" class="text-[0.75rem] font-semibold text-primary-700 underline underline-offset-4">Hablar con el equipo</a></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -321,6 +379,12 @@
                             <td data-plan="Starter · 39 USD">500</td>
                             <td data-plan="Pro · 89 USD">Sin límite</td>
                             <td data-plan="Enterprise · A medida">Sin límite</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="font-semibold text-sand-900">Página pública de la clínica</th>
+                            <td data-plan="Starter · 39 USD"><span class="ld-yes">Sí</span></td>
+                            <td data-plan="Pro · 89 USD"><span class="ld-yes">Sí</span></td>
+                            <td data-plan="Enterprise · A medida"><span class="ld-yes">Sí</span></td>
                         </tr>
                         <tr>
                             <th scope="row" class="font-semibold text-sand-900">Asientos</th>
@@ -356,9 +420,70 @@
                 </table>
             </div>
 
-            <div class="mt-6 flex flex-wrap items-center gap-3">
-                <a href="{{ url('/register') }}" class="ld-btn ld-btn-primary">Crear mi clínica</a>
-                <p class="text-[0.8125rem] text-sand-600">Sin tarjeta. Puedes cambiar de plan después.</p>
+            <p class="mt-6 text-[0.8125rem] text-sand-600">Sin tarjeta. Puedes cambiar de plan después.</p>
+        </section>
+
+        {{-- Contacto para clínicas grandes --}}
+        <section id="contacto" class="ld-wrap pb-16" aria-labelledby="contacto-titulo">
+            <div class="ld-card grid gap-8 p-6 sm:p-8 lg:grid-cols-2">
+                <div>
+                    <h2 id="contacto-titulo" class="ld-display text-[clamp(1.5rem,2.6vw,2rem)]">¿Clínica grande? Hablemos.</h2>
+                    <p class="mt-3 max-w-[38ch] text-[0.9375rem] leading-[1.65] text-sand-700">
+                        El plan Enterprise se arma con tu equipo: varias sedes, más asientos y lo que
+                        necesites del portal. Cuéntanos y te escribimos.
+                    </p>
+                </div>
+
+                <div>
+                    @if (session('access_request_sent'))
+                        <div role="status">
+                            <p class="ld-label">Solicitud recibida</p>
+                            <p class="mt-2 text-[1.0625rem] leading-[1.5] text-sand-800">
+                                Gracias. Te escribimos en un día hábil para armar el plan con tu equipo.
+                            </p>
+                        </div>
+                    @else
+                        <form method="POST" action="{{ route('contact.store') }}" class="grid gap-3 sm:grid-cols-2" novalidate>
+                            @csrf
+                            <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true">
+
+                            <div>
+                                <label for="c-name" class="ld-label">Nombre</label>
+                                <input id="c-name" name="name" type="text" required autocomplete="name" value="{{ old('name') }}"
+                                       class="ld-field mt-1.5" @error('name') aria-invalid="true" aria-describedby="c-name-error" @enderror>
+                                @error('name') <p id="c-name-error" role="alert" class="ld-error">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label for="c-email" class="ld-label">Correo</label>
+                                <input id="c-email" name="email" type="email" required autocomplete="email" value="{{ old('email') }}"
+                                       class="ld-field mt-1.5" @error('email') aria-invalid="true" aria-describedby="c-email-error" @enderror>
+                                @error('email') <p id="c-email-error" role="alert" class="ld-error">{{ $message }}</p> @enderror
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label for="c-company" class="ld-label">Clínica</label>
+                                <input id="c-company" name="company" type="text" required autocomplete="organization" value="{{ old('company') }}"
+                                       class="ld-field mt-1.5" @error('company') aria-invalid="true" aria-describedby="c-company-error" @enderror>
+                                @error('company') <p id="c-company-error" role="alert" class="ld-error">{{ $message }}</p> @enderror
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label for="c-fleet" class="ld-label">Sillones</label>
+                                <select id="c-fleet" name="fleet" class="ld-field mt-1.5" required>
+                                    @foreach (['1 a 2', '3 a 5', '6 a 10', 'Más de 10'] as $opcion)
+                                        <option value="{{ $opcion }}" @selected(old('fleet') === $opcion)>{{ $opcion }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label for="c-message" class="ld-label">Qué necesitas (opcional)</label>
+                                <textarea id="c-message" name="message" rows="2" class="ld-field mt-1.5">{{ old('message') }}</textarea>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-4 sm:col-span-2">
+                                <button type="submit" class="ld-btn ld-btn-primary">Hablar con el equipo</button>
+                                <p class="text-[0.75rem] text-sand-600">Solo usamos tus datos para contactarte.</p>
+                            </div>
+                        </form>
+                    @endif
+                </div>
             </div>
         </section>
 
@@ -395,5 +520,38 @@
             </nav>
         </div>
     </footer>
+
+    <script>
+        (() => {
+            const menus = document.querySelectorAll('details.ld-menu');
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key !== 'Escape') return;
+                menus.forEach((menu) => menu.open && menu.removeAttribute('open'));
+            });
+
+            document.addEventListener('pointerdown', (event) => {
+                menus.forEach((menu) => {
+                    if (menu.open && !menu.contains(event.target)) menu.removeAttribute('open');
+                });
+            });
+
+            menus.forEach((menu) => menu.querySelectorAll('a').forEach((link) => {
+                link.addEventListener('click', () => menu.removeAttribute('open'));
+            }));
+        })();
+    </script>
+
+    @if ($errors->any())
+        <script>
+            (() => {
+                const section = document.getElementById('contacto');
+                const firstInvalid = document.querySelector('#contacto [aria-invalid="true"]');
+
+                section?.scrollIntoView({ block: 'start' });
+                firstInvalid?.focus({ preventScroll: true });
+            })();
+        </script>
+    @endif
 </body>
 </html>
