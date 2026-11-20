@@ -41,7 +41,11 @@ class AppPanelProvider extends PanelProvider
             })
             ->brandLogoHeight('2.2rem')
             ->favicon(asset('images/favicon.svg'))
+            ->font('Outfit')
             ->darkMode(true)
+            ->defaultThemeMode(\Filament\Enums\ThemeMode::Dark)
+            ->spa()
+            ->maxContentWidth(\Filament\Support\Enums\Width::Full)
             ->colors([
                 'primary' => Color::hex('#1f9e8f'),
             ])
