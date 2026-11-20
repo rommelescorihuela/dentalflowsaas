@@ -296,16 +296,20 @@
                     </ul>
                 </article>
 
-                <article class="ld-card p-6">
-                    <h3 class="ld-display text-[1.375rem]">Tu clínica tiene su propia página</h3>
-                    <p class="mt-2 text-[0.9375rem] leading-[1.65] text-sand-700">
-                        Cada clínica recibe su dirección y una página pública con sus servicios, para
-                        que el paciente reserve en línea y la cita entre sola a la agenda.
-                    </p>
-                    <p class="mt-4 text-[0.875rem] text-sand-700">
-                        Incluye portal del paciente para ver citas, presupuestos y pagos.
-                    </p>
-                    <p class="mt-3 text-[0.8125rem] text-sand-600">Disponible en el plan Pro.</p>
+                <article class="ld-card overflow-hidden">
+                    <img src="{{ asset('images/consultorio.webp') }}" alt="Consultorio dental con sillón y equipo"
+                         width="1000" height="622" loading="lazy" decoding="async" class="h-44 w-full object-cover">
+                    <div class="p-6">
+                        <h3 class="ld-display text-[1.375rem]">Tu clínica tiene su propia página</h3>
+                        <p class="mt-2 text-[0.9375rem] leading-[1.65] text-sand-700">
+                            Cada clínica recibe su dirección y una página pública con sus servicios, para
+                            que el paciente reserve en línea y la cita entre sola a la agenda.
+                        </p>
+                        <p class="mt-4 text-[0.875rem] text-sand-700">
+                            Incluye portal del paciente para ver citas, presupuestos y pagos.
+                        </p>
+                        <p class="mt-3 text-[0.8125rem] text-sand-600">Disponible en el plan Pro.</p>
+                    </div>
                 </article>
             </div>
         </section>
@@ -518,6 +522,10 @@
                 <a href="{{ url('/login') }}" class="ld-footerlink transition-colors hover:text-sand-900">Entrar</a>
                 <span>{{ date('Y') }}</span>
             </nav>
+            <p class="text-[0.6875rem] text-sand-600">
+                Foto de consultorio: Harrison Keely,
+                <a href="https://commons.wikimedia.org/wiki/File:A_dental_chair_in_a_dentist_clinic_in_North_Carolina,_United_States.jpg" class="underline underline-offset-2" rel="noopener">CC BY 4.0</a>.
+            </p>
         </div>
     </footer>
 

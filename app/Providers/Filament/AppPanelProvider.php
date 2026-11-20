@@ -37,13 +37,13 @@ class AppPanelProvider extends PanelProvider
             ->brandLogo(function () {
                 $logo = ClinicHelper::getLogo();
 
-                return $logo ? asset('storage/'.$logo) : asset('images/logo.svg');
+                return $logo ? asset('storage/'.$logo) : \App\Support\BrandLogo::html();
             })
-            ->brandLogoHeight('2.2rem')
+            ->brandLogoHeight('2.25rem')
             ->favicon(asset('images/favicon.svg'))
             ->font('Outfit')
             ->darkMode(true)
-            ->defaultThemeMode(\Filament\Enums\ThemeMode::Dark)
+            ->defaultThemeMode(\Filament\Enums\ThemeMode::Light)
             ->spa()
             ->maxContentWidth(\Filament\Support\Enums\Width::Full)
             ->colors([

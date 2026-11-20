@@ -65,6 +65,10 @@ skip link, tablas con `caption`/`scope` y contraste ≥ 4.5:1 (sand-600 sobre ca
 | `public/fonts/outfit.woff2`, `onest.woff2` | Google Fonts, subset latin, OFL |
 | Marca del header (SVG inline) | Autoría propia a partir del icono de `public/images/logo.svg` |
 | `public/images/favicon.svg` | Existente del proyecto |
+| `public/images/consultorio.webp` | Foto de Harrison Keely, CC BY 4.0, Wikimedia Commons (recortada y convertida a WebP) |
+
+La foto del consultorio se usa como miniatura de la tarjeta «Tu clínica tiene su propia
+página», con el crédito en el pie.
 
 El `logo.svg` original no se usa en la landing: su wordmark depende de una tipografía que no
 se puede cargar dentro de un `<img>` y su cian (#06b6d4) no es el acento de la marca.
