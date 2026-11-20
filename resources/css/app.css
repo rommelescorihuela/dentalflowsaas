@@ -120,6 +120,10 @@ html {
     scroll-behavior: smooth;
 }
 
+.landing {
+    text-wrap: pretty;
+}
+
 body {
     background-color: var(--df-canvas);
     color: var(--df-text);
@@ -311,7 +315,7 @@ body {
 }
 
 *:focus-visible {
-    outline: 2px solid rgba(31, 158, 143, 0.55);
+    outline: 2px solid var(--color-primary-700);
     outline-offset: 2px;
 }
 
@@ -477,6 +481,7 @@ body {
     }
 
     .ld-tooth {
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -484,7 +489,8 @@ body {
         border-radius: 3px;
         border: 1px solid var(--color-sand-300);
         background: var(--color-sand-50);
-        font-size: 0.625rem;
+        min-height: 1.5rem;
+        font-size: 0.6875rem;
         font-weight: 600;
         color: var(--color-sand-600);
         font-variant-numeric: tabular-nums;
@@ -507,8 +513,71 @@ body {
     .ld-tooth[data-state='ausente'] {
         background: transparent;
         border-style: dashed;
-        color: var(--color-sand-400);
+        color: var(--color-sand-600);
         text-decoration: line-through;
+    }
+
+    /* Marca no cromática: caries = punto, tratado = doble filete */
+    .ld-tooth[data-state='caries']::after {
+        content: '';
+        position: absolute;
+        right: 2px;
+        bottom: 2px;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--color-danger-700);
+    }
+
+    .ld-tooth[data-state='tratado']::after {
+        content: '';
+        position: absolute;
+        inset: 2px;
+        border: 1.5px solid var(--color-primary-700);
+        border-radius: 2px;
+    }
+
+    .ld-swatch {
+        position: relative;
+        display: inline-block;
+        width: 0.75rem;
+        height: 0.75rem;
+        border-radius: 2px;
+        border: 1px solid var(--color-sand-300);
+    }
+
+    .ld-swatch-caries {
+        background: var(--color-danger-100);
+        border-color: var(--color-danger-300);
+    }
+
+    .ld-swatch-caries::after {
+        content: '';
+        position: absolute;
+        right: 1px;
+        bottom: 1px;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: var(--color-danger-700);
+    }
+
+    .ld-swatch-tratado {
+        background: var(--color-primary-100);
+        border-color: var(--color-primary-300);
+    }
+
+    .ld-swatch-tratado::after {
+        content: '';
+        position: absolute;
+        inset: 1px;
+        border: 1.5px solid var(--color-primary-700);
+        border-radius: 1px;
+    }
+
+    .ld-swatch-ausente {
+        background: transparent;
+        border-style: dashed;
     }
 
     .ld-legend {
@@ -574,7 +643,69 @@ body {
     }
 
     .ld-no {
-        color: var(--color-sand-300);
+        color: var(--color-sand-600);
+    }
+
+
+    .ld-navlink,
+    .ld-footerlink {
+        display: inline-flex;
+        align-items: center;
+        min-height: 1.5rem;
+    }
+
+    .ld-menu {
+        position: relative;
+    }
+
+    .ld-menu-toggle {
+        display: flex;
+        width: 2.75rem;
+        height: 2.75rem;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--color-sand-300);
+        border-radius: 0.5rem;
+        background: #fff;
+        cursor: pointer;
+        list-style: none;
+    }
+
+    .ld-menu-toggle::-webkit-details-marker {
+        display: none;
+    }
+
+    .ld-menu-panel {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 0.5rem);
+        z-index: 30;
+        display: none;
+        min-width: 13rem;
+        padding: 0.375rem;
+        border: 1px solid var(--color-sand-200);
+        border-radius: 0.625rem;
+        background: #fff;
+        box-shadow: var(--df-shadow-lift);
+    }
+
+    .ld-menu[open] .ld-menu-panel {
+        display: grid;
+        gap: 0.125rem;
+    }
+
+    .ld-menu-panel a {
+        display: flex;
+        align-items: center;
+        min-height: 2.75rem;
+        padding: 0 0.75rem;
+        border-radius: 0.375rem;
+        font-size: 0.9375rem;
+        color: var(--color-sand-800);
+    }
+
+    .ld-menu-panel a:hover {
+        background: var(--color-sand-50);
     }
 
     .ld-band {
@@ -624,6 +755,19 @@ body {
     }
 }
 
+@media (max-width: 479px) {
+    .ld-agenda > li {
+        grid-template-columns: 3.5rem 1fr;
+        row-gap: 0.35rem;
+    }
+
+    .ld-agenda > li > span:nth-child(3) {
+        grid-column: 2;
+        justify-self: start;
+        white-space: nowrap;
+    }
+}
+
 @media (max-width: 767px) {
     .ld-matrix,
     .ld-matrix thead,
@@ -653,6 +797,10 @@ body {
 
     .ld-matrix td {
         margin-top: 0.25rem;
+    }
+
+    .ld-matrix {
+        min-width: 0;
     }
 
     .ld-matrix td::before {

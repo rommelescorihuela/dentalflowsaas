@@ -9,11 +9,12 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="DentalFlow — Del diente marcado al pago cobrado">
     <meta property="og:description" content="Agenda, odontograma, presupuestos, inventario y portal del paciente en un solo sistema.">
-    <meta property="og:locale" content="es_ES">
+    <meta property="og:locale" content="es_LA">
+    <meta property="og:image" content="{{ asset('og.png') }}">
     <link rel="icon" href="{{ asset('images/favicon.svg') }}" type="image/svg+xml">
     @vite('resources/css/app.css')
 </head>
-<body class="antialiased">
+<body class="landing antialiased">
     <a href="#contenido" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary-700 focus:px-4 focus:py-2 focus:text-white">
         Saltar al contenido
     </a>
@@ -32,15 +33,30 @@
             <span class="text-[1.1875rem] font-extrabold tracking-[-0.025em] text-sand-900">Dental<span class="text-primary-500">Flow</span></span>
         </a>
 
-        <nav class="hidden items-center gap-7 text-[0.9375rem] text-sand-700 md:flex" aria-label="Secciones">
-            <a href="#dia" class="transition-colors hover:text-sand-900">El día a día</a>
-            <a href="#ficha" class="transition-colors hover:text-sand-900">La ficha</a>
-            <a href="#planes" class="transition-colors hover:text-sand-900">Planes</a>
-            <a href="{{ url('/login') }}" class="ld-btn ld-btn-ghost !min-h-10 !px-4 !text-sm">Entrar</a>
-            <a href="{{ url('/register') }}" class="ld-btn ld-btn-primary !min-h-10 !px-4 !text-sm">Crear mi clínica</a>
+        <nav class="hidden items-center gap-6 text-[0.9375rem] text-sand-700 md:flex" aria-label="Secciones">
+            <a href="#dia" class="ld-navlink transition-colors hover:text-sand-900">El día a día</a>
+            <a href="#ficha" class="ld-navlink transition-colors hover:text-sand-900">La ficha</a>
+            <a href="#planes" class="ld-navlink transition-colors hover:text-sand-900">Planes</a>
+            <a href="{{ url('/login') }}" class="ld-btn ld-btn-ghost !px-4 !text-sm">Entrar</a>
+            <a href="{{ url('/register') }}" class="ld-btn ld-btn-primary !px-4 !text-sm">Crear mi clínica</a>
         </nav>
 
-        <a href="{{ url('/register') }}" class="ld-btn ld-btn-primary !min-h-10 !px-4 !text-sm md:hidden">Crear clínica</a>
+        <div class="flex items-center gap-2 md:hidden">
+            <a href="{{ url('/register') }}" class="ld-btn ld-btn-primary !px-3.5 !text-sm">Crear clínica</a>
+            <details class="ld-menu">
+                <summary class="ld-menu-toggle" aria-label="Abrir menú">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                        <path d="M3 5h12M3 9h12M3 13h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                </summary>
+                <nav class="ld-menu-panel" aria-label="Secciones">
+                    <a href="#dia">El día a día</a>
+                    <a href="#ficha">La ficha</a>
+                    <a href="#planes">Planes</a>
+                    <a href="{{ url('/login') }}">Entrar</a>
+                </nav>
+            </details>
+        </div>
     </header>
 
     <main id="contenido">
@@ -48,7 +64,7 @@
         <section class="ld-wrap grid items-start gap-10 pb-16 pt-6 lg:grid-cols-12 lg:gap-x-12 lg:pb-24 lg:pt-12">
             <div class="lg:col-span-6">
                 <h1 class="ld-display text-[clamp(2.4rem,5vw,4.25rem)]">
-                    Del diente marcado al pago cobrado.
+                    Del diente marcado al cobro.
                 </h1>
 
                 <p class="mt-6 max-w-[46ch] text-[1.0625rem] leading-[1.65] text-sand-700">
@@ -112,16 +128,16 @@
                         </div>
 
                         <div class="ld-legend mt-4">
-                            <span><i class="ld-dot bg-sand-50"></i> Sano</span>
-                            <span><i class="ld-dot bg-danger-100 border-danger-300"></i> Caries</span>
-                            <span><i class="ld-dot bg-primary-100 border-primary-300"></i> Tratado</span>
-                            <span><i class="ld-dot border-dashed border-sand-300 bg-transparent"></i> Ausente</span>
+                            <span><i class="ld-swatch"></i> Sano</span>
+                            <span><i class="ld-swatch ld-swatch-caries"></i> Caries</span>
+                            <span><i class="ld-swatch ld-swatch-tratado"></i> Tratado</span>
+                            <span><i class="ld-swatch ld-swatch-ausente"></i> Ausente</span>
                         </div>
                     </div>
 
                     <div class="border-t border-sand-200 px-5 py-4">
                         <div class="flex items-baseline justify-between gap-3">
-                            <p class="text-sm font-semibold text-sand-900">Presupuesto 3-12</p>
+                            <p class="text-sm font-semibold text-sand-900">Presupuesto #12</p>
                             <p class="text-[0.75rem] text-sand-600">Aprobado por la paciente</p>
                         </div>
                         <ul class="mt-3 space-y-2 text-[0.875rem]">
@@ -247,6 +263,7 @@
                         Cada insumo tiene mínimo y consumo. Cuando baja del mínimo, la alerta aparece
                         en el panel antes de que falte en el sillón.
                     </p>
+                    <p class="mt-2 text-[0.8125rem] text-sand-600">Disponible en el plan Pro.</p>
                     <ul class="mt-4 space-y-2 text-[0.875rem]">
                         <li class="flex items-baseline justify-between gap-3 border-t border-sand-200 pt-2">
                             <span class="text-sand-800">Anestesia 2 %</span>
@@ -288,7 +305,7 @@
             </div>
 
             <div class="mt-8 overflow-x-auto">
-                <table class="ld-matrix min-w-[34rem]">
+                <table class="ld-matrix">
                     <caption class="sr-only">Comparación de planes Starter, Pro y Enterprise</caption>
                     <thead>
                         <tr>
@@ -301,39 +318,39 @@
                     <tbody>
                         <tr>
                             <th scope="row" class="font-semibold text-sand-900">Pacientes</th>
-                            <td data-plan="Starter">500</td>
-                            <td data-plan="Pro">Sin límite</td>
-                            <td data-plan="Enterprise">Sin límite</td>
+                            <td data-plan="Starter · 39 USD">500</td>
+                            <td data-plan="Pro · 89 USD">Sin límite</td>
+                            <td data-plan="Enterprise · A medida">Sin límite</td>
                         </tr>
                         <tr>
                             <th scope="row" class="font-semibold text-sand-900">Asientos</th>
-                            <td data-plan="Starter">5</td>
-                            <td data-plan="Pro">15</td>
-                            <td data-plan="Enterprise">Sin límite</td>
+                            <td data-plan="Starter · 39 USD">5</td>
+                            <td data-plan="Pro · 89 USD">15</td>
+                            <td data-plan="Enterprise · A medida">Sin límite</td>
                         </tr>
                         <tr>
                             <th scope="row" class="font-semibold text-sand-900">Odontograma, citas y presupuestos</th>
-                            <td data-plan="Starter"><span class="ld-yes">Sí</span></td>
-                            <td data-plan="Pro"><span class="ld-yes">Sí</span></td>
-                            <td data-plan="Enterprise"><span class="ld-yes">Sí</span></td>
+                            <td data-plan="Starter · 39 USD"><span class="ld-yes">Sí</span></td>
+                            <td data-plan="Pro · 89 USD"><span class="ld-yes">Sí</span></td>
+                            <td data-plan="Enterprise · A medida"><span class="ld-yes">Sí</span></td>
                         </tr>
                         <tr>
                             <th scope="row" class="font-semibold text-sand-900">Pagos y PDF</th>
-                            <td data-plan="Starter"><span class="ld-yes">Sí</span></td>
-                            <td data-plan="Pro"><span class="ld-yes">Sí</span></td>
-                            <td data-plan="Enterprise"><span class="ld-yes">Sí</span></td>
+                            <td data-plan="Starter · 39 USD"><span class="ld-yes">Sí</span></td>
+                            <td data-plan="Pro · 89 USD"><span class="ld-yes">Sí</span></td>
+                            <td data-plan="Enterprise · A medida"><span class="ld-yes">Sí</span></td>
                         </tr>
                         <tr>
                             <th scope="row" class="font-semibold text-sand-900">Portal del paciente</th>
-                            <td data-plan="Starter"><span class="ld-no" aria-label="No incluido">—</span></td>
-                            <td data-plan="Pro"><span class="ld-yes">Sí</span></td>
-                            <td data-plan="Enterprise"><span class="ld-yes">Sí</span></td>
+                            <td data-plan="Starter · 39 USD"><span class="ld-no" aria-label="No incluido">—</span></td>
+                            <td data-plan="Pro · 89 USD"><span class="ld-yes">Sí</span></td>
+                            <td data-plan="Enterprise · A medida"><span class="ld-yes">Sí</span></td>
                         </tr>
                         <tr>
                             <th scope="row" class="font-semibold text-sand-900">Reportes y alerta de inventario</th>
-                            <td data-plan="Starter"><span class="ld-no" aria-label="No incluido">—</span></td>
-                            <td data-plan="Pro"><span class="ld-yes">Sí</span></td>
-                            <td data-plan="Enterprise"><span class="ld-yes">Sí</span></td>
+                            <td data-plan="Starter · 39 USD"><span class="ld-no" aria-label="No incluido">—</span></td>
+                            <td data-plan="Pro · 89 USD"><span class="ld-yes">Sí</span></td>
+                            <td data-plan="Enterprise · A medida"><span class="ld-yes">Sí</span></td>
                         </tr>
                     </tbody>
                 </table>
@@ -371,9 +388,9 @@
         <div class="ld-wrap flex flex-col gap-4 py-8 text-[0.8125rem] text-sand-600 sm:flex-row sm:items-center sm:justify-between">
             <p>DentalFlow · gestión para clínicas dentales</p>
             <nav class="flex items-center gap-5" aria-label="Pie de página">
-                <a href="{{ url('/terms') }}" class="transition-colors hover:text-sand-900">Términos</a>
-                <a href="{{ url('/privacy') }}" class="transition-colors hover:text-sand-900">Privacidad</a>
-                <a href="{{ url('/login') }}" class="transition-colors hover:text-sand-900">Entrar</a>
+                <a href="{{ url('/terms') }}" class="ld-footerlink transition-colors hover:text-sand-900">Términos</a>
+                <a href="{{ url('/privacy') }}" class="ld-footerlink transition-colors hover:text-sand-900">Privacidad</a>
+                <a href="{{ url('/login') }}" class="ld-footerlink transition-colors hover:text-sand-900">Entrar</a>
                 <span>{{ date('Y') }}</span>
             </nav>
         </div>
