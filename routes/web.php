@@ -15,9 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::view('/', 'landing')->name('home');
 
 Route::get('/register', RegisterTenant::class)->name('register');
 
