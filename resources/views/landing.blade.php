@@ -301,7 +301,7 @@
                         Precios en USD por mes. La prueba de 14 días empieza al crear la clínica.
                     </p>
                 </div>
-                <p class="text-[0.8125rem] text-sand-600">Enterprise se cotiza según la clínica</p>
+                <p class="text-[0.8125rem] text-sand-600">Enterprise se cotiza según el tamaño de la clínica</p>
             </div>
 
             <div class="mt-8 overflow-x-auto">
