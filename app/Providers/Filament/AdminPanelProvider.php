@@ -33,6 +33,10 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogoHeight('2.2rem')
             ->favicon(asset('images/favicon.svg'))
             ->darkMode(true)
+            ->font('Outfit')
+            ->defaultThemeMode(\Filament\Enums\ThemeMode::Dark)
+            ->spa()
+            ->maxContentWidth(\Filament\Support\Enums\Width::Full)
             ->colors([
                 'primary' => Color::hex('#1f9e8f'),
             ])
